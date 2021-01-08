@@ -2,7 +2,9 @@
 #define GAME_INCLUDED_
 
 #include <vector>
+#include <memory>
 
+#include "opengl_wrapper/render_context.hpp"
 #include "config.hpp"
 #include "states/base_state.hpp"
 
@@ -13,8 +15,8 @@ public:
 	void run();
 
 private:
-	std::vector<State> m_states;
-	GLFWwindow *m_window;
+	std::vector< std::unique_ptr<State> > m_states;
+	RenderContext m_context;
 
 	void update();
 	void render();

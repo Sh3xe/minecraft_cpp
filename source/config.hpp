@@ -3,7 +3,7 @@
 
 struct Config {
 	int window_width, window_height;
-
+	const char *window_title;
 };
 
 #endif
