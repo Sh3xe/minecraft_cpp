@@ -1,14 +1,20 @@
 #ifndef BASE_STATE_INCLUDED_
 #define BASE_STATE_INCLUDED_
 
-#include <GLFW/glfw3.h>
+#include "../input.hpp"
 
 class State {
 public:
-	virtual void update(float delta_time) = 0;
-	virtual void render(float delta_time) = 0;
+	State() {
+	}
 
-	GLFWwindow* window;
+	virtual void update( Input &input, double delta_time) = 0;
+	virtual void render() = 0;
+
+	inline bool shouldClose() const { return m_should_close; }
+
+protected:
+	bool m_should_close = false;
 };
 
 #endif

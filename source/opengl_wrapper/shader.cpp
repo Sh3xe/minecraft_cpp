@@ -1,8 +1,8 @@
 #include "shader.hpp"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 #include <fstream>
-#include <iostream>
+
 #include "../cmake_defines.hpp"
 
 Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
@@ -31,15 +31,16 @@ Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
 	int success = 1;
 	glGetProgramiv(m_id, GL_LINK_STATUS, &success);
 
-	if( !success ) {
-		std::cout << "shader not valid" << std::endl;
-		m_is_valid = false;
-	}
+	if( !success ) m_is_valid = false;
 
 	// free memory
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
 
+}
+
+Shader::~Shader() {
+	glDeleteProgram(m_id);
 }
 
 int Shader::compileShader( const std::string &path, unsigned type ) {
@@ -85,3 +86,7 @@ int Shader::compileShader( const std::string &path, unsigned type ) {
 	return id;
 
 } 
+
+void Shader::use() {
+	glUseProgram(m_id);
+}
