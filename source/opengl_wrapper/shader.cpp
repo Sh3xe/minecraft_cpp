@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <fstream>
+#include <iostream>
 
 #include "../cmake_defines.hpp"
 
@@ -9,7 +10,7 @@ Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
 	m_is_valid(true) {
 
 	// get shaders id
-	int vertex_shader = 0, fragment_shader = 0;
+	unsigned vertex_shader = 0, fragment_shader = 0;
 
 	try {
 		vertex_shader   = compileShader( ROOT_DIR + vs_path, GL_VERTEX_SHADER   );
@@ -17,6 +18,7 @@ Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
 
 	} catch( std::runtime_error &e ) {
 		m_is_valid = false;
+		std::cout << e.what() << std::endl;
 	}
 
 	// create program and link fs and vs 
@@ -28,22 +30,17 @@ Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
 	glLinkProgram(m_id);
 
 	// check for errors
-	int success = 1;
+	int success;
 	glGetProgramiv(m_id, GL_LINK_STATUS, &success);
-
 	if( !success ) m_is_valid = false;
+
 
 	// free memory
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
-
 }
 
-Shader::~Shader() {
-	glDeleteProgram(m_id);
-}
-
-int Shader::compileShader( const std::string &path, unsigned type ) {
+unsigned Shader::compileShader( const std::string &path, unsigned type ) {
 
 	// open the file
 	std::fstream file { path , std::ios::in };
@@ -89,4 +86,8 @@ int Shader::compileShader( const std::string &path, unsigned type ) {
 
 void Shader::use() {
 	glUseProgram(m_id);
+}
+
+void Shader::setInt( const std::string &name, int value ) {
+	glUniform1i( glGetUniformLocation(m_id, name.c_str()), value);
 }

@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
+#include <iostream>
+
 #include "../cmake_defines.hpp"
 
 Texture::Texture( const std::string &path ):
@@ -19,10 +21,17 @@ Texture::Texture( const std::string &path ):
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	int width, height, channel_number;
-	unsigned char *image_data = stbi_load( path.c_str(), &width, &height, &channel_number, 0);
+	unsigned char *image_data = stbi_load( (ROOT_DIR + path).c_str(), &width, &height, &channel_number, 0);
 
 	if( image_data ) {
-		glTexImage2D(GL_TEXTURE_2D, 0, channel_number, width, height, 0, channel_number, GL_UNSIGNED_BYTE, image_data);
+
+		unsigned color_format = GL_RGB;
+		if(channel_number == 1)
+			color_format = GL_RED;
+		if(channel_number == 4)
+			color_format = GL_RGBA;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, color_format, width, height, 0, color_format, GL_UNSIGNED_BYTE, image_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else // handle error

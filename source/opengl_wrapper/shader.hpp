@@ -6,7 +6,7 @@
 class Shader {
 public:
 	Shader( const std::string &vs_path, const std::string &fs_path );
-	~Shader();
+	//~Shader();
 
 	inline unsigned getId() const { return m_id; }
 	operator bool() const { return m_is_valid; }
@@ -14,9 +14,10 @@ public:
 	void use();
 
 	// TODO: add setUniform[blabla]();
+	void setInt( const std::string &name, int value );
 
 private:
-	int compileShader( const std::string &path, unsigned type );
+	unsigned compileShader( const std::string &path, unsigned type );
 
 	unsigned m_id;
 	bool m_is_valid;

@@ -1,3 +1,2 @@
-window_width=1280
-window_height=720
-window_title=minecraft CPP
+minecraft++
+1280 720 30 1

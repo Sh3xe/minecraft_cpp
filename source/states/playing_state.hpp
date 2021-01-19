@@ -3,6 +3,7 @@
 
 #include "base_state.hpp"
 #include "../opengl_wrapper/shader.hpp"
+#include "../opengl_wrapper/texture.hpp"
 
 class PlayingState: public State {
 public:
@@ -14,8 +15,9 @@ public:
 private:
 	/* World world; */
 	// temporaire
-	unsigned int m_vao, m_vbo;
 	Shader m_shader;
+	Texture m_texture;
+	unsigned int m_vao, m_vbo;
 };
 
 #endif
