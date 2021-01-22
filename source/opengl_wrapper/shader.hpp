@@ -15,6 +15,7 @@ public:
 
 	// TODO: add setUniform[blabla]();
 	void setInt( const std::string &name, int value );
+	void setMat4( const std::string &name, float *value);
 
 private:
 	unsigned compileShader( const std::string &path, unsigned type );

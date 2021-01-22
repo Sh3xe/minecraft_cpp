@@ -4,8 +4,8 @@
 #include <vector>
 #include <memory>
 
-#include "config.hpp"
-#include "input.hpp"
+#include "core/config.hpp"
+#include "core/input.hpp"
 #include "states/base_state.hpp"
 
 // forward defs

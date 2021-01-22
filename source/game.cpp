@@ -18,8 +18,10 @@ Game::~Game() {
 }
 
 void Game::initWindow() {
+	// init sdl
 	SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS );
 
+	// set gl atribs
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -27,6 +29,7 @@ void Game::initWindow() {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+	// create window
 	m_window = SDL_CreateWindow(
 		m_config.window_title.c_str(),
 		SDL_WINDOWPOS_CENTERED,
@@ -36,12 +39,18 @@ void Game::initWindow() {
 		SDL_WINDOW_OPENGL
 	);
 
+	// hide cursor
+	SDL_ShowCursor(0);
+
+	// create opengl context
 	m_context = SDL_GL_CreateContext(m_window);
 
+	// load glad
 	gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress );
 }
 
 void Game::handleEvents() {
+	// handles keyboard events
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		if(event.type == SDL_QUIT)
@@ -51,6 +60,26 @@ void Game::handleEvents() {
 		if(event.type == SDL_KEYUP)
 			m_input.handleKeyUp(event);
 	}
+
+	// MOUSE MOVEMENT CALCULATION
+
+	// get the mouse position
+	int mouse_x, mouse_y;
+	SDL_GetMouseState(&mouse_x, &mouse_y);
+
+	// get the old position, calculate the new one
+	glm::ivec2 old_mouse_pos = m_input.getMousePosition();
+	m_input.setMousePosition(
+		old_mouse_pos.x + mouse_x - (1280/2),
+		old_mouse_pos.y + mouse_y - (720/2) );
+
+	// replace the cursor in the center
+	SDL_WarpMouseInWindow(m_window, 1280/2, 720/2);
+
+	// Quits when ESC is pressed
+	if(m_input.isKeyPressed(SDL_SCANCODE_ESCAPE))
+		m_should_close = true;
+
 }
 
 

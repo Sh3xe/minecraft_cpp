@@ -1,7 +1,7 @@
 #ifndef BASE_STATE_INCLUDED_
 #define BASE_STATE_INCLUDED_
 
-#include "../input.hpp"
+#include "../core/input.hpp"
 
 class State {
 public:

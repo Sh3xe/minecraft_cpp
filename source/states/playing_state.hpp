@@ -4,6 +4,7 @@
 #include "base_state.hpp"
 #include "../opengl_wrapper/shader.hpp"
 #include "../opengl_wrapper/texture.hpp"
+#include "../core/camera.hpp"
 
 class PlayingState: public State {
 public:
@@ -18,6 +19,8 @@ private:
 	Shader m_shader;
 	Texture m_texture;
 	unsigned int m_vao, m_vbo;
+
+	Camera m_camera;
 };
 
 #endif
