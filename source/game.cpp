@@ -47,6 +47,9 @@ void Game::initWindow() {
 
 	// load glad
 	gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress );
+
+	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Game::handleEvents() {
@@ -109,7 +112,10 @@ void Game::run() {
 		handleEvents();
 		state.update( m_input, delta_time);
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//glEnable(GL_DEPTH_TEST);
+
 		state.render();
 		SDL_GL_SwapWindow(m_window);
 

@@ -18,13 +18,13 @@ void Camera::setUp(const glm::vec3& up) {
 void Camera::update(Input& input, double delta_time) {
 
 	if(input.isKeyPressed(SDL_SCANCODE_W))
-		m_position += m_direction * (float)delta_time;
+		m_position += m_direction * (float)delta_time * 3.f;
 	if(input.isKeyPressed(SDL_SCANCODE_S))
-		m_position -= m_direction * (float)delta_time;
+		m_position -= m_direction * (float)delta_time * 3.f;
 	if(input.isKeyPressed(SDL_SCANCODE_D))
-		m_position += glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time;
+		m_position += glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * 3.f;
 	if(input.isKeyPressed(SDL_SCANCODE_A))
-		m_position -= glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time;
+		m_position -= glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * 3.f;
 
 
 	static glm::ivec2 last_mouse_position(-1, -1); 

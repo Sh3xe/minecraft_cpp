@@ -2,8 +2,7 @@
 #define PLAYING_STATE_INCLUDED_
 
 #include "base_state.hpp"
-#include "../opengl_wrapper/shader.hpp"
-#include "../opengl_wrapper/texture.hpp"
+#include "../world/chunk.hpp"
 #include "../core/camera.hpp"
 
 class PlayingState: public State {
@@ -14,13 +13,9 @@ public:
 	virtual void render() override;
 
 private:
-	/* World world; */
-	// temporaire
-	Shader m_shader;
-	Texture m_texture;
-	unsigned int m_vao, m_vbo;
-
+	Chunk m_chunk;
 	Camera m_camera;
+
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define WORLD_INCLUDED_
 
 /*
+
 class World {
 public:
 	World();
