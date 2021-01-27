@@ -8,7 +8,7 @@ PlayingState::PlayingState():
 
 void PlayingState::update( Input &input, double delta_time ) {
 	m_camera.update(input, delta_time);
-	//m_chunk.update(delta_time);
+	//m_world.update(delta_time);
 
 	if (input.isKeyPressed(SDL_SCANCODE_Q)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -19,6 +19,5 @@ void PlayingState::update( Input &input, double delta_time ) {
 }
 
 void PlayingState::render() {
-	m_chunk.draw(m_camera);
-
+	m_world.draw(m_camera);
 }

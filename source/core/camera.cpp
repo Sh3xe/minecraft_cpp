@@ -16,15 +16,26 @@ void Camera::setUp(const glm::vec3& up) {
 }
 
 void Camera::update(Input& input, double delta_time) {
+	// calculate new player position
+	glm::vec3 front(m_direction.x, 0, m_direction.z);
+	front = glm::normalize(front); // get the direction vector, and remove the y offset for better camera control
+
+	float speed = input.isKeyPressed(SDL_SCANCODE_LCTRL) ? 8.0f: 3.5f;
 
 	if(input.isKeyPressed(SDL_SCANCODE_W))
-		m_position += m_direction * (float)delta_time * 3.f;
-	if(input.isKeyPressed(SDL_SCANCODE_S))
-		m_position -= m_direction * (float)delta_time * 3.f;
-	if(input.isKeyPressed(SDL_SCANCODE_D))
-		m_position += glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * 3.f;
-	if(input.isKeyPressed(SDL_SCANCODE_A))
-		m_position -= glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * 3.f;
+		m_position += front * (float)delta_time * speed;
+	if (input.isKeyPressed(SDL_SCANCODE_S))
+		m_position -= front * (float)delta_time * speed;
+	if (input.isKeyPressed(SDL_SCANCODE_D))
+		// the cross product gives the side vector
+		m_position += glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * speed; 
+	if (input.isKeyPressed(SDL_SCANCODE_A))
+		m_position -= glm::normalize(glm::cross(m_direction, m_up)) * (float)delta_time * speed;
+
+	if (input.isKeyPressed(SDL_SCANCODE_SPACE))
+		m_position += m_up * (float)delta_time * speed;
+	if (input.isKeyPressed(SDL_SCANCODE_LSHIFT))
+		m_position -= m_up * (float)delta_time * speed;
 
 
 	static glm::ivec2 last_mouse_position(-1, -1); 
@@ -39,7 +50,7 @@ void Camera::update(Input& input, double delta_time) {
 
 
 	m_pitch -= 0.005 * delta_mouse.y;
-	m_yaw += 0.005 * delta_mouse.x;
+	m_yaw   += 0.005 * delta_mouse.x;
 
 	const float piovertwo = glm::pi<float>() / 2.0f;
 
@@ -56,6 +67,5 @@ void Camera::update(Input& input, double delta_time) {
 
 
 glm::mat4 Camera::getViewMatrix() {
-	// translate by -m_position, rotates -yaw about y, amd -m_pitch about x
 	return glm::lookAt(m_position, m_position + m_direction, m_up);
 }

@@ -3,3 +3,4 @@ source/config.h
 dev_files
 .vscode
 dependencies/*
+minecraft_cpp.lnk
