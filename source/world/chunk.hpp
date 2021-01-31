@@ -16,22 +16,19 @@ class Shader;
 class Chunk {
 public:
 	Chunk();
-	Chunk(int x, int y, int z, World* World);
+	Chunk(int x, int y, int z);
 
 	void setPosition(int x, int y, int z);
-	void setWorld(World* world);
+	void setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
 	void generateTerrain();
 
 	void setBlock(int x, int y, int z, unsigned char type);
 	unsigned char getBlock(int x, int y, int z);
 
 	void draw( Camera &camera, Texture &tileset, Shader &shader );
-	//void update( double delta_time );
 
 private:
 	void generateMesh();
-
-	World *m_world = nullptr;
 
 	int m_element_count = 0;
 	int m_face_count = 0;
@@ -39,6 +36,7 @@ private:
 	
 	unsigned m_vao, m_vbo;
 	unsigned char m_block_data[CHUNK_X][CHUNK_Z][CHUNK_Y];
+	Chunk *m_neighbours[4];
 
 	glm::ivec3 m_position;
 

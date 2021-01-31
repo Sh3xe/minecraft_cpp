@@ -21,25 +21,29 @@ World::World():
 	m_chunks = new Chunk[CHUNK_X * CHUNK_Z];
 	for(int i = 0; i < WORLD_X; ++i)
 		for (int j = 0; j < WORLD_Z; ++j) {
-			m_chunks[j * CHUNK_X + i].setPosition(i * 16, 0, j * 16);
-			m_chunks[j * CHUNK_X + i].setWorld(this);
-			m_chunks[j * CHUNK_X + i].generateTerrain();
-		}
+			Chunk &current_chunk = m_chunks[j * CHUNK_X + i];
+			current_chunk.setPosition(i * 16, 0, j * 16);
+			current_chunk.generateTerrain();
 
-/*
-	for(int i = 0; i < WORLD_X; ++i)
-		for (int j = 0; j < WORLD_Z; ++j) {
-			m_chunks[i][j].setPosition(i * 16, 0, j * 16);
-			m_chunks[i][j].setWorld(this);
-			m_chunks[i][j].generateTerrain();
-			//m_chunks[i][j] = Chunk(i * 16, 0, 16 * j, this);
+			Chunk *px = nullptr, *mx = nullptr, *py = nullptr, *my = nullptr;
+
+			if(i > 0 )
+				mx = &m_chunks[ i - 1 + CHUNK_X * j];
+			if(i != WORLD_X - 1)
+				px = &m_chunks[ i + 1 + CHUNK_X * j];
+			if(j > 0 )
+				my = &m_chunks[ i + CHUNK_X * (j - 1)];
+			if(j != WORLD_Z - 1)
+				py = &m_chunks[ i + CHUNK_X * (j + 1)];
+
+			current_chunk.setNeighbours(px, mx, py, my);
+			
 		}
-*/
 }
 
-World::~World() {
+World::~World(){
+	delete[] m_chunks;
 }
-
 
 void World::setBlock(int x, int y, int z, unsigned char type) {
 	if (x >= CHUNK_X * WORLD_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z * WORLD_Z || z < 0)

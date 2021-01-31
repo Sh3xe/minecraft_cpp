@@ -4,7 +4,6 @@
 #include <random>
 #include <iostream>
 
-#include "world.hpp"
 #include "../core/perlin.hpp" // not my implementation
 #include "../core/camera.hpp"
 #include "../opengl_wrapper/vertex.hpp"
@@ -14,9 +13,8 @@
 
 #include "block.hpp"
 
-Chunk::Chunk(int x, int y, int z, World *world):
-	m_position(x, y, z),
-	m_world(world) {
+Chunk::Chunk(int x, int y, int z):
+	m_position(x, y, z) {
 
 	// fill blocks array
 	for(int x = 0; x < CHUNK_X; ++x)
@@ -30,7 +28,7 @@ Chunk::Chunk(int x, int y, int z, World *world):
 }
 
 Chunk::Chunk() :
-	Chunk(0, 0, 0, nullptr) {
+	Chunk(0, 0, 0) {
 }
 
 void Chunk::setPosition(int x, int y, int z) {
@@ -39,9 +37,13 @@ void Chunk::setPosition(int x, int y, int z) {
 	m_position.z = z;
 }
 
-void Chunk::setWorld(World* world) {
-	m_world = world;
+void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my) {
+	m_neighbours[0] = px;
+	m_neighbours[1] = mx;
+	m_neighbours[2] = py;
+	m_neighbours[3] = my;
 }
+
 
 void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 	m_block_data[x][z][y] = type;
@@ -50,8 +52,19 @@ void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
 	// no need this test right now since it will be used by the world class
-	if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
+	//if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
+	//	return Blocks::AIR;
+	
+	if(y >= CHUNK_Y || y < 0)
 		return Blocks::AIR;
+	if(x >= CHUNK_X)
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->getBlock(0, y, z): Blocks::AIR;
+	if(x < 0)
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->getBlock(CHUNK_X - 1, y, z): Blocks::AIR;
+	if(z >= CHUNK_Z)
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->getBlock(x, y, 0): Blocks::AIR;
+	if(z < 0)
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::AIR;
 
 	return m_block_data[x][z][y];
 }
@@ -70,7 +83,6 @@ void Chunk::generateMesh() {
 				if(type == Blocks::AIR) continue;
 
 				// +x
-				//if (!m_world->getBlock( m_position.x + x + 1, m_position.y + y, m_position.z + z)) {
 				if (!getBlock(x+1, y, z)) {
 					int texture_x = Blocks::block_faces[type][0] % 16;
 					int texture_y = Blocks::block_faces[type][0] / 16;
@@ -84,7 +96,6 @@ void Chunk::generateMesh() {
 				}
 
 				// -x
-				//if (!m_world->getBlock(m_position.x + x - 1, m_position.y + y, m_position.z + z)) {
 				if (!getBlock(x-1, y, z)) {
 					int texture_x = Blocks::block_faces[type][1]%16;
 					int texture_y = Blocks::block_faces[type][1]/16;
@@ -98,7 +109,6 @@ void Chunk::generateMesh() {
 				}
 
 				// +y
-				//if (!m_world->getBlock(m_position.x + x, m_position.y + y + 1, m_position.z + z)) {
 				if (!getBlock(x, y+1, z)) {
 					int texture_x = Blocks::block_faces[type][2] % 16;
 					int texture_y = Blocks::block_faces[type][2] / 16;
@@ -112,7 +122,6 @@ void Chunk::generateMesh() {
 				}
 
 				// -y
-				//if (!m_world->getBlock(m_position.x + x, m_position.y + y - 1, m_position.z + z)) {
 				if (!getBlock(x, y - 1, z)) {
 					int texture_x = Blocks::block_faces[type][3]%16;
 					int texture_y = Blocks::block_faces[type][3]/16;
@@ -126,7 +135,6 @@ void Chunk::generateMesh() {
 				}
 				
 				// +z
-				//if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z + 1)) {
 				if (!getBlock(x, y, z + 1)) {
 					int texture_x = Blocks::block_faces[type][5] % 16;
 					int texture_y = Blocks::block_faces[type][5] / 16;
@@ -140,7 +148,6 @@ void Chunk::generateMesh() {
 				}
 
 				// -z
-				//if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z - 1)) {
 				if (!getBlock(x, y, z - 1)) {
 					int texture_x = Blocks::block_faces[type][4] % 16;
 					int texture_y = Blocks::block_faces[type][4] / 16;

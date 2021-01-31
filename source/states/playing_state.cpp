@@ -3,7 +3,7 @@
 //#include <glad/glad.h>
 
 PlayingState::PlayingState():
-	m_camera(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f)) {
+	m_camera(glm::vec3(32.0f, 48.0f, 32.0f), glm::vec3(0.f, 1.f, 0.f)) {
 }
 
 void PlayingState::update( Input &input, double delta_time ) {
