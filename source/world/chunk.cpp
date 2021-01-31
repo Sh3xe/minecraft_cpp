@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "world.hpp"
-#include "../core/perlin_noise.hpp" // not my implementation
+#include "../core/perlin.hpp" // not my implementation
 #include "../core/camera.hpp"
 #include "../opengl_wrapper/vertex.hpp"
 #include "../opengl_wrapper/shader.hpp"
@@ -13,36 +13,41 @@
 
 #include "block.hpp"
 
-using byte4 = glm::tvec4<GLbyte>;
-
 Chunk::Chunk(int x, int y, int z, World *world):
 	m_position(x, y, z),
-	m_world(world) {
-	
+	m_world(world),
+	m_block_data(new unsigned char[CHUNK_X * CHUNK_Y * CHUNK_Z]) {
+
 	// generate buffers, give to the shaders matrices
 	glGenBuffers(1, &m_vbo);
 	glGenVertexArrays(1, &m_vao);
-
-	// generate terrain
-	generateTerrain();
-
 }
 
-Chunk::Chunk():
+Chunk::Chunk() :
 	Chunk(0, 0, 0, nullptr) {
 }
 
+void Chunk::setPosition(int x, int y, int z) {
+	m_position.x = x;
+	m_position.y = y;
+	m_position.z = z;
+}
+
+void Chunk::setWorld(World* world) {
+	m_world = world;
+}
+
 void Chunk::setBlock(int x, int y, int z, unsigned char type) {
-	m_block_data[x][z][y] = type;
+	m_block_data[x * CHUNK_Y * CHUNK_Z + y * CHUNK_Z + z] = type;
 	m_should_update = true;
 }
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
 	// no need this test right now since it will be used by the world class
-	// if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
-	//	 return Blocks::AIR;
+	if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
+		return Blocks::AIR;
 
-	return m_block_data[x][z][y];
+	return m_block_data[x * CHUNK_Y * CHUNK_Z + y * CHUNK_Z + z];
 }
 
 void Chunk::generateMesh() {
@@ -59,8 +64,8 @@ void Chunk::generateMesh() {
 				if(type == Blocks::AIR) continue;
 
 				// +x
-				if (!m_world->getBlock( m_position.x + x + 1, m_position.y + y, m_position.z + z)) {
-				//if (!getBlock(x+1, y, z)) {
+				//if (!m_world->getBlock( m_position.x + x + 1, m_position.y + y, m_position.z + z)) {
+				if (!getBlock(x+1, y, z)) {
 					int texture_x = Blocks::block_faces[type][0] % 16;
 					int texture_y = Blocks::block_faces[type][0] / 16;
 					vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 0, texture_y + 1, 230 };
@@ -73,8 +78,8 @@ void Chunk::generateMesh() {
 				}
 
 				// -x
-				if (!m_world->getBlock(m_position.x + x - 1, m_position.y + y, m_position.z + z)) {
-				//if (!getBlock(x-1, y, z)) {
+				//if (!m_world->getBlock(m_position.x + x - 1, m_position.y + y, m_position.z + z)) {
+				if (!getBlock(x-1, y, z)) {
 					int texture_x = Blocks::block_faces[type][1]%16;
 					int texture_y = Blocks::block_faces[type][1]/16;
 					vertices[i++] = Vertex (x, y  , z+1, texture_x+0, texture_y+1, 230);
@@ -87,8 +92,8 @@ void Chunk::generateMesh() {
 				}
 
 				// +y
-				if (!m_world->getBlock(m_position.x + x, m_position.y + y + 1, m_position.z + z)) {
-				//if (!getBlock(x, y+1, z)) {
+				//if (!m_world->getBlock(m_position.x + x, m_position.y + y + 1, m_position.z + z)) {
+				if (!getBlock(x, y+1, z)) {
 					int texture_x = Blocks::block_faces[type][2] % 16;
 					int texture_y = Blocks::block_faces[type][2] / 16;
 					vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 1, 255 };
@@ -101,8 +106,8 @@ void Chunk::generateMesh() {
 				}
 
 				// -y
-				if (!m_world->getBlock(m_position.x + x, m_position.y + y - 1, m_position.z + z)) {
-				//if (!getBlock(x, y - 1, z)) {
+				//if (!m_world->getBlock(m_position.x + x, m_position.y + y - 1, m_position.z + z)) {
+				if (!getBlock(x, y - 1, z)) {
 					int texture_x = Blocks::block_faces[type][3]%16;
 					int texture_y = Blocks::block_faces[type][3]/16;
 					vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150};
@@ -115,8 +120,8 @@ void Chunk::generateMesh() {
 				}
 				
 				// +z
-				if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z + 1)) {
-				//if (!getBlock(x, y, z + 1)) {
+				//if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z + 1)) {
+				if (!getBlock(x, y, z + 1)) {
 					int texture_x = Blocks::block_faces[type][5] % 16;
 					int texture_y = Blocks::block_faces[type][5] / 16;
 					vertices[i++] = Vertex{ x + 1, y  , z + 1, texture_x + 0, texture_y + 1, 200 };
@@ -129,8 +134,8 @@ void Chunk::generateMesh() {
 				}
 
 				// -z
-				if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z - 1)) {
-				//if (!getBlock(x, y, z - 1)) {
+				//if (!m_world->getBlock(m_position.x + x, m_position.y + y, m_position.z + z - 1)) {
+				if (!getBlock(x, y, z - 1)) {
 					int texture_x = Blocks::block_faces[type][4] % 16;
 					int texture_y = Blocks::block_faces[type][4] / 16;
 					vertices[i++] = Vertex{ x  , y  , z  , texture_x + 0, texture_y + 1, 200 };
@@ -163,33 +168,25 @@ void Chunk::generateMesh() {
 }
 
 void Chunk::generateTerrain() {
-	static siv::PerlinNoise pn(0);
-	m_element_count = 0;
+	static PerlinNoise pn(250);
 
+	m_element_count = 0;
 	for(int x = 0; x < CHUNK_X; ++x)
 		for(int z = 0; z < CHUNK_Z; ++z) {
-			int height_value = (int)(pn.accumulatedOctaveNoise2D_0_1((m_position.x + x) /16.0, (m_position.z + z) /16.0, 2) * 20 + 10);
+			int height_value = 20 + (int)(pn.noise((m_position.x + x) * 0.01f, (m_position.z +z) * 0.01f) * 10) + pn.noise((m_position.x + x) * 0.1f, (m_position.z +z) * 0.1f) * 15;
 			for(int y = 0; y < CHUNK_Y; ++y) {
 				if (y <= height_value) {
-					if (y == height_value) m_block_data[x][z][y] = Blocks::GRASS;
-					else if (y < height_value && y > height_value - 4) m_block_data[x][z][y] = Blocks::DIRT;
-					else if (y <= height_value -4) m_block_data[x][z][y] = Blocks::STONE;
+					if (y == height_value) setBlock(x, y, z, Blocks::GRASS);
+					else if (y < height_value && y > height_value - 4) setBlock(x, y, z, Blocks::DIRT);
+					else if (y <= height_value -4) setBlock(x, y, z, Blocks::STONE);
+
 					++m_element_count;
 				}
 				else
-					m_block_data[x][z][y] = Blocks::AIR;
+					setBlock(x, y, z, Blocks::AIR);
 			}
-
 		}
-
-	/* for testing purpose, place a single block
-	for(int x = 0; x < CHUNK_X; ++x)
-		for(int z = 0; z < CHUNK_Z; ++z)
-			for(int y = 0; y < CHUNK_Y; ++y)
-				m_block_data[x][z][y] = Blocks::AIR;
-	m_block_data[0][0][0] = Blocks::GRASS;
-	m_element_count = 1;
-	*/
+	
 }
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {

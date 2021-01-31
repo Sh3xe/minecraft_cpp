@@ -2,6 +2,7 @@
 #define CHUNK_INCLUDED_
 
 #include <glm/glm.hpp>
+#include <memory>
 
 #define CHUNK_X 16
 #define CHUNK_Y 64
@@ -17,6 +18,10 @@ public:
 	Chunk();
 	Chunk(int x, int y, int z, World* World);
 
+	void setPosition(int x, int y, int z);
+	void setWorld(World* world);
+	void generateTerrain();
+
 	void setBlock(int x, int y, int z, unsigned char type);
 	unsigned char getBlock(int x, int y, int z);
 
@@ -25,7 +30,6 @@ public:
 
 private:
 	void generateMesh();
-	void generateTerrain();
 
 	World *m_world = nullptr;
 
@@ -34,7 +38,7 @@ private:
 	bool m_should_update = true;
 	
 	unsigned m_vao, m_vbo;
-	unsigned char m_block_data[CHUNK_X][CHUNK_Z][CHUNK_Y];
+	unsigned char *m_block_data;
 
 	glm::ivec3 m_position;
 
