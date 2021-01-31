@@ -4,23 +4,23 @@
 namespace Blocks {
 
 	enum BlockType: unsigned char {
-	AIR = 0,
-	DIRT,
-	GRASS,
-	WOOD,
-	STONE,
-	MOSSY_STONE,
-	IRON_ORE,
-	COAL,
-	DIAMOND_ORE,
-	GOLD_ORE,
-	COBBLESTONE,
-	MOSSY_COBBLESTONE,
-	LEAF,
-	SAND,
-	MOSSY_BRICK,
-	BRICK
-};
+		AIR = 0,
+		DIRT,
+		GRASS,
+		WOOD,
+		STONE,
+		MOSSY_STONE,
+		IRON_ORE,
+		COAL,
+		DIAMOND_ORE,
+		GOLD_ORE,
+		COBBLESTONE,
+		MOSSY_COBBLESTONE,
+		LEAF,
+		SAND,
+		MOSSY_BRICK,
+		BRICK
+	};
 
 	// +x, -x, +y, -y, +z, -z
 	const unsigned char block_faces[][6] {

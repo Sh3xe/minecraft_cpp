@@ -1,6 +1,7 @@
 #include "chunk.hpp"
 
 #include <glad/glad.h>
+#include <random>
 #include <iostream>
 
 #include "world.hpp"
@@ -15,8 +16,13 @@
 
 Chunk::Chunk(int x, int y, int z, World *world):
 	m_position(x, y, z),
-	m_world(world),
-	m_block_data(new unsigned char[CHUNK_X * CHUNK_Y * CHUNK_Z]) {
+	m_world(world) {
+
+	// fill blocks array
+	for(int x = 0; x < CHUNK_X; ++x)
+	for(int y = 0; y < CHUNK_Y; ++y)
+	for(int z = 0; z < CHUNK_Z; ++z)
+		m_block_data[x][z][y] = Blocks::AIR;
 
 	// generate buffers, give to the shaders matrices
 	glGenBuffers(1, &m_vbo);
@@ -38,7 +44,7 @@ void Chunk::setWorld(World* world) {
 }
 
 void Chunk::setBlock(int x, int y, int z, unsigned char type) {
-	m_block_data[x * CHUNK_Y * CHUNK_Z + y * CHUNK_Z + z] = type;
+	m_block_data[x][z][y] = type;
 	m_should_update = true;
 }
 
@@ -47,7 +53,7 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 	if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
 		return Blocks::AIR;
 
-	return m_block_data[x * CHUNK_Y * CHUNK_Z + y * CHUNK_Z + z];
+	return m_block_data[x][z][y];
 }
 
 void Chunk::generateMesh() {
@@ -168,23 +174,39 @@ void Chunk::generateMesh() {
 }
 
 void Chunk::generateTerrain() {
-	static PerlinNoise pn(250);
+	static PerlinNoise noise_generator (250);
+	static std::default_random_engine e;
+	static std::bernoulli_distribution d(0.8);
 
 	m_element_count = 0;
 	for(int x = 0; x < CHUNK_X; ++x)
 		for(int z = 0; z < CHUNK_Z; ++z) {
-			int height_value = 20 + (int)(pn.noise((m_position.x + x) * 0.01f, (m_position.z +z) * 0.01f) * 10) + pn.noise((m_position.x + x) * 0.1f, (m_position.z +z) * 0.1f) * 15;
+			int biome_value = noise_generator.noise((m_position.x + x) * 0.1f, (m_position.z + z) * 0.1f) * 10;
+			int height_value = (noise_generator.noise((m_position.x + x) * 0.1f, (m_position.z + z) * 0.1f) * 2 + noise_generator.noise((m_position.x + x) * 0.01f, (m_position.z + z) * 0.01f)) * 10;
 			for(int y = 0; y < CHUNK_Y; ++y) {
-				if (y <= height_value) {
-					if (y == height_value) setBlock(x, y, z, Blocks::GRASS);
-					else if (y < height_value && y > height_value - 4) setBlock(x, y, z, Blocks::DIRT);
-					else if (y <= height_value -4) setBlock(x, y, z, Blocks::STONE);
+				if(biome_value < 0) {
+					if (y < height_value * 0.5 + 19) {
+						setBlock(x, y, z, Blocks::SAND);
+						++m_element_count;
+					}
+				} else if( y <= height_value + 20 ) {
+					
+					if (y == height_value + 20) {
+						setBlock(x, y, z, Blocks::GRASS);
+					} else if(y > height_value + 16 ) {
+						setBlock(x, y, z, Blocks::DIRT);
+					} else {
+						if(d(e))
+							setBlock(x, y, z, Blocks::STONE);
+						else
+							setBlock(x, y, z, Blocks::COBBLESTONE);
+					}
 
 					++m_element_count;
+
 				}
-				else
-					setBlock(x, y, z, Blocks::AIR);
 			}
+
 		}
 	
 }

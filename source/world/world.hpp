@@ -24,8 +24,8 @@ private:
 	Shader m_shader;
 	Texture m_tilset;
 
-	Chunk m_chunks[WORLD_X][WORLD_Z];
-
+	//Chunk m_chunks[WORLD_X][WORLD_Z];
+	Chunk *m_chunks;
 };
 
 

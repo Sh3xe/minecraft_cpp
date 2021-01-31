@@ -38,7 +38,7 @@ private:
 	bool m_should_update = true;
 	
 	unsigned m_vao, m_vbo;
-	unsigned char *m_block_data;
+	unsigned char m_block_data[CHUNK_X][CHUNK_Z][CHUNK_Y];
 
 	glm::ivec3 m_position;
 

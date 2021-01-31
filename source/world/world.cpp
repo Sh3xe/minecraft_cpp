@@ -18,6 +18,15 @@ World::World():
 	m_shader.setMat4("projection", glm::value_ptr(projection_matrix));
 
 	// construct chunks
+	m_chunks = new Chunk[CHUNK_X * CHUNK_Z];
+	for(int i = 0; i < WORLD_X; ++i)
+		for (int j = 0; j < WORLD_Z; ++j) {
+			m_chunks[j * CHUNK_X + i].setPosition(i * 16, 0, j * 16);
+			m_chunks[j * CHUNK_X + i].setWorld(this);
+			m_chunks[j * CHUNK_X + i].generateTerrain();
+		}
+
+/*
 	for(int i = 0; i < WORLD_X; ++i)
 		for (int j = 0; j < WORLD_Z; ++j) {
 			m_chunks[i][j].setPosition(i * 16, 0, j * 16);
@@ -25,6 +34,7 @@ World::World():
 			m_chunks[i][j].generateTerrain();
 			//m_chunks[i][j] = Chunk(i * 16, 0, 16 * j, this);
 		}
+*/
 }
 
 World::~World() {
@@ -41,7 +51,7 @@ void World::setBlock(int x, int y, int z, unsigned char type) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 	
-	m_chunks[chunk_x][chunk_z].setBlock(coord_x, y, coord_z, type);
+	m_chunks[chunk_x + chunk_z * CHUNK_X].setBlock(coord_x, y, coord_z, type);
 }
 
 unsigned char World::getBlock(int x, int y, int z) {
@@ -54,7 +64,7 @@ unsigned char World::getBlock(int x, int y, int z) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 
-	return m_chunks[chunk_x][chunk_z].getBlock(coord_x, y, coord_z);
+	return m_chunks[chunk_x + chunk_z * CHUNK_X].getBlock(coord_x, y, coord_z);
 }
 
 void World::draw( Camera &camera ) {
@@ -65,5 +75,5 @@ void World::draw( Camera &camera ) {
 
 	for(int i = 0; i < WORLD_X; ++i)
 		for(int j = 0; j < WORLD_Z; ++j)
-			m_chunks[i][j].draw(camera, m_tilset, m_shader);
+			m_chunks[j * CHUNK_X + i].draw(camera, m_tilset, m_shader);
 }
