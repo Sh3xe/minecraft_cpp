@@ -14,6 +14,7 @@ public:
 	void setUp( const glm::vec3 &up);
 
 	glm::vec3 getPosition() { return m_position; }
+	glm::vec3 getDirection() { return m_direction; }
 
 	void update(Input& input, double delta_time);
 	glm::mat4 getViewMatrix();

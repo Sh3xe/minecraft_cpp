@@ -15,6 +15,21 @@ void PlayingState::update( Input &input, double delta_time ) {
 	if (input.isKeyPressed(SDL_SCANCODE_E)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
+
+	if(input.getClickState().first) { // if the player left-click
+		// cast a ray
+		glm::vec3 direction = m_camera.getDirection(),
+				  position = m_camera.getPosition();
+
+		bool done = false;
+		for(int i = 0; i < 10 && !done; ++i) {
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 2);
+			if(m_world.getBlock(ray_pos.x, ray_pos.y, ray_pos.z) != Blocks::AIR) {
+				m_world.setBlock(ray_pos.x, ray_pos.y, ray_pos.z, Blocks::AIR);
+				done = true;
+			}
+		}
+	}
 }
 
 void PlayingState::render() {

@@ -2,22 +2,16 @@
 
 #include <glad/glad.h>
 #include <random>
-//#include <iostream>
 
 #include "../core/perlin.hpp"
 #include "../core/camera.hpp"
 #include "../opengl_wrapper/vertex.hpp"
 #include "../opengl_wrapper/shader.hpp"
 #include "../opengl_wrapper/texture.hpp"
-//#include "../opengl_wrapper/gldebug.hpp"
-
-#include "block.hpp"
 
 Chunk::Chunk(int x, int z):
 	m_position(x, z),
 	m_neighbours({nullptr, nullptr , nullptr , nullptr }) {
-
-	//std::cout << "chunk created at " << x << ' ' << z << '\n';
 
 	// fill blocks array
 	for(int x = 0; x < CHUNK_X; ++x)
@@ -40,6 +34,7 @@ void Chunk::setPosition(int x, int z) {
 }
 
 void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
+	// set neighbour's chunks (used for block checking)
 	m_neighbours[0] = px;
 	m_neighbours[1] = mx;
 	m_neighbours[2] = pz;
@@ -50,13 +45,20 @@ void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 	m_block_data[x][z][y] = type;
 	m_should_update = true;
+
+	if(type == Blocks::AIR) { // we might need to update nearby chunks to make sure there is no hole when breaking blocks
+		if( x == CHUNK_X - 1 ) m_neighbours[0]->m_should_update = true;
+		if( x == 0 ) m_neighbours[1]->m_should_update = true;
+		if( z == CHUNK_Z - 1 ) m_neighbours[2]->m_should_update = true;
+		if( z == 0 ) m_neighbours[3]->m_should_update = true;
+	}
+
 }
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
-	// no need this test right now since it will be used by the world class
-	//if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
-	//	return Blocks::AIR;
-	
+
+	// warning: only works for 1 block out-of-range.
+	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 	if(y >= CHUNK_Y)
 		return Blocks::AIR;
 	if(y < 0)
@@ -70,10 +72,12 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 	if(z < 0)
 		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::STONE;
 
+	// return the block in the current chunk
 	return m_block_data[x][z][y];
 }
 
 void Chunk::generateMesh() {
+	// updates the block's vbo.
 	int count = m_element_count * 36;
 	m_face_count = 0;
 
@@ -83,6 +87,8 @@ void Chunk::generateMesh() {
 	for(int x = 0; x < CHUNK_X; ++x)
 		for(int z = 0; z < CHUNK_Z; ++z)
 			for(int y = 0; y < CHUNK_Y; ++y) {
+				// adds a face the the mesh if needed
+
 				unsigned char type = getBlock(x, y, z);
 				if(type == Blocks::AIR) continue;
 
@@ -178,13 +184,12 @@ void Chunk::generateMesh() {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	
-	//logGlErrors();
 	m_should_update = false;
 	delete[] vertices;
 }
 
 void Chunk::generateTerrain(PerlinNoise &noise_generator) {
+	// shitty, temporary world generation
 	static std::default_random_engine e;
 	static std::bernoulli_distribution d(0.8);
 

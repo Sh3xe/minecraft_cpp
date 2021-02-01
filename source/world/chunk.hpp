@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <array>
-//#include <iostream>
+#include "block.hpp"
 
 #define CHUNK_X 16
 #define CHUNK_Y 64
