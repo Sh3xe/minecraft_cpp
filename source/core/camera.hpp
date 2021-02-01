@@ -13,6 +13,8 @@ public:
 	void setPosition( const glm::vec3 &position);
 	void setUp( const glm::vec3 &up);
 
+	glm::vec3 getPosition() { return m_position; }
+
 	void update(Input& input, double delta_time);
 	glm::mat4 getViewMatrix();
 

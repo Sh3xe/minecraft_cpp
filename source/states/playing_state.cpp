@@ -1,6 +1,5 @@
 #include "playing_state.hpp"
 #include <glad/glad.h>
-//#include <glad/glad.h>
 
 PlayingState::PlayingState():
 	m_camera(glm::vec3(32.0f, 48.0f, 32.0f), glm::vec3(0.f, 1.f, 0.f)) {

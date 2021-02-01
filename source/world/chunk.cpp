@@ -2,19 +2,22 @@
 
 #include <glad/glad.h>
 #include <random>
-#include <iostream>
+//#include <iostream>
 
-#include "../core/perlin.hpp" // not my implementation
+#include "../core/perlin.hpp"
 #include "../core/camera.hpp"
 #include "../opengl_wrapper/vertex.hpp"
 #include "../opengl_wrapper/shader.hpp"
 #include "../opengl_wrapper/texture.hpp"
-#include "../opengl_wrapper/gldebug.hpp"
+//#include "../opengl_wrapper/gldebug.hpp"
 
 #include "block.hpp"
 
-Chunk::Chunk(int x, int y, int z):
-	m_position(x, y, z) {
+Chunk::Chunk(int x, int z):
+	m_position(x, z),
+	m_neighbours({nullptr, nullptr , nullptr , nullptr }) {
+
+	//std::cout << "chunk created at " << x << ' ' << z << '\n';
 
 	// fill blocks array
 	for(int x = 0; x < CHUNK_X; ++x)
@@ -28,20 +31,19 @@ Chunk::Chunk(int x, int y, int z):
 }
 
 Chunk::Chunk() :
-	Chunk(0, 0, 0) {
+	Chunk(0, 0) {
 }
 
-void Chunk::setPosition(int x, int y, int z) {
+void Chunk::setPosition(int x, int z) {
 	m_position.x = x;
-	m_position.y = y;
-	m_position.z = z;
+	m_position.y = z;
 }
 
-void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my) {
+void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 	m_neighbours[0] = px;
 	m_neighbours[1] = mx;
-	m_neighbours[2] = py;
-	m_neighbours[3] = my;
+	m_neighbours[2] = pz;
+	m_neighbours[3] = mz;
 }
 
 
@@ -55,16 +57,18 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 	//if (x >= CHUNK_X || x < 0 || y >= CHUNK_Y || y < 0 || z >= CHUNK_Z || z < 0)
 	//	return Blocks::AIR;
 	
-	if(y >= CHUNK_Y || y < 0)
+	if(y >= CHUNK_Y)
 		return Blocks::AIR;
+	if(y < 0)
+		return Blocks::STONE;
 	if(x >= CHUNK_X)
-		return m_neighbours[0] != nullptr ? m_neighbours[0]->getBlock(0, y, z): Blocks::AIR;
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->getBlock(0, y, z): Blocks::STONE;
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->getBlock(CHUNK_X - 1, y, z): Blocks::AIR;
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->getBlock(CHUNK_X - 1, y, z): Blocks::STONE;
 	if(z >= CHUNK_Z)
-		return m_neighbours[2] != nullptr ? m_neighbours[2]->getBlock(x, y, 0): Blocks::AIR;
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->getBlock(x, y, 0): Blocks::STONE;
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::AIR;
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::STONE;
 
 	return m_block_data[x][z][y];
 }
@@ -175,21 +179,20 @@ void Chunk::generateMesh() {
 	glEnableVertexAttribArray(2);
 
 	
-	logGlErrors();
+	//logGlErrors();
 	m_should_update = false;
 	delete[] vertices;
 }
 
-void Chunk::generateTerrain() {
-	static PerlinNoise noise_generator (250);
+void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 	static std::default_random_engine e;
 	static std::bernoulli_distribution d(0.8);
 
 	m_element_count = 0;
 	for(int x = 0; x < CHUNK_X; ++x)
 		for(int z = 0; z < CHUNK_Z; ++z) {
-			int biome_value = noise_generator.noise((m_position.x + x) * 0.1f, (m_position.z + z) * 0.1f) * 10;
-			int height_value = (noise_generator.noise((m_position.x + x) * 0.1f, (m_position.z + z) * 0.1f) * 2 + noise_generator.noise((m_position.x + x) * 0.01f, (m_position.z + z) * 0.01f)) * 10;
+			int biome_value = noise_generator.noise((m_position.x + x) * 0.1f, (m_position.y + z) * 0.1f) * 10;
+			int height_value = (noise_generator.noise((m_position.x + x) * 0.1f, (m_position.y + z) * 0.1f) * 2 + noise_generator.noise((m_position.x + x) * 0.01f, (m_position.y + z) * 0.01f)) * 10;
 			for(int y = 0; y < CHUNK_Y; ++y) {
 				if(biome_value < 0) {
 					if (y < height_value * 0.5 + 19) {
@@ -199,7 +202,9 @@ void Chunk::generateTerrain() {
 				} else if( y <= height_value + 20 ) {
 					
 					if (y == height_value + 20) {
-						setBlock(x, y, z, Blocks::GRASS);
+						height_value < 15 ?
+							setBlock(x, y, z, Blocks::GRASS):
+							setBlock(x, y, z, Blocks::SNOW_GRASS);
 					} else if(y > height_value + 16 ) {
 						setBlock(x, y, z, Blocks::DIRT);
 					} else {
@@ -232,7 +237,7 @@ void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
 		shader.setInt("u_texture", 0);
 
 		// matrix magic
-		shader.setVec3("chunk_position", m_position.x, m_position.y, m_position.z);
+		shader.setVec3("chunk_position", m_position.x, 0, m_position.y);
 
 		glDrawArrays(GL_TRIANGLES, 0, m_face_count * 6);
 	}

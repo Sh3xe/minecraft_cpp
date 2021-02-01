@@ -8,41 +8,56 @@
 
 World::World():
 	m_shader("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl"),
-	m_tilset("resources/images/tileset.png") {
+	m_tilset("resources/images/tileset.png"),
+	m_noise_generator(2546245)  {
 	
 	// set shader uniforms
 	glm::mat4 model_matrix(1.0f);
-	glm::mat4 projection_matrix = glm::perspective(3.141592853f / 2.f, 16.f / 9.f, .01f, 100.f);
+	glm::mat4 projection_matrix = glm::perspective(3.141592853f / 2.0f, 16.0f / 9.0f, 0.01f, 128.0f);
 
 	m_shader.use();
 	m_shader.setMat4("projection", glm::value_ptr(projection_matrix));
 
 	// construct chunks
-	m_chunks = new Chunk[CHUNK_X * CHUNK_Z];
 	for(int i = 0; i < WORLD_X; ++i)
 		for (int j = 0; j < WORLD_Z; ++j) {
-			Chunk &current_chunk = m_chunks[j * CHUNK_X + i];
-			current_chunk.setPosition(i * 16, 0, j * 16);
-			current_chunk.generateTerrain();
+			// insert a unique_ptr<Chunk> at [i * 16, j * 16] location, and get an iterator to the inserted element
+			auto it = m_chunks.insert( std::pair< std::pair<int, int>, Chunk*>(
+				std::pair<int, int>(i * 16, j * 16), new Chunk(i * 16, j * 16)
+			)).first;
 
-			Chunk *px = nullptr, *mx = nullptr, *py = nullptr, *my = nullptr;
-
-			if(i > 0 )
-				mx = &m_chunks[ i - 1 + CHUNK_X * j];
-			if(i != WORLD_X - 1)
-				px = &m_chunks[ i + 1 + CHUNK_X * j];
-			if(j > 0 )
-				my = &m_chunks[ i + CHUNK_X * (j - 1)];
-			if(j != WORLD_Z - 1)
-				py = &m_chunks[ i + CHUNK_X * (j + 1)];
-
-			current_chunk.setNeighbours(px, mx, py, my);
-			
+			// use the iterator to set neighbours chunks and generate terrain
+			it->second->generateTerrain(m_noise_generator);
 		}
+
+	// give each chunk its neighbours
+	for (int i = 0; i < WORLD_X; ++i)
+		for (int j = 0; j < WORLD_Z; ++j) {
+			// px = +x, mx = -x, pz = +z, mz = -z
+			Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
+
+			// get a reference to neighbours chunks
+			if (i > 0)
+				mx = m_chunks[std::pair<int, int>((i - 1) * 16, j * 16)];
+			if (i != WORLD_X - 1)
+				px = m_chunks[std::pair<int, int>((i + 1) * 16, j * 16)];
+			if (j > 0)
+				mz = m_chunks[std::pair<int, int>(i * 16, (j - 1) * 16)];
+			if (j != WORLD_Z - 1)
+				pz = m_chunks[std::pair<int, int>(i * 16, (j + 1) * 16)];
+				//;
+
+			// use the iterator to set neighbours chunks and generate terrain
+			m_chunks[ std::pair<int, int>(i * 16, j * 16) ]->setNeighbours(px, mx, pz, mz);
+
+		}
+
+	getBlock(0, 0, 0);
 }
 
 World::~World(){
-	delete[] m_chunks;
+	for (auto& chunk : m_chunks)
+		delete chunk.second;
 }
 
 void World::setBlock(int x, int y, int z, unsigned char type) {
@@ -55,7 +70,7 @@ void World::setBlock(int x, int y, int z, unsigned char type) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 	
-	m_chunks[chunk_x + chunk_z * CHUNK_X].setBlock(coord_x, y, coord_z, type);
+	m_chunks[ std::pair<int, int>(chunk_x * 16, chunk_z * 16) ]->setBlock(coord_x, y, coord_z, type);
 }
 
 unsigned char World::getBlock(int x, int y, int z) {
@@ -68,10 +83,10 @@ unsigned char World::getBlock(int x, int y, int z) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 
-	return m_chunks[chunk_x + chunk_z * CHUNK_X].getBlock(coord_x, y, coord_z);
+	return m_chunks[std::pair<int, int>(chunk_x * 16, chunk_z * 16)]->getBlock(coord_x, y, coord_z);
 }
 
-void World::draw( Camera &camera ) {
+void World::draw( Camera &camera ){
 	m_shader.use();
 
 	glm::mat4 view_matrix = camera.getViewMatrix();
@@ -79,5 +94,5 @@ void World::draw( Camera &camera ) {
 
 	for(int i = 0; i < WORLD_X; ++i)
 		for(int j = 0; j < WORLD_Z; ++j)
-			m_chunks[j * CHUNK_X + i].draw(camera, m_tilset, m_shader);
+			m_chunks[std::pair<int, int>(i * 16, j * 16)]->draw(camera, m_tilset, m_shader);
 }

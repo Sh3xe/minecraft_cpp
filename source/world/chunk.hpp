@@ -2,7 +2,8 @@
 #define CHUNK_INCLUDED_
 
 #include <glm/glm.hpp>
-#include <memory>
+#include <array>
+//#include <iostream>
 
 #define CHUNK_X 16
 #define CHUNK_Y 64
@@ -12,15 +13,17 @@ class Camera;
 class World;
 class Texture;
 class Shader;
+class PerlinNoise;
 
 class Chunk {
 public:
 	Chunk();
-	Chunk(int x, int y, int z);
+	Chunk(int x, int z);
+	//~Chunk() { std::cout << "chunk destroyed for some reasons"; }
 
-	void setPosition(int x, int y, int z);
+	void setPosition(int x, int z);
 	void setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
-	void generateTerrain();
+	void generateTerrain(PerlinNoise &noise_generator);
 
 	void setBlock(int x, int y, int z, unsigned char type);
 	unsigned char getBlock(int x, int y, int z);
@@ -35,10 +38,11 @@ private:
 	bool m_should_update = true;
 	
 	unsigned m_vao, m_vbo;
-	unsigned char m_block_data[CHUNK_X][CHUNK_Z][CHUNK_Y];
-	Chunk *m_neighbours[4];
 
-	glm::ivec3 m_position;
+	std::array<std::array<std::array<unsigned char, CHUNK_Y>, CHUNK_Z>, CHUNK_X> m_block_data;
+	std::array<Chunk*, 4> m_neighbours;
+
+	glm::ivec2 m_position;
 
 };
 

@@ -20,7 +20,7 @@ void Camera::update(Input& input, double delta_time) {
 	glm::vec3 front(m_direction.x, 0, m_direction.z);
 	front = glm::normalize(front); // get the direction vector, and remove the y offset for better camera control
 
-	float speed = input.isKeyPressed(SDL_SCANCODE_LCTRL) ? 8.0f: 3.5f;
+	float speed = input.isKeyPressed(SDL_SCANCODE_LCTRL) ? 16.0f: 7.0f;
 
 	if(input.isKeyPressed(SDL_SCANCODE_W))
 		m_position += front * (float)delta_time * speed;

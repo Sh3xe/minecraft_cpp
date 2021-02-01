@@ -50,6 +50,7 @@ void Game::initWindow() {
 
 	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
+	glViewport(0, 0, m_config.window_width, m_config.window_height);
 }
 
 void Game::handleEvents() {
@@ -68,7 +69,10 @@ void Game::handleEvents() {
 
 	// get the mouse position
 	int mouse_x, mouse_y;
-	SDL_GetMouseState(&mouse_x, &mouse_y);
+	Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+
+	// use SDL_BUTTON macro to get the mouse state (right and left click)
+	m_input.setClickState( SDL_BUTTON(1) & mouse_state, SDL_BUTTON(3) & mouse_state);
 
 	// get the old position, calculate the new one
 	glm::ivec2 old_mouse_pos = m_input.getMousePosition();
