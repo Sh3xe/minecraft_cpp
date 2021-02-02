@@ -1,6 +1,11 @@
 # Minecraft C++
 A simple minecraft clone
 
+## features
+- can remove blocks
+- simple world gen
+- far lands (not meant and not so far but still!!)
+
 ## screenshots
 
 ![screenshot1](screenshots/screenshot1.jpg "screenshot1")
