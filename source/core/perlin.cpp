@@ -1,7 +1,6 @@
 #include "perlin.hpp"
 
 #include <random>
-#include <iostream>
 #include <algorithm>
 
 using vec2d = std::pair<double, double>;
@@ -27,9 +26,9 @@ PerlinNoise::PerlinNoise(int seed) {
 	double sqrt2 = 1.41421356237;
 	m_vectors = {
 		vec2d(1.0   , 0.0   ),
-		vec2d(-1.0   , 0.0   ),
+		vec2d(-1.0  , 0.0   ),
 		vec2d(0.0   , 1.0   ),
-		vec2d(0.0   , -1.0   ),
+		vec2d(0.0   , -1.0  ),
 		vec2d(-sqrt2,  sqrt2),
 		vec2d(-sqrt2, -sqrt2),
 		vec2d( sqrt2, -sqrt2),
@@ -50,19 +49,23 @@ double PerlinNoise::fade(double t) {
 }
 
 double PerlinNoise::noise(double x, double y) {
+	if (x < 0) x = 0;
+	if (y < 0) y = 0;
 
-	if (x < 0) x = -x;
-	if (y < 0) y = -y;
+	int gx0 = static_cast<int>(x) % 16,
+		gy0 = static_cast<int>(y) % 16,
+		gx1 = (gx0 + 1) % 16,
+		gy1 = (gy0 + 1) % 16;
 
-	int gx0 = static_cast<int>(x) % 15,
-		gy0 = static_cast<int>(y) % 15,
-		gx1 = (gx0 + 1) % 15,
-		gy1 = (gy0 + 1) % 15;
+	double vx0 = x - static_cast<int>(x),
+		   vy0 = y - static_cast<int>(y),
+		   vx1 = x - static_cast<int>(x) - 1,
+		   vy1 = y - static_cast<int>(y) - 1;
 
-	double dtl = dot( getConstantVector(m_table[gx0 + gy0 * 16]), vec2d(x - gx0, y - gy0) ),
-		   dtr = dot( getConstantVector(m_table[gx1 + gy0 * 16]), vec2d(x - gx1, y - gy0) ),
-		   dbl = dot( getConstantVector(m_table[gx0 + gy1 * 16]), vec2d(x - gx0, y - gy1) ),
-		   dbr = dot( getConstantVector(m_table[gx1 + gy1 * 16]), vec2d(x - gx1, y - gy1) );
+	double dtl = dot( getConstantVector(m_table[gx0 + gy0 * 16]), vec2d(vx0, vy0) ),
+		   dtr = dot( getConstantVector(m_table[gx1 + gy0 * 16]), vec2d(-vx1, vy0) ),
+		   dbl = dot( getConstantVector(m_table[gx0 + gy1 * 16]), vec2d(vx0, -vy1) ),
+		   dbr = dot( getConstantVector(m_table[gx1 + gy1 * 16]), vec2d(-vx1, -vy1) );
 
 	return lerp(
 		lerp(dtl, dbl, fade(y - gy0)),

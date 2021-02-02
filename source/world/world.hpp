@@ -31,7 +31,8 @@ private:
 	Texture m_tilset;
 	PerlinNoise m_noise_generator;
 
-	std::map< std::pair<int, int>, Chunk*> m_chunks;
+	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
+	//std::map< std::pair<int, int>, Chunk*> m_chunks;
 };
 
 

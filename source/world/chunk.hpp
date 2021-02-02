@@ -31,12 +31,12 @@ public:
 
 	void draw( Camera &camera, Texture &tileset, Shader &shader );
 
+	bool m_should_update = true;
 private:
 	void generateMesh();
 
 	int m_element_count = 0;
 	int m_face_count = 0;
-	bool m_should_update = true;
 	
 	unsigned m_vao, m_vbo;
 

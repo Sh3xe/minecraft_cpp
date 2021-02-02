@@ -70,6 +70,7 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 		return m_neighbours[2] != nullptr ? m_neighbours[2]->getBlock(x, y, 0): Blocks::STONE;
 	if(z < 0)
 		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::STONE;
+
 	// return the block in the current chunk
 	return m_block_data[x][z][y];
 }
@@ -188,42 +189,25 @@ void Chunk::generateMesh() {
 
 void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 	// shitty, temporary world generation
-	static std::default_random_engine e;
-	static std::bernoulli_distribution d(0.8);
 
 	m_element_count = 0;
 	for(int x = 0; x < CHUNK_X; ++x)
 		for(int z = 0; z < CHUNK_Z; ++z) {
-			int biome_value = noise_generator.noise((m_position.x + x) * 0.1f, (m_position.y + z) * 0.1f) * 10;
-			int height_value = (noise_generator.noise((m_position.x + x) * 0.1f, (m_position.y + z) * 0.1f) * 2 + noise_generator.noise((m_position.x + x) * 0.01f, (m_position.y + z) * 0.01f)) * 10;
+			int height = 10 + noise_generator.noise(0.1 * (m_position.x + x), 0.1 * (m_position.y + z)) * 10;
+			if (height < 0) height = 0;
+			//int height = 10;
 			for(int y = 0; y < CHUNK_Y; ++y) {
-				if(biome_value < 0) {
-					if (y < height_value * 0.5 + 19) {
-						setBlock(x, y, z, Blocks::SAND);
-						++m_element_count;
-					}
-				} else if( y <= height_value + 20 ) {
-					
-					if (y == height_value + 20) {
-						height_value < 15 ?
-							setBlock(x, y, z, Blocks::GRASS):
-							setBlock(x, y, z, Blocks::SNOW_GRASS);
-					} else if(y > height_value + 16 ) {
+				if( y <= height ) {
+					if (y == height)
+						setBlock(x, y, z, Blocks::GRASS);
+					else if(y > height - 3 )
 						setBlock(x, y, z, Blocks::DIRT);
-					} else {
-						if(d(e))
-							setBlock(x, y, z, Blocks::STONE);
-						else
-							setBlock(x, y, z, Blocks::COBBLESTONE);
-					}
-
+					else
+						setBlock(x, y, z, Blocks::STONE);
 					++m_element_count;
-
 				}
 			}
-
 		}
-
 }
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {

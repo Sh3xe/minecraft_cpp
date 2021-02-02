@@ -9,6 +9,7 @@ PlayingState::PlayingState():
 void PlayingState::update( Input &input, double delta_time ) {
 	static double block_lock = 0.0; // used to limit the block breaking frequency
 
+
 	m_camera.update(input, delta_time);
 	m_world.update(delta_time, m_camera);
 
