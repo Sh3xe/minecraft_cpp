@@ -27,6 +27,7 @@ public:
 
 	void setBlock(int x, int y, int z, unsigned char type);
 	unsigned char getBlock(int x, int y, int z);
+	glm::ivec2 getPosition() {return m_position;}
 
 	void draw( Camera &camera, Texture &tileset, Shader &shader );
 

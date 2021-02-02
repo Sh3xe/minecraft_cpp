@@ -30,27 +30,7 @@ World::World():
 			it->second->generateTerrain(m_noise_generator);
 		}
 
-	// give each chunk its neighbours
-	for (int i = 0; i < WORLD_X; ++i)
-		for (int j = 0; j < WORLD_Z; ++j) {
-			// px = +x, mx = -x, pz = +z, mz = -z
-			Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
-
-			// get a reference to neighbours chunks
-			if (i > 0)
-				mx = m_chunks[std::pair<int, int>((i - 1) * 16, j * 16)];
-			if (i != WORLD_X - 1)
-				px = m_chunks[std::pair<int, int>((i + 1) * 16, j * 16)];
-			if (j > 0)
-				mz = m_chunks[std::pair<int, int>(i * 16, (j - 1) * 16)];
-			if (j != WORLD_Z - 1)
-				pz = m_chunks[std::pair<int, int>(i * 16, (j + 1) * 16)];
-				//;
-
-			// use the iterator to set neighbours chunks and generate terrain
-			m_chunks[ std::pair<int, int>(i * 16, j * 16) ]->setNeighbours(px, mx, pz, mz);
-
-		}
+	updateChunksNeighbours();
 
 	getBlock(0, 0, 0);
 }
@@ -58,6 +38,34 @@ World::World():
 World::~World(){
 	for (auto& chunk : m_chunks)
 		delete chunk.second;
+}
+
+void World::updateChunksNeighbours() {
+	for(auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
+		// set all pointers to nullptr
+		Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
+
+		// try to find the -x neighbour, if found, set "mx" to it
+		auto neighbour = m_chunks.find( std::pair<int, int>(it->first.first - 16, it->first.second) );
+		if(neighbour != m_chunks.end())
+			mx = neighbour->second;
+		// same for +x
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first + 16, it->first.second) );
+		if(neighbour != m_chunks.end())
+			px = neighbour->second;
+		// same for -y
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second - 16) );
+		if(neighbour != m_chunks.end())
+			mz = neighbour->second;
+		// same for +y
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + 16) );
+		if(neighbour != m_chunks.end())
+			pz = neighbour->second;
+
+		// set the neighbours chunk for this current chunk
+		it->second->setNeighbours(px, mx, pz, mz);
+
+	}
 }
 
 void World::setBlock(int x, int y, int z, unsigned char type) {
@@ -86,13 +94,57 @@ unsigned char World::getBlock(int x, int y, int z) {
 	return m_chunks[std::pair<int, int>(chunk_x * 16, chunk_z * 16)]->getBlock(coord_x, y, coord_z);
 }
 
+void World::update( double delta_time, Camera &camera ) {
+	// calculate the position of the chunk ( / 16 )
+	glm::ivec3 camera_position = camera.getPosition();
+	int chunk_x = ( static_cast<int>(camera_position.x) / CHUNK_X );
+	int chunk_z = ( static_cast<int>(camera_position.z) / CHUNK_Z );
+
+	bool chunk_changed = false;
+	// remove far away chunks
+	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) {
+		glm::ivec2 chunk_pos = chunk->second->getPosition();
+		if( // if the cunk is too far
+			chunk_pos.x > (chunk_x + 3) * 16 ||
+			chunk_pos.x < (chunk_x - 3) * 16 ||
+			chunk_pos.y > (chunk_z + 3) * 16 ||
+			chunk_pos.y < (chunk_z - 3) * 16
+			) {
+			// delete, erase
+			delete chunk->second;
+			chunk = m_chunks.erase(chunk);
+			chunk_changed = true;
+		}
+		else
+			++chunk;
+	}
+
+	if (chunk_changed) {
+
+		// add a chunk if needed
+		for (int i = chunk_x - 3; i <= chunk_x + 3; ++i)
+			for (int j = chunk_z - 3; j <= chunk_z + 3; ++j) {
+				auto it = m_chunks.find(std::pair<int, int>(i * 16, j * 16));
+				if (it == m_chunks.end()) {
+					auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, Chunk*>(
+						std::pair<int, int>(i * 16, j * 16), new Chunk(i * 16, j * 16)
+					)).first;
+					
+					new_chunk->second->generateTerrain(m_noise_generator);
+				}
+			}
+
+		updateChunksNeighbours();
+	}
+
+}
+
 void World::draw( Camera &camera ){
 	m_shader.use();
 
 	glm::mat4 view_matrix = camera.getViewMatrix();
 	m_shader.setMat4("view", glm::value_ptr(view_matrix));
 
-	for(int i = 0; i < WORLD_X; ++i)
-		for(int j = 0; j < WORLD_Z; ++j)
-			m_chunks[std::pair<int, int>(i * 16, j * 16)]->draw(camera, m_tilset, m_shader);
+	for(auto &chunk: m_chunks)
+		chunk.second->draw(camera, m_tilset, m_shader);
 }

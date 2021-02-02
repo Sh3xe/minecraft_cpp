@@ -1,6 +1,7 @@
 #include "perlin.hpp"
 
 #include <random>
+#include <iostream>
 #include <algorithm>
 
 using vec2d = std::pair<double, double>;
@@ -49,10 +50,14 @@ double PerlinNoise::fade(double t) {
 }
 
 double PerlinNoise::noise(double x, double y) {
-	int gx0 = static_cast<int>(x),
-		gy0 = static_cast<int>(y),
-		gx1 = (gx0 + 1) % 16,
-		gy1 = (gy0 + 1) % 16;
+
+	if (x < 0) x = -x;
+	if (y < 0) y = -y;
+
+	int gx0 = static_cast<int>(x) % 15,
+		gy0 = static_cast<int>(y) % 15,
+		gx1 = (gx0 + 1) % 15,
+		gy1 = (gy0 + 1) % 15;
 
 	double dtl = dot( getConstantVector(m_table[gx0 + gy0 * 16]), vec2d(x - gx0, y - gy0) ),
 		   dtr = dot( getConstantVector(m_table[gx1 + gy0 * 16]), vec2d(x - gx1, y - gy0) ),

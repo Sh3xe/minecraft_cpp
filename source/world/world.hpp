@@ -8,8 +8,8 @@
 #include "../opengl_wrapper/texture.hpp"
 #include "../core/perlin.hpp"
 
-#define WORLD_X 8
-#define WORLD_Z 8
+#define WORLD_X 7
+#define WORLD_Z 7
 
 class Camera;
 
@@ -22,15 +22,16 @@ public:
 	unsigned char getBlock(int x, int y, int z);
 
 	void draw( Camera &camera );
+	void update( double delta_time, Camera &camera );
 
 private:
+	void updateChunksNeighbours();
+
 	Shader m_shader;
 	Texture m_tilset;
 	PerlinNoise m_noise_generator;
 
 	std::map< std::pair<int, int>, Chunk*> m_chunks;
-	//std::map< std::pair<int, int> , std::unique_ptr<Chunk>> m_chunks;
-	//Chunk *m_chunks;
 };
 
 

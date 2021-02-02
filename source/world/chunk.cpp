@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <random>
+#include <iostream>
 
 #include "../core/perlin.hpp"
 #include "../core/camera.hpp"
@@ -52,11 +53,9 @@ void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 		if( z == CHUNK_Z - 1 ) m_neighbours[2]->m_should_update = true;
 		if( z == 0 ) m_neighbours[3]->m_should_update = true;
 	}
-
 }
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
-
 	// warning: only works for 1 block out-of-range.
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 	if(y >= CHUNK_Y)
@@ -71,7 +70,6 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 		return m_neighbours[2] != nullptr ? m_neighbours[2]->getBlock(x, y, 0): Blocks::STONE;
 	if(z < 0)
 		return m_neighbours[3] != nullptr ? m_neighbours[3]->getBlock(x, y, CHUNK_Z - 1): Blocks::STONE;
-
 	// return the block in the current chunk
 	return m_block_data[x][z][y];
 }
@@ -225,7 +223,7 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 			}
 
 		}
-	
+
 }
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
