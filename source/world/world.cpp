@@ -64,23 +64,47 @@ void World::updateChunksNeighbours() {
 }
 
 void World::setBlock(int x, int y, int z, unsigned char type) {
+	// the the coordinates of the chunk where x, y, z is located
 	int chunk_x = x / CHUNK_X,
 		chunk_z = z / CHUNK_Z;
 
+	// get the coordinate of x, y, z inside this chunk
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 	
+	if( x < 0 ) { // handle the case when x is negative
+		--chunk_x;
+		coord_x += CHUNK_X - 1;
+	}
+
+	if( z < 0 ) { // handle the case when z is negative
+		--chunk_z;
+		coord_z += CHUNK_Z - 1;
+	}
+
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 	if (chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
 		chunk->second->setBlock(coord_x, y, coord_z, type);
 }
 
 unsigned char World::getBlock(int x, int y, int z) {
+	// the the coordinates of the chunk where x, y, z is located
 	int chunk_x = x / CHUNK_X,
 		chunk_z = z / CHUNK_Z;
 
+	// get the coordinate of x, y, z inside this chunk
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
+
+	if( x < 0 ) { // handle the case when x is negative
+		--chunk_x;
+		coord_x += CHUNK_X - 1;
+	}
+
+	if( z < 0 ) { // handle the case when z is negative
+		--chunk_z;
+		coord_z += CHUNK_Z - 1;
+	}
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 	if(chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
