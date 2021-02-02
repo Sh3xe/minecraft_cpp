@@ -1,5 +1,6 @@
 #include "world.hpp"
 
+#include <vector>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 #include "../core/camera.hpp"
@@ -19,15 +20,15 @@ World::World():
 
 	// construct chunks
 	for(int i = 0; i < WORLD_X; ++i)
-		for (int j = 0; j < WORLD_Z; ++j) {
-			// insert a unique_ptr<Chunk> at [i * 16, j * 16] location, and get an iterator to the inserted element
-			auto it = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
-			)).first;
+	for (int j = 0; j < WORLD_Z; ++j) {
+		// insert a unique_ptr<Chunk> at [i * 16, j * 16] location, and get an iterator to the inserted element
+		auto it = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
+			std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
+		)).first;
 
-			// use the iterator to set neighbours chunks and generate terrain
-			it->second->generateTerrain(m_noise_generator);
-		}
+		// use the iterator to set neighbours chunks and generate terrain
+		it->second->generateTerrain(m_noise_generator);
+	}
 
 	updateChunksNeighbours();
 }
@@ -45,14 +46,17 @@ void World::updateChunksNeighbours() {
 		auto neighbour = m_chunks.find( std::pair<int, int>(it->first.first - 16, it->first.second) );
 		if (neighbour != m_chunks.end())
 			mx = neighbour->second.get();
+
 		// same for +x
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first + 16, it->first.second) );
 		if(neighbour != m_chunks.end())
 			px = neighbour->second.get();
+
 		// same for -y
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second - 16) );
 		if(neighbour != m_chunks.end())
 			mz = neighbour->second.get();
+
 		// same for +y
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + 16) );
 		if(neighbour != m_chunks.end())
@@ -123,12 +127,12 @@ void World::update( double delta_time, Camera &camera ) {
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) {
 		glm::ivec2 chunk_pos = chunk->second->getPosition();
 		if( // if the cunk is too far
-			chunk_pos.x > (chunk_x + 3) * 16 ||
-			chunk_pos.x < (chunk_x - 3) * 16 ||
-			chunk_pos.y > (chunk_z + 3) * 16 ||
-			chunk_pos.y < (chunk_z - 3) * 16
+			chunk_pos.x > (chunk_x + RENDER_DISTANCE) * 16 ||
+			chunk_pos.x < (chunk_x - RENDER_DISTANCE) * 16 ||
+			chunk_pos.y > (chunk_z + RENDER_DISTANCE) * 16 ||
+			chunk_pos.y < (chunk_z - RENDER_DISTANCE) * 16
 			) {
-			// delete, erase
+			// erase, delete, kill
 			chunk = m_chunks.erase(chunk);
 			chunk_changed = true;
 		}
@@ -136,21 +140,29 @@ void World::update( double delta_time, Camera &camera ) {
 			++chunk;
 	}
 
+	// hold iterators to added_chunks, used to generate terrain AFTER updating neighbours
+	std::vector< std::map< std::pair<int, int>, std::unique_ptr<Chunk>>::iterator > added_chunks;
+	added_chunks.reserve(8);
+
 	if (chunk_changed) {
 		// add a chunk if needed
-		for (int i = chunk_x - 3; i <= chunk_x + 3; ++i)
-			for (int j = chunk_z - 3; j <= chunk_z + 3; ++j) {
-				auto it = m_chunks.find(std::pair<int, int>(i * 16, j * 16));
-				if (it == m_chunks.end()) {
-					auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-						std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
-					)).first;
-					
-					new_chunk->second->generateTerrain(m_noise_generator);
-				}
+		for (int i = chunk_x - RENDER_DISTANCE; i <= chunk_x + RENDER_DISTANCE; ++i)
+		for (int j = chunk_z - RENDER_DISTANCE; j <= chunk_z + RENDER_DISTANCE; ++j) {
+			auto it = m_chunks.find(std::pair<int, int>(i * 16, j * 16));
+			if (it == m_chunks.end()) {
+				auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
+					std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
+				)).first;
+				
+				added_chunks.push_back(new_chunk);
 			}
-
+		}
+		
 		updateChunksNeighbours();
+
+		// after updating everyone's neighbours, we can finally generate terrain of everyone
+		for(auto &it: added_chunks)
+			it->second->generateTerrain(m_noise_generator);
 	}
 
 }

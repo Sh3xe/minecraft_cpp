@@ -10,6 +10,7 @@
 
 #define WORLD_X 7
 #define WORLD_Z 7
+#define RENDER_DISTANCE 3
 
 class Camera;
 
@@ -25,6 +26,7 @@ public:
 	void update( double delta_time, Camera &camera );
 
 private:
+	/* used to update the m_neighbours ( used to communicate to adjacent chunks an update ) array of each chunk of the world */
 	void updateChunksNeighbours();
 
 	Shader m_shader;
@@ -32,7 +34,6 @@ private:
 	PerlinNoise m_noise_generator;
 
 	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
-	//std::map< std::pair<int, int>, Chunk*> m_chunks;
 };
 
 

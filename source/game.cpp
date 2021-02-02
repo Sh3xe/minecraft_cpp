@@ -76,12 +76,15 @@ void Game::handleEvents() {
 
 	// get the old position, calculate the new one
 	glm::ivec2 old_mouse_pos = m_input.getMousePosition();
-	m_input.setMousePosition(
-		old_mouse_pos.x + mouse_x - (m_config.window_width/2),
-		old_mouse_pos.y + mouse_y - (m_config.window_height/2) );
 
-	// replace the cursor in the center
-	SDL_WarpMouseInWindow(m_window, m_config.window_width/2, m_config.window_height/2);
+	if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_INPUT_FOCUS) {
+		m_input.setMousePosition(
+			old_mouse_pos.x + mouse_x - (m_config.window_width/2),
+			old_mouse_pos.y + mouse_y - (m_config.window_height/2) );
+
+		// replace the cursor in the center
+		SDL_WarpMouseInWindow(m_window, m_config.window_width/2, m_config.window_height/2);
+	}
 
 	// Quits when ESC is pressed
 	if(m_input.isKeyPressed(SDL_SCANCODE_ESCAPE))

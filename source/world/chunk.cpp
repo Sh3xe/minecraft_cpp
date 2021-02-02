@@ -2,7 +2,6 @@
 
 #include <glad/glad.h>
 #include <random>
-#include <iostream>
 
 #include "../core/perlin.hpp"
 #include "../core/camera.hpp"
@@ -27,6 +26,12 @@ Chunk::Chunk(int x, int z):
 
 Chunk::Chunk() :
 	Chunk(0, 0) {
+}
+
+
+Chunk::~Chunk() {
+	glDeleteVertexArrays(1, &m_vao);
+	glDeleteBuffers(1, &m_vbo);
 }
 
 void Chunk::setPosition(int x, int z) {
@@ -84,92 +89,92 @@ void Chunk::generateMesh() {
 	int i = 0;
 
 	for(int x = 0; x < CHUNK_X; ++x)
-		for(int z = 0; z < CHUNK_Z; ++z)
-			for(int y = 0; y < CHUNK_Y; ++y) {
-				// adds a face the the mesh if needed
+	for(int z = 0; z < CHUNK_Z; ++z)
+	for(int y = 0; y < CHUNK_Y; ++y) {
+		// adds a face the the mesh if needed
 
-				unsigned char type = getBlock(x, y, z);
-				if(type == Blocks::AIR) continue;
+		unsigned char type = getBlock(x, y, z);
+		if(type == Blocks::AIR) continue;
 
-				// +x
-				if (!getBlock(x+1, y, z)) {
-					int texture_x = Blocks::block_faces[type][0] % 16;
-					int texture_y = Blocks::block_faces[type][0] / 16;
-					vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 0, texture_y + 1, 230 };
-					vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 230 };
-					vertices[i++] = Vertex{ x+1, y  , z+1, texture_x + 1, texture_y + 1, 230 };
-					vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 0, texture_y + 1, 230 };
-					vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 0, texture_y + 0, 230 };
-					vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 230 };
-					++m_face_count;
-				}
+		// +x
+		if (!getBlock(x+1, y, z)) {
+			int texture_x = Blocks::block_faces[type][0] % 16;
+			int texture_y = Blocks::block_faces[type][0] / 16;
+			vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 0, texture_y + 1, 230 };
+			vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 230 };
+			vertices[i++] = Vertex{ x+1, y  , z+1, texture_x + 1, texture_y + 1, 230 };
+			vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 0, texture_y + 1, 230 };
+			vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 0, texture_y + 0, 230 };
+			vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 230 };
+			++m_face_count;
+		}
 
-				// -x
-				if (!getBlock(x-1, y, z)) {
-					int texture_x = Blocks::block_faces[type][1]%16;
-					int texture_y = Blocks::block_faces[type][1]/16;
-					vertices[i++] = Vertex (x, y  , z+1, texture_x+0, texture_y+1, 230);
-					vertices[i++] = Vertex (x, y+1, z  , texture_x+1, texture_y+0, 230);
-					vertices[i++] = Vertex (x, y  , z  , texture_x+1, texture_y+1, 230);
-					vertices[i++] = Vertex (x, y  , z+1, texture_x+0, texture_y+1, 230);
-					vertices[i++] = Vertex (x, y+1, z+1, texture_x+0, texture_y+0, 230);
-					vertices[i++] = Vertex (x, y+1, z  , texture_x+1, texture_y+0, 230);
-					++m_face_count;
-				}
+		// -x
+		if (!getBlock(x-1, y, z)) {
+			int texture_x = Blocks::block_faces[type][1]%16;
+			int texture_y = Blocks::block_faces[type][1]/16;
+			vertices[i++] = Vertex (x, y  , z+1, texture_x+0, texture_y+1, 230);
+			vertices[i++] = Vertex (x, y+1, z  , texture_x+1, texture_y+0, 230);
+			vertices[i++] = Vertex (x, y  , z  , texture_x+1, texture_y+1, 230);
+			vertices[i++] = Vertex (x, y  , z+1, texture_x+0, texture_y+1, 230);
+			vertices[i++] = Vertex (x, y+1, z+1, texture_x+0, texture_y+0, 230);
+			vertices[i++] = Vertex (x, y+1, z  , texture_x+1, texture_y+0, 230);
+			++m_face_count;
+		}
 
-				// +y
-				if (!getBlock(x, y+1, z)) {
-					int texture_x = Blocks::block_faces[type][2] % 16;
-					int texture_y = Blocks::block_faces[type][2] / 16;
-					vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 1, 255 };
-					vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 255 };
-					vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 1, 255 };
-					vertices[i++] = Vertex{ x  , y+1, z+1, texture_x + 0, texture_y + 0, 255 };
-					vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 255 };
-					vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 1, 255 };
-					++m_face_count;
-				}
+		// +y
+		if (!getBlock(x, y+1, z)) {
+			int texture_x = Blocks::block_faces[type][2] % 16;
+			int texture_y = Blocks::block_faces[type][2] / 16;
+			vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 1, 255 };
+			vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 255 };
+			vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 1, 255 };
+			vertices[i++] = Vertex{ x  , y+1, z+1, texture_x + 0, texture_y + 0, 255 };
+			vertices[i++] = Vertex{ x+1, y+1, z+1, texture_x + 1, texture_y + 0, 255 };
+			vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 1, 255 };
+			++m_face_count;
+		}
 
-				// -y
-				if (!getBlock(x, y - 1, z)) {
-					int texture_x = Blocks::block_faces[type][3]%16;
-					int texture_y = Blocks::block_faces[type][3]/16;
-					vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150};
-					vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
-					vertices[i++] = Vertex {x+1, y  , z  , texture_x+0, texture_y+1, 150 };
-					vertices[i++] = Vertex {x  , y  , z+1, texture_x+1, texture_y+0, 150 };
-					vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
-					vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150 };
-					++m_face_count;
-				}
-				
-				// +z
-				if (!getBlock(x, y, z + 1)) {
-					int texture_x = Blocks::block_faces[type][5] % 16;
-					int texture_y = Blocks::block_faces[type][5] / 16;
-					vertices[i++] = Vertex{ x + 1, y  , z + 1, texture_x + 0, texture_y + 1, 200 };
-					vertices[i++] = Vertex{ x  , y + 1, z + 1, texture_x + 1, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x  , y  , z + 1, texture_x + 1, texture_y + 1, 200 };
-					vertices[i++] = Vertex{ x + 1, y + 1, z + 1, texture_x + 0, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x  , y + 1, z + 1, texture_x + 1, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x + 1, y  , z + 1, texture_x + 0, texture_y + 1, 200 };
-					++m_face_count;
-				}
+		// -y
+		if (!getBlock(x, y - 1, z)) {
+			int texture_x = Blocks::block_faces[type][3]%16;
+			int texture_y = Blocks::block_faces[type][3]/16;
+			vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150};
+			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
+			vertices[i++] = Vertex {x+1, y  , z  , texture_x+0, texture_y+1, 150 };
+			vertices[i++] = Vertex {x  , y  , z+1, texture_x+1, texture_y+0, 150 };
+			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
+			vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150 };
+			++m_face_count;
+		}
+		
+		// +z
+		if (!getBlock(x, y, z + 1)) {
+			int texture_x = Blocks::block_faces[type][5] % 16;
+			int texture_y = Blocks::block_faces[type][5] / 16;
+			vertices[i++] = Vertex{ x + 1, y  , z + 1, texture_x + 0, texture_y + 1, 200 };
+			vertices[i++] = Vertex{ x  , y + 1, z + 1, texture_x + 1, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x  , y  , z + 1, texture_x + 1, texture_y + 1, 200 };
+			vertices[i++] = Vertex{ x + 1, y + 1, z + 1, texture_x + 0, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x  , y + 1, z + 1, texture_x + 1, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x + 1, y  , z + 1, texture_x + 0, texture_y + 1, 200 };
+			++m_face_count;
+		}
 
-				// -z
-				if (!getBlock(x, y, z - 1)) {
-					int texture_x = Blocks::block_faces[type][4] % 16;
-					int texture_y = Blocks::block_faces[type][4] / 16;
-					vertices[i++] = Vertex{ x  , y  , z  , texture_x + 0, texture_y + 1, 200 };
-					vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 1, texture_y + 1, 200 };
-					vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 0, 200 };
-					vertices[i++] = Vertex{ x  , y  , z  , texture_x + 0, texture_y + 1, 200 };
-					++m_face_count;
-				}
+		// -z
+		if (!getBlock(x, y, z - 1)) {
+			int texture_x = Blocks::block_faces[type][4] % 16;
+			int texture_y = Blocks::block_faces[type][4] / 16;
+			vertices[i++] = Vertex{ x  , y  , z  , texture_x + 0, texture_y + 1, 200 };
+			vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x+1, y  , z  , texture_x + 1, texture_y + 1, 200 };
+			vertices[i++] = Vertex{ x  , y+1, z  , texture_x + 0, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x+1, y+1, z  , texture_x + 1, texture_y + 0, 200 };
+			vertices[i++] = Vertex{ x  , y  , z  , texture_x + 0, texture_y + 1, 200 };
+			++m_face_count;
+		}
 
-			}
+	}
 	
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -189,25 +194,36 @@ void Chunk::generateMesh() {
 
 void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 	// shitty, temporary world generation
+	static std::default_random_engine e;
+	static std::bernoulli_distribution d(0.8);
 
 	m_element_count = 0;
-	for(int x = 0; x < CHUNK_X; ++x)
-		for(int z = 0; z < CHUNK_Z; ++z) {
-			int height = 10 + noise_generator.noise(0.1 * (m_position.x + x), 0.1 * (m_position.y + z)) * 10;
-			if (height < 0) height = 0;
-			//int height = 10;
-			for(int y = 0; y < CHUNK_Y; ++y) {
-				if( y <= height ) {
-					if (y == height)
-						setBlock(x, y, z, Blocks::GRASS);
-					else if(y > height - 3 )
-						setBlock(x, y, z, Blocks::DIRT);
-					else
-						setBlock(x, y, z, Blocks::STONE);
+	for (int x = 0; x < CHUNK_X; ++x)
+	for (int z = 0; z < CHUNK_Z; ++z) {
+		int biome_value = noise_generator.noise((m_position.x + x) * 0.05, (m_position.y + z) * 0.05) * 10.0;
+		int height_value = 30 + (noise_generator.noise((m_position.x + x) * 0.05, (m_position.y + z) * 0.05) * 2 + noise_generator.noise((m_position.x + x) * 0.01, (m_position.y + z) * 0.01)) * 5;
+		for (int y = 0; y < CHUNK_Y; ++y) {
+			if (biome_value < 0) {
+				if (y < height_value * 0.8) {
+					setBlock(x, y, z, Blocks::SAND);
 					++m_element_count;
 				}
+			} else if (y <= height_value) {
+				if (y == height_value) {
+					height_value < 35 ?
+						setBlock(x, y, z, Blocks::GRASS) :
+						setBlock(x, y, z, Blocks::SNOW_GRASS);
+				} else if (y > height_value) {
+					setBlock(x, y, z, Blocks::DIRT);
+				} else {
+					if (d(e))
+						setBlock(x, y, z, Blocks::STONE);
+					else
+						setBlock(x, y, z, Blocks::COBBLESTONE);
+				}
+				++m_element_count;
 			}
-		}
+		}}
 }
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {

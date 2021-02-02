@@ -24,6 +24,7 @@ void PlayingState::update( Input &input, double delta_time ) {
 	block_lock -= delta_time;
 	if(block_lock < 0.0) block_lock = 0.0;
 
+	// BLOCK BREAKING
 	if(input.getClickState().first && block_lock == 0.0) { // if the player left-click and is not locked
 		// cast a ray
 		glm::vec3 direction = m_camera.getDirection(),
@@ -36,6 +37,27 @@ void PlayingState::update( Input &input, double delta_time ) {
 			if(m_world.getBlock(ray_pos.x, ray_pos.y, ray_pos.z) != Blocks::AIR) {
 				// destroy it, stop the ray cast, and reset "block_lock"
 				m_world.setBlock(ray_pos.x, ray_pos.y, ray_pos.z, Blocks::AIR);
+				done = true;
+				block_lock = 0.25;
+			}
+		}
+	}
+
+	// BLOCK PLACING
+	if(input.getClickState().second && block_lock == 0.0) { // if the player right-click and is not locked
+		// cast a ray
+		glm::vec3 direction = m_camera.getDirection(),
+				  position = m_camera.getPosition();
+
+		bool done = false;
+		for(int i = 0; i < 25 && !done; ++i) {
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 5.0);
+			// if we find a block
+			if(m_world.getBlock(ray_pos.x, ray_pos.y, ray_pos.z) != Blocks::AIR) {
+				// get the previous position
+				ray_pos -= direction * 0.2f;
+				// place a brick block
+				m_world.setBlock(ray_pos.x, ray_pos.y, ray_pos.z, Blocks::BRICK);
 				done = true;
 				block_lock = 0.25;
 			}

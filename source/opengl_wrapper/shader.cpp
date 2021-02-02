@@ -40,6 +40,11 @@ Shader::Shader( const std::string &vs_path, const std::string &fs_path ):
 	glDeleteShader(fragment_shader);
 }
 
+Shader::~Shader() {
+	glDeleteProgram(m_id);
+}
+
+
 unsigned Shader::compileShader( const std::string &path, unsigned type ) {
 
 	// open the file

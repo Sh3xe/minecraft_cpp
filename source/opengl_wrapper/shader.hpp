@@ -6,7 +6,7 @@
 class Shader {
 public:
 	Shader( const std::string &vs_path, const std::string &fs_path );
-	//~Shader();
+	~Shader();
 
 	inline unsigned getId() const { return m_id; }
 	operator bool() const { return m_is_valid; }

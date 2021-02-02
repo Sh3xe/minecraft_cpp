@@ -7,6 +7,7 @@
 class Texture {
 public:
 	Texture( const std::string &path );
+	~Texture();
 	inline unsigned getId() const { return m_id; }
 
 	// return true when the image is valid

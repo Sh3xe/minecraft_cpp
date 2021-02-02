@@ -19,7 +19,7 @@ class Chunk {
 public:
 	Chunk();
 	Chunk(int x, int z);
-	//~Chunk() { std::cout << "chunk destroyed for some reasons"; }
+	~Chunk();
 
 	void setPosition(int x, int z);
 	void setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);

@@ -1,6 +1,7 @@
 #ifndef VERTEX_INCLUDED_
 #define VERTEX_INCLUDED_
 
+// hold information as unsigned char ( GL_UNSIGNED_BYTE )
 struct Vertex {
 	Vertex() = default;
 

@@ -2,7 +2,7 @@
 #include "input.hpp"
 
 #include <glm/ext.hpp>
-#include <iostream>
+//#include <iostream>
 
 Camera::Camera(const glm::vec3& position, const glm::vec3& up):
 	m_position(position), m_up(up) {
@@ -65,7 +65,7 @@ void Camera::update(Input& input, double delta_time) {
 	direction.z = sin(m_yaw) * cos(m_pitch);
 	m_direction = glm::normalize(direction);
 
-	std::cout << m_position.x << ' ' << m_position.z << '\n';
+	//std::cout << m_position.x << ' ' << m_position.z << '\n';
 }
 
 

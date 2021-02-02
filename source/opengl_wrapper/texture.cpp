@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-#include <iostream>
-
 #include "../cmake_defines.hpp"
 
 Texture::Texture( const std::string &path ):
@@ -39,4 +37,8 @@ Texture::Texture( const std::string &path ):
 
 	// free image data
 	stbi_image_free(image_data);
+}
+
+Texture::~Texture() {
+	glDeleteTextures(1, &m_id);
 }
