@@ -12,6 +12,7 @@ public:
 
 	void setPosition( const glm::vec3 &position);
 	void setUp( const glm::vec3 &up);
+	void setSensitivity(double sensitivity);
 
 	glm::vec3 getPosition() { return m_position; }
 	glm::vec3 getDirection() { return m_direction; }
@@ -25,6 +26,7 @@ private:
 	glm::vec3 m_direction = glm::vec3(1.f, 0.f, 0.f);
 
 	float m_pitch = 0.f, m_yaw = 0.f;
+	double m_sensitivity = 0.005;
 
 };
 

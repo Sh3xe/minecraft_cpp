@@ -7,11 +7,16 @@ in float pixel_distance;
 uniform sampler2D u_texture;
 
 const vec4 fog_color = vec4(0.0, 0.6, 1.0, 1.0);
+const int fog_distance = 2000;
 
 void main() {
 	vec4 texture_color = texture(u_texture, texture_coords / 16) * light_value;
 	
-	float fog = pixel_distance / 5000;
+	// pseudo fog implementation
+	float fog = 0.0;
+	//if(pixel_distance > fog_distance) {
+	//	fog = (pixel_distance - fog_distance) / 500;
+	//}
 
 	if(fog > 1)
 		gl_FragColor = fog_color;

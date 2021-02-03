@@ -8,6 +8,7 @@ struct Config {
 	int window_height        = 720;
 	int fps_limit            = 60;
 	bool fps_cap             = true;
+	double sensitivity       = 0.005;
 	std::string window_title = "Window";
 
 	Config &loadFromFile( const std::string &path );

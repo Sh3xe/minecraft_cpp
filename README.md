@@ -4,7 +4,8 @@ A simple minecraft clone
 ## features
 - can remove blocks
 - simple world gen
-- far lands (not meant and not so far but still!!)
+- infinite world
+- cam remove blocks, place bricks
 
 ## screenshots
 
@@ -14,7 +15,5 @@ A simple minecraft clone
 
 ## Todo
 
-- removing / adding Blocks
-- infinite world gen
 - biomes
 - water

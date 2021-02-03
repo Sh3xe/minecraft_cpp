@@ -5,9 +5,11 @@
 #include "../world/world.hpp"
 #include "../core/camera.hpp"
 
+struct Config;
+
 class PlayingState: public State {
 public:
-	PlayingState();
+	PlayingState( Config &config );
 
 	virtual void update( Input &input, double delta_time ) override;
 	virtual void render() override;

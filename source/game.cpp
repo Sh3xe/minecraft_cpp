@@ -8,7 +8,7 @@ Game::Game(const Config &config):
 	m_config(config) {
 
 	initWindow();
-	m_states.push_back( std::unique_ptr<PlayingState>( new PlayingState() ) );
+	m_states.push_back( std::unique_ptr<PlayingState>( new PlayingState(m_config) ) );
 	
 }
 

@@ -10,10 +10,10 @@
 #define CHUNK_Z 16
 
 class Camera;
-class World;
 class Texture;
 class Shader;
 class PerlinNoise;
+class World;
 
 class Chunk {
 public:
@@ -24,6 +24,7 @@ public:
 	void setPosition(int x, int z);
 	void setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
 	void generateTerrain(PerlinNoise &noise_generator);
+	void generateMesh();
 
 	void setBlock(int x, int y, int z, unsigned char type);
 	unsigned char getBlock(int x, int y, int z);
@@ -32,8 +33,9 @@ public:
 	void draw( Camera &camera, Texture &tileset, Shader &shader );
 
 	bool m_should_update = true;
+
 private:
-	void generateMesh();
+	glm::ivec2 m_position;
 
 	int m_element_count = 0;
 	int m_face_count = 0;
@@ -43,7 +45,6 @@ private:
 	std::array<std::array<std::array<unsigned char, CHUNK_Y>, CHUNK_Z>, CHUNK_X> m_block_data;
 	std::array<Chunk*, 4> m_neighbours;
 
-	glm::ivec2 m_position;
 
 };
 

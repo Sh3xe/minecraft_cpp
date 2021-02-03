@@ -16,6 +16,11 @@ void Camera::setUp(const glm::vec3& up) {
 	m_up = up;
 }
 
+void Camera::setSensitivity(double sensitivity) {
+	m_sensitivity = sensitivity;
+}
+
+
 void Camera::update(Input& input, double delta_time) {
 	// calculate new player position
 	glm::vec3 front(m_direction.x, 0, m_direction.z);
@@ -50,8 +55,8 @@ void Camera::update(Input& input, double delta_time) {
 	last_mouse_position = input.getMousePosition();
 
 
-	m_pitch -= 0.005 * delta_mouse.y;
-	m_yaw   += 0.005 * delta_mouse.x;
+	m_pitch -= m_sensitivity * delta_mouse.y;
+	m_yaw   += m_sensitivity * delta_mouse.x;
 
 	const float piovertwo = glm::pi<float>() / 2.0f;
 

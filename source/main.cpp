@@ -2,9 +2,8 @@
 #undef main // idk
 
 /*  TODO:
-	- fix ram consumption
 	- add better world generation
-	- fix chunk side mesh not updating correctly when generated
+	- being able to place differents types of blocks
 
 	LONG TERM TODO:
 	- add transparency and water when gud enough

@@ -51,3 +51,26 @@ message("Glad found")
 set(LIBS SDL2_LIBRARY opengl32 STB_IMAGE GLAD)
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
+
+
+
+# Create virtual folders to make it look nicer in VS
+if(MSVC_IDE)
+	# Macro to preserve source files hierarchy in the IDE
+	macro(GroupSources curdir)
+		file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir} ${PROJECT_SOURCE_DIR}/${curdir}/*)
+
+		foreach(child ${children})
+			if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${curdir}/${child})
+				GroupSources(${curdir}/${child})
+			else()
+				string(REPLACE "/" "\\" groupname ${curdir})
+				string(REPLACE "source" "Sources" groupname ${groupname})
+				source_group(${groupname} FILES ${PROJECT_SOURCE_DIR}/${curdir}/${child})
+			endif()
+		endforeach()
+	endmacro()
+
+	# Run macro
+	GroupSources(source)
+endif()

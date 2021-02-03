@@ -3,3 +3,5 @@ source/config.h
 dev_files
 .vscode
 minecraft_cpp.lnk
+out
+.vs

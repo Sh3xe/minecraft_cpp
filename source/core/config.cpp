@@ -11,6 +11,7 @@ Config &Config::loadFromFile( const std::string &path ) {
 
 	file >> window_width >> window_height;
 	file >> fps_limit >> fps_cap;
+	file >> sensitivity;
 
 	file.close();
 	return *this;

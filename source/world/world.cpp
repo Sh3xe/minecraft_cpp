@@ -9,7 +9,7 @@
 World::World():
 	m_shader("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl"),
 	m_tilset("resources/images/tileset.png"),
-	m_noise_generator(0)  {
+	m_noise_generator(0) {
 	
 	// set shader uniforms
 	glm::mat4 model_matrix(1.0f);
@@ -20,7 +20,7 @@ World::World():
 
 	// construct chunks
 	for(int i = 0; i < WORLD_X; ++i)
-	for (int j = 0; j < WORLD_Z; ++j) {
+	for(int j = 0; j < WORLD_Z; ++j) {
 		// insert a unique_ptr<Chunk> at [i * 16, j * 16] location, and get an iterator to the inserted element
 		auto it = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
 			std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
@@ -52,12 +52,12 @@ void World::updateChunksNeighbours() {
 		if(neighbour != m_chunks.end())
 			px = neighbour->second.get();
 
-		// same for -y
+		// same for -z
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second - 16) );
 		if(neighbour != m_chunks.end())
 			mz = neighbour->second.get();
 
-		// same for +y
+		// same for +z
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + 16) );
 		if(neighbour != m_chunks.end())
 			pz = neighbour->second.get();
@@ -140,11 +140,12 @@ void World::update( double delta_time, Camera &camera ) {
 			++chunk;
 	}
 
-	// hold iterators to added_chunks, used to generate terrain AFTER updating neighbours
-	std::vector< std::map< std::pair<int, int>, std::unique_ptr<Chunk>>::iterator > added_chunks;
-	added_chunks.reserve(8);
-
+	// add new chunk if needed
 	if (chunk_changed) {
+		// keep track of added chunks
+		std::vector < decltype(m_chunks.begin()) > added_chunks;
+		added_chunks.reserve(8);
+
 		// add a chunk if needed
 		for (int i = chunk_x - RENDER_DISTANCE; i <= chunk_x + RENDER_DISTANCE; ++i)
 		for (int j = chunk_z - RENDER_DISTANCE; j <= chunk_z + RENDER_DISTANCE; ++j) {
@@ -153,16 +154,15 @@ void World::update( double delta_time, Camera &camera ) {
 				auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
 					std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
 				)).first;
-				
+
 				added_chunks.push_back(new_chunk);
 			}
 		}
 		
 		updateChunksNeighbours();
 
-		// after updating everyone's neighbours, we can finally generate terrain of everyone
-		for(auto &it: added_chunks)
-			it->second->generateTerrain(m_noise_generator);
+		for (auto chunk : added_chunks)
+			chunk->second->generateTerrain(m_noise_generator);
 	}
 
 }

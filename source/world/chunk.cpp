@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <random>
 
+#include "world.hpp"
 #include "../core/perlin.hpp"
 #include "../core/camera.hpp"
 #include "../opengl_wrapper/vertex.hpp"
@@ -45,6 +46,10 @@ void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 	m_neighbours[1] = mx;
 	m_neighbours[2] = pz;
 	m_neighbours[3] = mz;
+
+	//for(Chunk *neighbour: m_neighbours)
+	//	if( neighbour != nullptr )
+	//		neighbour->m_should_update = true;
 }
 
 
@@ -52,12 +57,10 @@ void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 	m_block_data[x][z][y] = type;
 	m_should_update = true;
 
-	if(type == Blocks::AIR) { // we might need to update nearby chunks to make sure there is no hole when breaking blocks
-		if( x == CHUNK_X - 1 ) m_neighbours[0]->m_should_update = true;
-		if( x == 0 ) m_neighbours[1]->m_should_update = true;
-		if( z == CHUNK_Z - 1 ) m_neighbours[2]->m_should_update = true;
-		if( z == 0 ) m_neighbours[3]->m_should_update = true;
-	}
+	if( x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->m_should_update = true;
+	if( x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->m_should_update = true;
+	if( z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->m_should_update = true;
+	if( z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;
 }
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
@@ -79,6 +82,7 @@ unsigned char Chunk::getBlock(int x, int y, int z) {
 	// return the block in the current chunk
 	return m_block_data[x][z][y];
 }
+
 
 void Chunk::generateMesh() {
 	// updates the block's vbo.
@@ -204,7 +208,7 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 		int height_value = 30 + (noise_generator.noise((m_position.x + x) * 0.05, (m_position.y + z) * 0.05) * 2 + noise_generator.noise((m_position.x + x) * 0.01, (m_position.y + z) * 0.01)) * 5;
 		for (int y = 0; y < CHUNK_Y; ++y) {
 			if (biome_value < 0) {
-				if (y < height_value * 0.8) {
+				if (y < height_value * 0.9) {
 					setBlock(x, y, z, Blocks::SAND);
 					++m_element_count;
 				}
@@ -213,7 +217,7 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 					height_value < 35 ?
 						setBlock(x, y, z, Blocks::GRASS) :
 						setBlock(x, y, z, Blocks::SNOW_GRASS);
-				} else if (y > height_value) {
+				} else if (y > height_value - 3) {
 					setBlock(x, y, z, Blocks::DIRT);
 				} else {
 					if (d(e))
@@ -226,8 +230,9 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 		}}
 }
 
+
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
-	if(m_should_update)
+	if( m_should_update ) 
 		generateMesh();
 	
 	if(m_element_count) {
