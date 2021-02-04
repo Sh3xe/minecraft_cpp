@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 PlayingState::PlayingState( Config &config ):
+	m_world( config.fog_enabled ),
 	// place the camera at the center of the world
 	m_camera(glm::vec3(CHUNK_X * WORLD_X * 0.5f, 64.0f, CHUNK_Z * WORLD_Z * 0.5f), glm::vec3(0.f, 1.f, 0.f)) {
 	m_camera.setSensitivity(config.sensitivity);

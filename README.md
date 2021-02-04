@@ -1,5 +1,8 @@
 # Minecraft C++
-A simple minecraft clone
+A simple minecraft clone,
+
+some solutions to some problemes (ex: placing trees..) are not good at all
+but will be replaced in later commit
 
 ## features
 - can remove blocks
@@ -15,5 +18,5 @@ A simple minecraft clone
 
 ## Todo
 
-- biomes
+-better world gen
 - water

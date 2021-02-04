@@ -16,7 +16,7 @@ class Camera;
 
 class World {
 public:
-	World();
+	World(bool fog_enable = true);
 	~World();
 
 	void setBlock(int x, int y, int z, unsigned char type);

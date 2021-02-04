@@ -35,6 +35,8 @@ public:
 	bool m_should_update = true;
 
 private:
+	void plantTree(int x, int y, int z);
+
 	glm::ivec2 m_position;
 
 	int m_element_count = 0;

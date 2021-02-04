@@ -1,0 +1,7 @@
+title
+width height fps fps_cap fog_enabled sensitivity
+
+title in one line
+width, height, fps are ints            ex: 1245
+fps_cap, fog_enabled are bool (0 or 1) ex: 0
+sensitivity is float/ double           ex 0.045

@@ -43,6 +43,13 @@ namespace Blocks {
 		{16, 16, 16, 16, 16, 16},
 		{17, 17, 18, 0, 17, 17}
 	};
+
+	const BlockType tree_blocks[36] {
+		AIR, AIR, AIR, AIR, WOOD, AIR, AIR, AIR, AIR,
+		LEAF, LEAF, LEAF, LEAF, WOOD, LEAF, LEAF, LEAF, LEAF,
+		AIR, LEAF, AIR, LEAF, WOOD, LEAF, AIR, LEAF, AIR,
+		AIR, AIR, AIR, AIR, LEAF, AIR, AIR, AIR, AIR,
+	};
 }
 
 #endif

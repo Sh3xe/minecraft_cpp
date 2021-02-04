@@ -10,7 +10,7 @@ Config &Config::loadFromFile( const std::string &path ) {
 	std::getline(file, window_title);
 
 	file >> window_width >> window_height;
-	file >> fps_limit >> fps_cap;
+	file >> fps_limit >> fps_cap >> fog_enabled;
 	file >> sensitivity;
 
 	file.close();

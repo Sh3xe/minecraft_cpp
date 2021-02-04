@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <random>
+#include <iostream>
 
 #include "world.hpp"
 #include "../core/perlin.hpp"
@@ -29,11 +30,11 @@ Chunk::Chunk() :
 	Chunk(0, 0) {
 }
 
-
 Chunk::~Chunk() {
 	glDeleteVertexArrays(1, &m_vao);
 	glDeleteBuffers(1, &m_vbo);
 }
+
 
 void Chunk::setPosition(int x, int z) {
 	m_position.x = x;
@@ -54,13 +55,25 @@ void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 
 
 void Chunk::setBlock(int x, int y, int z, unsigned char type) {
-	m_block_data[x][z][y] = type;
-	m_should_update = true;
 
-	if( x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->m_should_update = true;
-	if( x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->m_should_update = true;
-	if( z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->m_should_update = true;
-	if( z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;
+	if (x >= CHUNK_X && m_neighbours[0] != nullptr)
+		m_neighbours[0]->setBlock(0, y, z, type);
+	if (x < 0 && m_neighbours[1] != nullptr)
+		m_neighbours[1]->setBlock(CHUNK_X - 1, y, z, type);
+	if (z >= CHUNK_Z && m_neighbours[2] != nullptr)
+		m_neighbours[2]->setBlock(x, y, 0, type);
+	if (z < 0 && m_neighbours[3] != nullptr)
+		m_neighbours[3]->setBlock(x, y, CHUNK_Z - 1, type);
+
+	if (x >= 0 && x < CHUNK_X && y >= 0 && y < CHUNK_Y && z >= 0 && z < CHUNK_Z) {
+		m_block_data[x][z][y] = type;
+		m_should_update = true;
+
+		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->m_should_update = true;
+		if (x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->m_should_update = true;
+		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->m_should_update = true;
+		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;
+	}
 }
 
 unsigned char Chunk::getBlock(int x, int y, int z) {
@@ -200,6 +213,7 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 	// shitty, temporary world generation
 	static std::default_random_engine e;
 	static std::bernoulli_distribution d(0.8);
+	static std::bernoulli_distribution dt(0.03);
 
 	m_element_count = 0;
 	for (int x = 0; x < CHUNK_X; ++x)
@@ -214,20 +228,35 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 				}
 			} else if (y <= height_value) {
 				if (y == height_value) {
-					height_value < 35 ?
-						setBlock(x, y, z, Blocks::GRASS) :
-						setBlock(x, y, z, Blocks::SNOW_GRASS);
+					setBlock(x, y, z, Blocks::GRASS);
 				} else if (y > height_value - 3) {
 					setBlock(x, y, z, Blocks::DIRT);
 				} else {
-					if (d(e))
+					if (dt(e)) {
+						setBlock(x, y, z, Blocks::GOLD_ORE);
+					} else if (d(e))
 						setBlock(x, y, z, Blocks::STONE);
 					else
 						setBlock(x, y, z, Blocks::COBBLESTONE);
 				}
 				++m_element_count;
+			} else if (y == height_value + 1 && dt(e)) {
+				plantTree(x, y, z);
 			}
 		}}
+}
+
+void Chunk::plantTree(int x, int y, int z) {
+	for (int i = -1; i <= 1; ++i)
+	for (int j = -1; j <= 1; ++j)
+	for (int k = 0; k <= 3 ; ++k) {
+		Blocks::BlockType type = Blocks::tree_blocks[k * 9 + (i + 1) + (j + 1) * 3];
+		if (type != Blocks::AIR) {
+			setBlock(i + x, k + y, j + z, type);
+			++m_element_count;
+		}
+	}
+
 }
 
 

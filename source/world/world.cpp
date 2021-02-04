@@ -6,7 +6,7 @@
 #include "../core/camera.hpp"
 #include "block.hpp"
 
-World::World():
+World::World(bool fog_enable):
 	m_shader("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl"),
 	m_tilset("resources/images/tileset.png"),
 	m_noise_generator(0) {
@@ -17,6 +17,7 @@ World::World():
 
 	m_shader.use();
 	m_shader.setMat4("projection", glm::value_ptr(projection_matrix));
+	m_shader.setInt("fog_enabled", fog_enable);
 
 	// construct chunks
 	for(int i = 0; i < WORLD_X; ++i)
