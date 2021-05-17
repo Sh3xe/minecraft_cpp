@@ -5,6 +5,7 @@
 	- add better world generation
 	- being able to place differents types of blocks
 	- add colision
+	- don't draw unseen chunks
 
 	LONG TERM TODO:
 	- add transparency and water when gud enough

@@ -3,7 +3,7 @@
 
 #include "base_state.hpp"
 #include "../world/world.hpp"
-#include "../core/camera.hpp"
+#include "../player.hpp"
 
 struct Config;
 
@@ -16,7 +16,7 @@ public:
 
 private:
 	World m_world;
-	Camera m_camera;
+	Player m_player;
 
 };
 

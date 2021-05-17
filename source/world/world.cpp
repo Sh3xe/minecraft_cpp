@@ -68,6 +68,20 @@ void World::updateChunksNeighbours() {
 	}
 }
 
+std::vector<AABB> World::getHitBoxes( AABB& box) {
+	std::vector<AABB> hitboxes;
+
+	for(int i = floor(box.xmin); i < floor(box.xmax) + 1; i += 1.0)
+	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
+	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0) {
+		if(getBlock(i, j, k) != Blocks::AIR)
+			hitboxes.emplace_back(i, i+1, j, j+1, k, k+1);
+	}
+
+	return hitboxes;
+}
+
+
 void World::setBlock(int x, int y, int z, unsigned char type) {
 	// the the coordinates of the chunk where x, y, z is located
 	int chunk_x = x / CHUNK_X,
@@ -174,6 +188,12 @@ void World::draw( Camera &camera ){
 	glm::mat4 view_matrix = camera.getViewMatrix();
 	m_shader.setMat4("view", glm::value_ptr(view_matrix));
 
-	for(auto &chunk: m_chunks)
-		chunk.second->draw(camera, m_tilset, m_shader);
+	glm::vec3 cam_pos = camera.getPosition(), cam_dir = camera.getDirection();
+
+	for (auto& chunk : m_chunks) {
+		// if the chunk is behind the player: don't draw it (will need rewrite)
+		glm::ivec2 chunk_pos = chunk.second->getPosition();
+		if(glm::dot(glm::vec3(chunk_pos.x, 0, chunk_pos.y) - cam_pos, cam_dir) >= 0)
+			chunk.second->draw(camera, m_tilset, m_shader);
+	}
 }

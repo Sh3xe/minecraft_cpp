@@ -8,7 +8,7 @@ public:
 	PerlinNoise();
 	PerlinNoise(int seed);
 
-	double noise(double x, double y);
+	double noise(double x, double y, double factor = 1.0);
 
 private:
 	double lerp(double a, double b, double t);

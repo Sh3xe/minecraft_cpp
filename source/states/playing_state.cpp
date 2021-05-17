@@ -5,16 +5,16 @@
 PlayingState::PlayingState( Config &config ):
 	m_world( config.fog_enabled ),
 	// place the camera at the center of the world
-	m_camera(glm::vec3(CHUNK_X * WORLD_X * 0.5f, 64.0f, CHUNK_Z * WORLD_Z * 0.5f), glm::vec3(0.f, 1.f, 0.f)) {
-	m_camera.setSensitivity(config.sensitivity);
+	m_player(glm::vec3(CHUNK_X * WORLD_X * 0.5f, 64.0f, CHUNK_Z * WORLD_Z * 0.5f)) {
+	m_player.getCamera().setSensitivity(config.sensitivity);
 }
 
 void PlayingState::update( Input &input, double delta_time ) {
 	static double block_lock = 0.0; // used to limit the block breaking frequency
 
 
-	m_camera.update(input, delta_time);
-	m_world.update(delta_time, m_camera);
+	m_player.update(input, m_world, delta_time);
+	m_world.update(delta_time, m_player.getCamera());
 
 	if (input.isKeyPressed(SDL_SCANCODE_Q)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -30,8 +30,8 @@ void PlayingState::update( Input &input, double delta_time ) {
 	// BLOCK BREAKING
 	if(input.getClickState().first && block_lock == 0.0) { // if the player left-click and is not locked
 		// cast a ray
-		glm::vec3 direction = m_camera.getDirection(),
-				  position = m_camera.getPosition();
+		glm::vec3 direction = m_player.getCamera().getDirection(),
+				  position = m_player.getCamera().getPosition();
 
 		bool done = false;
 		for(int i = 0; i < 25 && !done; ++i) {
@@ -49,8 +49,8 @@ void PlayingState::update( Input &input, double delta_time ) {
 	// BLOCK PLACING
 	if(input.getClickState().second && block_lock == 0.0) { // if the player right-click and is not locked
 		// cast a ray
-		glm::vec3 direction = m_camera.getDirection(),
-				  position = m_camera.getPosition();
+		glm::vec3 direction = m_player.getCamera().getDirection(),
+				  position = m_player.getCamera().getPosition();
 
 		bool done = false;
 		for(int i = 0; i < 25 && !done; ++i) {
@@ -69,5 +69,5 @@ void PlayingState::update( Input &input, double delta_time ) {
 }
 
 void PlayingState::render() {
-	m_world.draw(m_camera);
+	m_world.draw(m_player.getCamera());
 }

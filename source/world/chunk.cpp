@@ -69,10 +69,11 @@ void Chunk::setBlock(int x, int y, int z, unsigned char type) {
 		m_block_data[x][z][y] = type;
 		m_should_update = true;
 
+		/*
 		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->m_should_update = true;
 		if (x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->m_should_update = true;
 		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->m_should_update = true;
-		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;
+		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;*/
 	}
 }
 
@@ -218,8 +219,9 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 	m_element_count = 0;
 	for (int x = 0; x < CHUNK_X; ++x)
 	for (int z = 0; z < CHUNK_Z; ++z) {
-		int biome_value = noise_generator.noise((m_position.x + x) * 0.05, (m_position.y + z) * 0.05) * 10.0;
-		int height_value = 30 + (noise_generator.noise((m_position.x + x) * 0.05, (m_position.y + z) * 0.05) * 2 + noise_generator.noise((m_position.x + x) * 0.01, (m_position.y + z) * 0.01)) * 5;
+		int biome_value = noise_generator.noise(m_position.x + x, m_position.y + z, 0.05) * 10.0;
+		int height_value = 30 + (noise_generator.noise(m_position.x + x, m_position.y + z, 0.05) * 2 + noise_generator.noise(m_position.x + x, m_position.y + z, 0.01)) * 5;
+
 		for (int y = 0; y < CHUNK_Y; ++y) {
 			if (biome_value < 0) {
 				if (y < height_value * 0.9) {
@@ -240,13 +242,12 @@ void Chunk::generateTerrain(PerlinNoise &noise_generator) {
 						setBlock(x, y, z, Blocks::COBBLESTONE);
 				}
 				++m_element_count;
-			} else if (y == height_value + 1 && dt(e)) {
-				plantTree(x, y, z);
 			}
 		}}
 }
 
 void Chunk::plantTree(int x, int y, int z) {
+	// plant a tree by looping over an array that contain tree's information and placing blocks
 	for (int i = -1; i <= 1; ++i)
 	for (int j = -1; j <= 1; ++j)
 	for (int k = 0; k <= 3 ; ++k) {
@@ -256,7 +257,6 @@ void Chunk::plantTree(int x, int y, int z) {
 			++m_element_count;
 		}
 	}
-
 }
 
 

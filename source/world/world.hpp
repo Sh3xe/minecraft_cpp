@@ -3,10 +3,12 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 #include "chunk.hpp"
 #include "../opengl_wrapper/shader.hpp"
 #include "../opengl_wrapper/texture.hpp"
 #include "../core/perlin.hpp"
+#include "../core/aabb.hpp"
 
 #define WORLD_X 7
 #define WORLD_Z 7
@@ -24,6 +26,7 @@ public:
 
 	void draw( Camera &camera );
 	void update( double delta_time, Camera &camera );
+	std::vector<AABB> getHitBoxes( AABB& box);
 
 private:
 	/* used to update the m_neighbours ( used to communicate to adjacent chunks an update ) array of each chunk of the world */
