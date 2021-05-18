@@ -49,22 +49,17 @@ double PerlinNoise::fade(double t) {
 }
 
 double PerlinNoise::noise(double x, double y, double factor) {
-
+	
 	x *= factor;
 	y *= factor;
 
-	while (x < 0) x += 16.0; // temporary: will be replaced by a combination of multiplication,
-	while (y < 0) y += 16.0; // division and floor (when other bugs are handled)
-
+	x = (x >= 0) ? std::fmod(x, 16.0): 16.0 + std::fmod(x, 16.0);
+	y = (y >= 0) ? std::fmod(y, 16.0): 16.0 + std::fmod(y, 16.0);
 
 	// get the grid x, y, as well as x + 1 and y + 1
-	int gx0 = static_cast<int>(x) % 16, // + 16,
-		gy0 = static_cast<int>(y) % 16;
-
-	//if (gx0 < 0) gx0 += 16;
-	//if (gy0 < 0) gy0 += 16;
-
-	int gx1 = (gx0 + 1) % 16,
+	int gx0 = static_cast<int>(x),
+		gy0 = static_cast<int>(y);
+		int gx1 = (gx0 + 1) % 16,
 		gy1 = (gy0 + 1) % 16;
 
 	// calculate the vector between x, y and grid x, grid y (same for grid x + 1, grid_y + 1
