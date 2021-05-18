@@ -18,5 +18,6 @@ but will be replaced in later commit
 
 ## Todo
 
--better world gen
+- better world gen
 - water
+- optimizations
