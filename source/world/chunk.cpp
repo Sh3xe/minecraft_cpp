@@ -158,12 +158,12 @@ void Chunk::generateMesh() {
 		if (!getBlock(x, y - 1, z)) {
 			int texture_x = Blocks::block_faces[type][3]%16;
 			int texture_y = Blocks::block_faces[type][3]/16;
-			vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150};
-			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
+			vertices[i++] = Vertex {x  , y  , z  , texture_x+1, texture_y+1, 150};
 			vertices[i++] = Vertex {x+1, y  , z  , texture_x+0, texture_y+1, 150 };
+			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+0, texture_y+0, 150 };
+			vertices[i++] = Vertex {x  , y  , z  , texture_x+1, texture_y+1, 150 };
+			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+0, texture_y+0, 150 };
 			vertices[i++] = Vertex {x  , y  , z+1, texture_x+1, texture_y+0, 150 };
-			vertices[i++] = Vertex {x+1, y  , z+1, texture_x+1, texture_y+1, 150 };
-			vertices[i++] = Vertex {x  , y  , z  , texture_x+0, texture_y+0, 150 };
 			++m_face_count;
 		}
 		
