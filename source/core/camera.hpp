@@ -16,11 +16,16 @@ public:
 
 	glm::vec3 getPosition() { return m_position; }
 	glm::vec3 getDirection() { return m_direction; }
+	glm::vec3 getUp() { return m_up; }
 
-	void update(Input& input, double delta_time);
+	//void update(Input& input, double delta_time);
+	void handleMouse(Input& input, double delta_time);
+
 	glm::mat4 getViewMatrix();
 
+
 private:
+
 	glm::vec3 m_position;
 	glm::vec3 m_up;
 	glm::vec3 m_direction = glm::vec3(1.f, 0.f, 0.f);

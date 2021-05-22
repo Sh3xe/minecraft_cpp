@@ -21,6 +21,34 @@ void Camera::setSensitivity(double sensitivity) {
 }
 
 
+void Camera::handleMouse(Input& input, double delta_time) {
+	static glm::ivec2 last_mouse_position(-1, -1);
+
+	if (last_mouse_position.x == -1)
+		// if it is the first time, we define last_mouse_position
+		last_mouse_position = input.getMousePosition();
+
+	// calculate the mouse offset
+	glm::ivec2 delta_mouse = input.getMousePosition() - last_mouse_position;
+	last_mouse_position = input.getMousePosition();
+
+
+	m_pitch -= m_sensitivity * delta_mouse.y;
+	m_yaw += m_sensitivity * delta_mouse.x;
+
+	const float piovertwo = glm::pi<float>() / 2.0f;
+
+	if (m_pitch >= piovertwo - 0.01f) m_pitch = piovertwo - 0.01f;
+	if (m_pitch <= -piovertwo + 0.01f) m_pitch = -piovertwo + 0.01f;
+
+	glm::vec3 direction;
+	direction.x = cos(m_yaw) * cos(m_pitch);
+	direction.y = sin(m_pitch);
+	direction.z = sin(m_yaw) * cos(m_pitch);
+	m_direction = glm::normalize(direction);
+}
+
+/*
 void Camera::update(Input& input, double delta_time) {
 	// calculate new player position
 	glm::vec3 front(m_direction.x, 0, m_direction.z);
@@ -42,36 +70,7 @@ void Camera::update(Input& input, double delta_time) {
 		m_position += m_up * (float)delta_time * speed;
 	if (input.isKeyPressed(SDL_SCANCODE_LSHIFT))
 		m_position -= m_up * (float)delta_time * speed;
-
-
-	static glm::ivec2 last_mouse_position(-1, -1); 
-
-	if (last_mouse_position.x == -1)
-		// if it is the first time, we define last_mouse_position
-		last_mouse_position = input.getMousePosition();
-	
-	// calculate the mouse offset
-	glm::ivec2 delta_mouse = input.getMousePosition() - last_mouse_position;
-	last_mouse_position = input.getMousePosition();
-
-
-	m_pitch -= m_sensitivity * delta_mouse.y;
-	m_yaw   += m_sensitivity * delta_mouse.x;
-
-	const float piovertwo = glm::pi<float>() / 2.0f;
-
-	if (m_pitch >= piovertwo - 0.01f) m_pitch = piovertwo - 0.01f;
-	if (m_pitch <= -piovertwo + 0.01f) m_pitch = -piovertwo + 0.01f;
-
-
-	glm::vec3 direction;
-	direction.x = cos(m_yaw) * cos(m_pitch);
-	direction.y = sin(m_pitch);
-	direction.z = sin(m_yaw) * cos(m_pitch);
-	m_direction = glm::normalize(direction);
-
-	//std::cout << m_position.x << ' ' << m_position.z << '\n';
-}
+}*/
 
 
 glm::mat4 Camera::getViewMatrix() {

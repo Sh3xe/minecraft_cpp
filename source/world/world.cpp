@@ -75,7 +75,7 @@ std::vector<AABB> World::getHitBoxes( AABB& box) {
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
 	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0) {
 		if(getBlock(i, j, k) != Blocks::AIR)
-			hitboxes.emplace_back(i, i+1, j, j+1, k, k+1);
+			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
 
 	return hitboxes;
@@ -133,7 +133,9 @@ unsigned char World::getBlock(int x, int y, int z) {
 
 void World::update( double delta_time, Camera &camera ) {
 	// calculate the position of the chunk ( / 16 )
+	/*
 	glm::ivec3 camera_position = camera.getPosition();
+
 	int chunk_x = ( static_cast<int>(camera_position.x) / CHUNK_X );
 	int chunk_z = ( static_cast<int>(camera_position.z) / CHUNK_Z );
 
@@ -180,6 +182,7 @@ void World::update( double delta_time, Camera &camera ) {
 			chunk->second->generateTerrain(m_noise_generator);
 	}
 
+		*/
 }
 
 void World::draw( Camera &camera ){
@@ -190,10 +193,11 @@ void World::draw( Camera &camera ){
 
 	glm::vec3 cam_pos = camera.getPosition(), cam_dir = camera.getDirection();
 
+
 	for (auto& chunk : m_chunks) {
 		// if the chunk is behind the player: don't draw it (will need rewrite)
-		glm::ivec2 chunk_pos = chunk.second->getPosition();
-		if(glm::dot(glm::vec3(chunk_pos.x, 0, chunk_pos.y) - cam_pos, cam_dir) >= 0)
+		//glm::ivec2 chunk_pos = chunk.second->getPosition();
+		//if(glm::dot(glm::vec3(chunk_pos.x, 0, chunk_pos.y) - cam_pos, cam_dir) >= 0)
 			chunk.second->draw(camera, m_tilset, m_shader);
 	}
 }
