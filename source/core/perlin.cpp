@@ -1,13 +1,12 @@
 #include "perlin.hpp"
 
+#include <iostream>
+
 #include <random>
 #include <algorithm>
+#include <cmath>
 
-using vec2d = std::pair<double, double>;
-
-double dot( const vec2d &p1, const vec2d &p2) {
-	return p1.first * p2.first + p1.second * p2.second;
-}
+// implementaion based on https://cs.nyu.edu/~perlin/noise/
 
 PerlinNoise::PerlinNoise():
 	PerlinNoise(0) {
@@ -17,67 +16,58 @@ PerlinNoise::PerlinNoise(int seed) {
 	// fill permutation table
 	for(int i = 0; i < 256; ++i)
 		m_table[i] = i;
+	
 
 	// suffle permutation table
 	std::default_random_engine random_engine(seed);
-	std::shuffle(m_table.begin(), m_table.end(), random_engine);
+	std::shuffle(m_table.begin(), m_table.begin()+256, random_engine);
 
-	// fill m_vectors array
-	double sqrt2 = 1.41421356237;
-	m_vectors = {
-		vec2d(1.0   , 0.0   ),
-		vec2d(-1.0  , 0.0   ),
-		vec2d(0.0   , 1.0   ),
-		vec2d(0.0   , -1.0  ),
-		vec2d(-sqrt2,  sqrt2),
-		vec2d(-sqrt2, -sqrt2),
-		vec2d( sqrt2, -sqrt2),
-		vec2d( sqrt2,  sqrt2)
-	};
+	for(int i = 0; i < 256; ++i)
+		m_table[i+256] = m_table[i];
 }
 
-const vec2d &PerlinNoise::getConstantVector(int index) {
-	return m_vectors[index % 8];
+double PerlinNoise::grad(int hash, double x, double y, double z) {
+	int h = hash & 15;
+	double u = (h<8) ? x : y,
+		   v = (h<4) ? y : (h==12||h==14) ? x : z;
+	return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
-double PerlinNoise::lerp(double a, double b, double t) {
+double PerlinNoise::lerp(double t, double a, double b) {
 	return a + ( b - a) * t;
 }
 
 double PerlinNoise::fade(double t) {
-	return ((6*t - 15)*t + 10)*t*t*t;
+	return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-double PerlinNoise::noise(double x, double y, double factor) {
-	
+double PerlinNoise::noise(double x, double y, double z, double factor) {
+
 	x *= factor;
 	y *= factor;
+	z *= factor;
 
-	x = (x >= 0) ? std::fmod(x, 16.0): 16.0 + std::fmod(x, 16.0);
-	y = (y >= 0) ? std::fmod(y, 16.0): 16.0 + std::fmod(y, 16.0);
+	int X = static_cast<int>(floor(x)) & 255,
+		Y = static_cast<int>(floor(y)) & 255,
+		Z = static_cast<int>(floor(z)) & 255;
 
-	// get the grid x, y, as well as x + 1 and y + 1
-	int gx0 = static_cast<int>(x),
-		gy0 = static_cast<int>(y);
-		int gx1 = (gx0 + 1) % 16,
-		gy1 = (gy0 + 1) % 16;
+	x -= floor(x);
+	y -= floor(y);
+	z -= floor(z);
 
-	// calculate the vector between x, y and grid x, grid y (same for grid x + 1, grid_y + 1
-	double vx0 = x - static_cast<int>(x),
-		   vy0 = y - static_cast<int>(y),
-		   vx1 = x - static_cast<int>(x) - 1,
-		   vy1 = y - static_cast<int>(y) - 1;
+	double u = fade(x),
+		   v = fade(y),
+		   w = fade(z);
 
-	// get dot products
-	double dtl = dot( getConstantVector(m_table[gx0 + gy0 * 16]), vec2d( vx0,  vy0) ),
-		   dtr = dot( getConstantVector(m_table[gx1 + gy0 * 16]), vec2d(-vx1,  vy0) ),
-		   dbl = dot( getConstantVector(m_table[gx0 + gy1 * 16]), vec2d( vx0, -vy1) ),
-		   dbr = dot( getConstantVector(m_table[gx1 + gy1 * 16]), vec2d(-vx1, -vy1) );
+	int A = m_table[X  ]+Y, AA = m_table[A]+Z, AB = m_table[A+1]+Z,
+		B = m_table[X+1]+Y, BA = m_table[B]+Z, BB = m_table[B+1]+Z;
 
-	// interpolate
-	return lerp(
-		lerp(dtl, dbl, fade(vy0)),
-		lerp(dtr, dbr, fade(vy0)),
-		fade(vx0)
-	);
+	return lerp(w, lerp(v, lerp(u, grad(m_table[AA], x  , y  , z   ),
+									grad(m_table[BA], x-1, y  , z   )),
+							lerp(u, grad(m_table[AB], x  , y-1, z   ),
+									grad(m_table[BB], x-1, y-1, z   ))),
+					lerp(v, lerp(u, grad(m_table[AA+1], x  , y  , z-1 ),
+									grad(m_table[BA+1], x-1, y  , z-1 )),
+							lerp(u, grad(m_table[AB+1], x  , y-1, z-1 ),
+									grad(m_table[BB+1], x-1, y-1, z-1 ))));
 }

@@ -3,20 +3,21 @@
 
 #include <array>
 
+// implementaion based on https://cs.nyu.edu/~perlin/noise/
+
 class PerlinNoise {
 public:
 	PerlinNoise();
 	PerlinNoise(int seed);
 
-	double noise(double x, double y, double factor = 1.0);
+	double noise(double x, double y, double z, double factor = 1.0);
 
 private:
-	double lerp(double a, double b, double t);
+	double lerp(double t, double a, double b);
 	double fade(double t);
-	const std::pair<double, double> &getConstantVector(int index);
+	double grad(int hash, double x, double y, double z);
 
-	std::array<unsigned char, 256> m_table;
-	std::array< std::pair<double, double>, 8> m_vectors;
+	std::array<unsigned char, 512> m_table;
 
 };
 
