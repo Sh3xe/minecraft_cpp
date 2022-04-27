@@ -15,32 +15,32 @@ void Player::update(Input &input, World& world, double delta_time) {
 	direction.y = 0.0f;
 	direction = glm::normalize(direction);
 
-	if (input.isKeyPressed(SDL_SCANCODE_SPACE) && m_on_ground) {
+	if (input.is_key_pressed(SDL_SCANCODE_SPACE) && m_on_ground) {
 		m_on_ground = false;
 		m_vel.y = 0.08f;
 	}
 
 
-	if (input.isKeyPressed(SDL_SCANCODE_W)) {
+	if (input.is_key_pressed(SDL_SCANCODE_W)) {
 		m_vel += direction * (static_cast<float>(delta_time) * 0.1f);
 	}
 
-	if (input.isKeyPressed(SDL_SCANCODE_S)) {
+	if (input.is_key_pressed(SDL_SCANCODE_S)) {
 		m_vel -= direction * (static_cast<float>(delta_time) * 0.1f);
 	}
 
 
-	if (input.isKeyPressed(SDL_SCANCODE_D)) {
+	if (input.is_key_pressed(SDL_SCANCODE_D)) {
 		m_vel += glm::cross(direction, m_camera.getUp()) * (static_cast<float>(delta_time) * 0.1f);
 	}
 
-	if (input.isKeyPressed(SDL_SCANCODE_A)) {
+	if (input.is_key_pressed(SDL_SCANCODE_A)) {
 		m_vel -= glm::cross(direction, m_camera.getUp()) * (static_cast<float>(delta_time) * 0.1f);
 	}
 
-	checkCollision({ m_vel.x, 0.0, 0.0 }, world);
-	checkCollision({ 0.0, m_vel.y, 0.0 }, world);
-	checkCollision({ 0.0, 0.0, m_vel.z }, world);
+	check_collision({ m_vel.x, 0.0, 0.0 }, world);
+	check_collision({ 0.0, m_vel.y, 0.0 }, world);
+	check_collision({ 0.0, 0.0, m_vel.z }, world);
 
 	m_camera.setPosition( m_pos + glm::vec3(0.0, 1.5, 0.0) );
 
@@ -49,7 +49,7 @@ void Player::update(Input &input, World& world, double delta_time) {
 	m_vel.z *= 0.97f;
 }
 
-void Player::checkCollision( const glm::vec3& vel, World& world ) {
+void Player::check_collision( const glm::vec3& vel, World& world ) {
 
 	m_pos += vel;
 	AABB aabb = AABB(m_pos.x - 0.4, m_pos.y, m_pos.z - 0.4, 0.8, 1.8, 0.8);

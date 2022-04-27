@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-#include <glad/glad.h>
+#include "gl_functions.hpp"
 #include <SDL_video.h>
 #include "states/playing_state.hpp"
 
@@ -46,23 +46,23 @@ void Game::initWindow() {
 	m_context = SDL_GL_CreateContext(m_window);
 
 	// load glad
-	gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress );
+	glewInit();
 
 	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glViewport(0, 0, m_config.window_width, m_config.window_height);
 }
 
-void Game::handleEvents() {
+void Game::handle_events() {
 	// handles keyboard events
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		if(event.type == SDL_QUIT)
 			m_should_close = true;
 		if(event.type == SDL_KEYDOWN)
-			m_input.handleKeyDown(event);
+			m_input.handle_key_down(event);
 		if(event.type == SDL_KEYUP)
-			m_input.handleKeyUp(event);
+			m_input.handle_key_up(event);
 	}
 
 	// MOUSE MOVEMENT CALCULATION
@@ -72,13 +72,13 @@ void Game::handleEvents() {
 	Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
 
 	// use SDL_BUTTON macro to get the mouse state (right and left click)
-	m_input.setClickState( SDL_BUTTON(1) & mouse_state, SDL_BUTTON(3) & mouse_state);
+	m_input.set_click_state( SDL_BUTTON(1) & mouse_state, SDL_BUTTON(3) & mouse_state);
 
 	// get the old position, calculate the new one
-	glm::ivec2 old_mouse_pos = m_input.getMousePosition();
+	glm::ivec2 old_mouse_pos = m_input.get_mouse_position();
 
 	if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_INPUT_FOCUS) {
-		m_input.setMousePosition(
+		m_input.set_mouse_position(
 			old_mouse_pos.x + mouse_x - (m_config.window_width/2),
 			old_mouse_pos.y + mouse_y - (m_config.window_height/2) );
 
@@ -87,7 +87,7 @@ void Game::handleEvents() {
 	}
 
 	// Quits when ESC is pressed
-	if(m_input.isKeyPressed(SDL_SCANCODE_ESCAPE))
+	if(m_input.is_key_pressed(SDL_SCANCODE_ESCAPE))
 		m_should_close = true;
 
 }
@@ -116,7 +116,7 @@ void Game::run() {
 		State& state = *m_states.back();
 
 		// game clock
-		handleEvents();
+		handle_events();
 		state.update( m_input, delta_time);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,7 +127,7 @@ void Game::run() {
 		SDL_GL_SwapWindow(m_window);
 
 		// state handling
-		if(state.shouldClose())
+		if(state.should_close())
 			m_states.pop_back();
 	}
 }

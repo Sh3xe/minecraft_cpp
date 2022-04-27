@@ -1,6 +1,7 @@
 #include "shader.hpp"
 
-#include <glad/glad.h>
+#include "gl_functions.hpp"
+#include <iterator>
 #include <fstream>
 #include <iostream>
 

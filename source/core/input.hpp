@@ -7,14 +7,14 @@
 
 class Input {
 public:
-	void handleKeyUp(const SDL_Event &event);
-	void handleKeyDown(const SDL_Event &event);
-	void setMousePosition(int x, int y);
-	void setClickState(bool l, bool r);
+	void handle_key_up(const SDL_Event &event);
+	void handle_key_down(const SDL_Event &event);
+	void set_mouse_position(int x, int y);
+	void set_click_state(bool l, bool r);
 
-	glm::ivec2 getMousePosition();
-	bool isKeyPressed(SDL_Scancode key);
-	std::pair<bool, bool> getClickState();
+	glm::ivec2 get_mouse_position();
+	bool is_key_pressed(SDL_Scancode key);
+	std::pair<bool, bool> get_click_state();
 
 private:
 	std::map<SDL_Scancode, bool> m_keys;

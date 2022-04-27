@@ -1,6 +1,6 @@
 #include "texture.hpp"
 
-#include <glad/glad.h>
+#include "gl_functions.hpp"
 #include <stb_image.h>
 
 #include "../cmake_defines.hpp"

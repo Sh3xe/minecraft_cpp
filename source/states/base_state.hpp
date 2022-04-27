@@ -11,7 +11,7 @@ public:
 	virtual void update( Input &input, double delta_time) = 0;
 	virtual void render() = 0;
 
-	inline bool shouldClose() const { return m_should_close; }
+	inline bool should_close() const { return m_should_close; }
 
 protected:
 	bool m_should_close = false;

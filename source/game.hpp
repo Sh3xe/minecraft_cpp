@@ -21,7 +21,7 @@ public:
 
 private:
 	void initWindow();
-	void handleEvents();
+	void handle_events();
 
 	Config m_config;
 	Input m_input;

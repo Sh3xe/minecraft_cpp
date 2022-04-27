@@ -1,6 +1,6 @@
 #include "chunk.hpp"
 
-#include <glad/glad.h>
+#include "gl_functions.hpp"
 #include <random>
 #include <iostream>
 

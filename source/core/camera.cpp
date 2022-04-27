@@ -26,11 +26,11 @@ void Camera::handleMouse(Input& input, double delta_time) {
 
 	if (last_mouse_position.x == -1)
 		// if it is the first time, we define last_mouse_position
-		last_mouse_position = input.getMousePosition();
+		last_mouse_position = input.get_mouse_position();
 
 	// calculate the mouse offset
-	glm::ivec2 delta_mouse = input.getMousePosition() - last_mouse_position;
-	last_mouse_position = input.getMousePosition();
+	glm::ivec2 delta_mouse = input.get_mouse_position() - last_mouse_position;
+	last_mouse_position = input.get_mouse_position();
 
 
 	m_pitch -= m_sensitivity * delta_mouse.y;

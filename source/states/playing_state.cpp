@@ -1,12 +1,12 @@
 #include "playing_state.hpp"
 #include "../core/config.hpp"
-#include <glad/glad.h>
+#include "gl_functions.hpp"
 
 PlayingState::PlayingState( Config &config ):
 	m_world( config.fog_enabled ),
 	// place the camera at the center of the world
 	m_player(glm::vec3(CHUNK_X * WORLD_X * 0.5f, 64.0f, CHUNK_Z * WORLD_Z * 0.5f)) {
-	m_player.getCamera().setSensitivity(config.sensitivity);
+	m_player.get_camera().setSensitivity(config.sensitivity);
 }
 
 void PlayingState::update( Input &input, double delta_time ) {
@@ -14,12 +14,12 @@ void PlayingState::update( Input &input, double delta_time ) {
 
 
 	m_player.update(input, m_world, delta_time);
-	m_world.update(delta_time, m_player.getCamera());
+	m_world.update(delta_time, m_player.get_camera());
 
-	if (input.isKeyPressed(SDL_SCANCODE_Q)) {
+	if (input.is_key_pressed(SDL_SCANCODE_Q)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	if (input.isKeyPressed(SDL_SCANCODE_E)) {
+	if (input.is_key_pressed(SDL_SCANCODE_E)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
@@ -28,10 +28,10 @@ void PlayingState::update( Input &input, double delta_time ) {
 	if(block_lock < 0.0) block_lock = 0.0;
 
 	// BLOCK BREAKING
-	if(input.getClickState().first && block_lock == 0.0) { // if the player left-click and is not locked
+	if(input.get_click_state().first && block_lock == 0.0) { // if the player left-click and is not locked
 		// cast a ray
-		glm::vec3 direction = m_player.getCamera().getDirection(),
-				  position = m_player.getCamera().getPosition();
+		glm::vec3 direction = m_player.get_camera().getDirection(),
+				  position = m_player.get_camera().getPosition();
 
 		bool done = false;
 		for(int i = 0; i < 25 && !done; ++i) {
@@ -47,10 +47,10 @@ void PlayingState::update( Input &input, double delta_time ) {
 	}
 
 	// BLOCK PLACING
-	if(input.getClickState().second && block_lock == 0.0) { // if the player right-click and is not locked
+	if(input.get_click_state().second && block_lock == 0.0) { // if the player right-click and is not locked
 		// cast a ray
-		glm::vec3 direction = m_player.getCamera().getDirection(),
-				  position = m_player.getCamera().getPosition();
+		glm::vec3 direction = m_player.get_camera().getDirection(),
+				  position = m_player.get_camera().getPosition();
 
 		bool done = false;
 		for(int i = 0; i < 25 && !done; ++i) {
@@ -69,5 +69,5 @@ void PlayingState::update( Input &input, double delta_time ) {
 }
 
 void PlayingState::render() {
-	m_world.draw(m_player.getCamera());
+	m_world.draw(m_player.get_camera());
 }
