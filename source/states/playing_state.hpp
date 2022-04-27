@@ -1,5 +1,4 @@
-#ifndef PLAYING_STATE_INCLUDED_
-#define PLAYING_STATE_INCLUDED_
+#pragma once
 
 #include "base_state.hpp"
 #include "../world/world.hpp"
@@ -19,5 +18,3 @@ private:
 	Player m_player;
 
 };
-
-#endif

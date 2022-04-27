@@ -13,21 +13,14 @@ endif()
 
 link_directories(${CMAKE_SOURCE_DIR}/dependencies/lib)
 
-file( GLOB_RECURSE SOURCE_FILES
-    ${CMAKE_SOURCE_DIR}/source/*.cpp
-    ${CMAKE_SOURCE_DIR}/source/*.c )
-
-file( GLOB_RECURSE HEADER_FILES
-    ${CMAKE_SOURCE_DIR}/source/*.hpp
-    ${CMAKE_SOURCE_DIR}/source/*.h )
-
+file( GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/source/*.cpp )
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/source/_configuration/cmake_defines.hpp.in
     ${CMAKE_SOURCE_DIR}/source/cmake_defines.hpp )
 
 
-add_executable( ${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} )
+add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/source
@@ -55,7 +48,6 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
-
 
 
 # Create virtual folders to make it look nicer in VS

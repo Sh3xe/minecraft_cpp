@@ -1,28 +1,30 @@
-#ifndef SHADER_HPP_
-#define SHADER_HPP_
+#pragma once
 
 #include <string>
+#include <stdint.h>
 
 class Shader {
 public:
-	Shader( const std::string &vs_path, const std::string &fs_path );
+	Shader(const std::string& vs_path, const std::string& gs_path, const std::string& fs_path);
 	~Shader();
 
-	inline unsigned getId() const { return m_id; }
+	void bind();
+	void unbind();
+
 	operator bool() const { return m_is_valid; }
 
-	void use();
+	void set_int( const std::string &name, int value );
+	void set_float( const std::string& name, float value);
+	void set_vec2( const std::string& name, float x, float y);
+	void set_vec3( const std::string& name, float x, float y, float z);
+	void set_vec4( const std::string& name, float x, float y, float z, float w);
+	void set_mat4( const std::string& name, float* matrix );
 
-	// TODO: add setUniform[blabla]();
-	void setInt( const std::string &name, int value );
-	void setMat4( const std::string &name, float *value);
-	void setVec3( const std::string &name, float x, float y, float z);
 
 private:
-	unsigned compileShader( const std::string &path, unsigned type );
+	uint32_t compile_shader( const std::string &path, uint32_t type);
 
-	unsigned m_id;
-	bool m_is_valid;
+	uint32_t m_id;
+	bool m_is_valid = false;
 };
 
-#endif

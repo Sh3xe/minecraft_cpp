@@ -1,27 +1,26 @@
 #include "gldebug.hpp"
-
+#include "../core/logger.hpp"
 #include "gl_functions.hpp"
-#include <iostream>
 
 void _logGlErrors(int line, const char* file) {
 	GLenum error_flag = GL_NO_ERROR;
 	while((error_flag = glGetError()) != GL_NO_ERROR) {
-		std::cout << "OpenGL Error in file: " << file << " at line" << line << ": ";
+		SD_ERROR("OpenGL Error in file: ", file, " at line", line, ": ");
 		switch(error_flag) {
 			case GL_INVALID_ENUM:
-				std::cout << "GL_INVALID_ENUM" << std::endl;
+				SD_ERROR("GL_INVALID_ENUM");
 				break;
 			case GL_INVALID_VALUE:
-				std::cout << "GL_INVALID_VALUE" << std::endl;
+				SD_ERROR("GL_INVALID_VALUE");
 				break;
 			case GL_INVALID_OPERATION:
-				std::cout << "GL_INVALID_OPERATION" << std::endl;
+				SD_ERROR("GL_INVALID_OPERATION");
 				break;
 			case GL_OUT_OF_MEMORY:
-				std::cout << "GL_OUT_OF_MEMORY" << std::endl;
+				SD_ERROR("GL_OUT_OF_MEMORY");
 				break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				std::cout << "GL_INVALID_FRAMEBUFFER_OPERATION" << std::endl;
+				SD_ERROR("GL_INVALID_FRAMEBUFFER_OPERATION");
 				break;
 			default: break;
 		}

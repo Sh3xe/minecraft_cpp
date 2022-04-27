@@ -1,5 +1,4 @@
-#ifndef PLAYER_INCLUDED_
-#define PLAYER_INCLUDED_
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -31,5 +30,3 @@ private:
 
 	bool m_on_ground;
 };
-
-#endif

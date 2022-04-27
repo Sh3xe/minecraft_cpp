@@ -1,21 +1,29 @@
 #version 330 core
 
-layout (location = 0) in vec3 a_coords;
-layout (location = 1) in vec2 a_texture_coords;
-layout (location = 2) in float a_light_value;
+layout (location = 0) in int a_data;
 
 out vec2 texture_coords;
 out float light_value;
-out float pixel_distance;
 
 uniform vec3 chunk_position;
 uniform mat4 view;
 uniform mat4 projection;
 
-void main() {
-	texture_coords = a_texture_coords;
-	light_value = a_light_value;
+const float light_values[8] = float[8](
+	0.9,
+	0.7,
+	1.0,
+	0.5,
+	0.9,
+	0.7,
+	0.0,
+	0.0
+);
 
-	gl_Position = projection * view * vec4(chunk_position + a_coords.xyz, 1.0);
-	pixel_distance = length( gl_Position.xyz * gl_Position.w );
+void main() {
+	texture_coords = vec2((a_data >> 8) & 0x1F, (a_data >> 3) & 0x1F);
+	light_value = light_values[ a_data & 0x07 ];
+	vec3 coords = vec3((a_data >> 27) & 0x1F, (a_data >> 13) & 0x1FF, (a_data >> 22) & 0x1F);
+
+	gl_Position = projection * view * vec4(chunk_position + coords.xyz, 1.0);
 }

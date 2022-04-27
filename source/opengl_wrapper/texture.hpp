@@ -1,22 +1,20 @@
-#ifndef TEXTURE_INCLUDED_
-#define TEXTURE_INCLUDED_
+#pragma once
 
-#include <string>
-#include "../cmake_defines.hpp"
+#include <stdint.h>
 
 class Texture {
 public:
-	Texture( const std::string &path );
-	~Texture();
-	inline unsigned getId() const { return m_id; }
+	Texture();
 
-	// return true when the image is valid
-	operator bool() const { return m_is_valid; };
+	uint32_t get_id() const { return m_id; }
 
-private:
-	unsigned m_id;
-	bool m_is_valid;
+	virtual void bind() const = 0;
+	virtual void unbind() const = 0;
+
+	operator bool() const { return m_is_ok; }
+
+protected:
+	uint32_t m_id = 0;
+	bool m_is_ok = false;
 
 };
-
-#endif

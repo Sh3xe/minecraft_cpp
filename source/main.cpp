@@ -1,10 +1,9 @@
 #include "game.hpp"
-#undef main // idk
 
 /*  TODO:
 	- add better world generation
 	- being able to place differents types of blocks
-	- add colision
+	- add collision
 	- don't draw unseen chunks
 
 	LONG TERM TODO:
@@ -14,8 +13,7 @@
 
 int main(int argc, char* argv[]) {
 	
-	Config config;
-	config.loadFromFile("resources/config/config.txt");
+	Config config ("resources/config/config.txt");
 
 	Game game( config );
 	game.run();

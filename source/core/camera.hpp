@@ -1,38 +1,34 @@
-#ifndef CAMERA_INCLUDED_
-#define CAMERA_INCLUDED_
+#pragma once
 
 #include <glm/glm.hpp>
 
-class Input;
+#include "input.hpp"
 
 class Camera {
 public:
-	Camera() = default;
-	Camera(const glm::vec3 &position , const glm::vec3& up );
+	Camera() {}
+	Camera( const glm::vec3& pos, const glm::vec3& dir );
 
-	void setPosition( const glm::vec3 &position);
-	void setUp( const glm::vec3 &up);
-	void setSensitivity(double sensitivity);
+	void update_keyboard( Input &input, float delta_time );
+	void update_mouse( Input &input );
 
-	glm::vec3 getPosition() { return m_position; }
-	glm::vec3 getDirection() { return m_direction; }
-	glm::vec3 getUp() { return m_up; }
+	inline void set_sensitivity( float s ) { m_sensitivity = s; }
+	inline void set_position( const glm::vec3 &pos ) { m_position = pos; }
 
-	//void update(Input& input, double delta_time);
-	void handleMouse(Input& input, double delta_time);
+	constexpr glm::vec3 get_position()  const { return m_position;  }
+	constexpr glm::vec3 get_direction() const { return m_direction; }
+	constexpr glm::vec3 get_right()     const { return m_right;     }
 
-	glm::mat4 getViewMatrix();
+	float &get_sensitivity() { return m_sensitivity; }
 
+	glm::mat4 get_matrix() const;
 
 private:
+	glm::vec3 m_position  { 0.0f, 0.0f, 1.0f };
+	glm::vec3 m_direction { 0.0f, 0.0f, -1.0f };
+	glm::vec3 m_right     { 1.0f, 0.0f, 0.0f };
 
-	glm::vec3 m_position;
-	glm::vec3 m_up;
-	glm::vec3 m_direction = glm::vec3(1.f, 0.f, 0.f);
-
-	float m_pitch = 0.f, m_yaw = 0.f;
-	double m_sensitivity = 0.005;
+	double m_pitch = 0.0, m_yaw = 0.0;
+	float m_sensitivity = 0.4f;
 
 };
-
-#endif

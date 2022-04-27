@@ -1,5 +1,4 @@
-#ifndef BASE_STATE_INCLUDED_
-#define BASE_STATE_INCLUDED_
+#pragma once
 
 #include "../core/input.hpp"
 
@@ -16,5 +15,3 @@ public:
 protected:
 	bool m_should_close = false;
 };
-
-#endif

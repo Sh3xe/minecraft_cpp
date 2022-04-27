@@ -20,7 +20,8 @@ namespace Blocks {
 		SAND,
 		MOSSY_BRICK,
 		BRICK,
-		SNOW_GRASS
+		SNOW_GRASS,
+		WATER
 	};
 
 	// +x, -x, +y, -y, +z, -z
@@ -41,7 +42,8 @@ namespace Blocks {
 		{14, 14, 14, 14, 14, 14},
 		{15, 15, 15, 15, 15, 15},
 		{16, 16, 16, 16, 16, 16},
-		{17, 17, 18, 0, 17, 17}
+		{17, 17, 18, 0, 17, 17},
+		{17, 17, 17, 17, 17, 17}
 	};
 
 	const BlockType tree_blocks[36] {
