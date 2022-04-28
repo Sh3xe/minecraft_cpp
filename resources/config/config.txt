@@ -1,6 +1,6 @@
 s title=minecraft++
 i window_width=1280
 i window_height=720
-i fps=80
+i fps=25
 i fps_cap=1
 f sensitivity=0.05

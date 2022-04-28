@@ -7,7 +7,7 @@
 #include "../opengl_wrapper/chunk_mesh.hpp"
 
 constexpr int CHUNK_X{ 16 };
-constexpr int CHUNK_Y{ 128 };
+constexpr int CHUNK_Y{ 64 };
 constexpr int CHUNK_Z{ 16 };
 
 class Camera;

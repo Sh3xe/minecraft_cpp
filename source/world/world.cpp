@@ -25,7 +25,8 @@ World::~World()
 
 void World::update_chunk_neighbours()
 {
-	for(auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
+	for(auto it = m_chunks.begin(); it != m_chunks.end(); ++it)
+	{
 		// set all pointers to nullptr
 		Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
 
@@ -46,7 +47,7 @@ void World::update_chunk_neighbours()
 
 		// same for +z
 		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + 16) );
-		if(neighbour != m_chunks.end())
+		if(neighbour != m_chunks.end())	
 			pz = neighbour->second.get();
 
 		// set the neighbours chunk for this current chunk
@@ -60,7 +61,8 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 
 	for(int i = floor(box.xmin); i < floor(box.xmax) + 1; i += 1.0)
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
-	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0) {
+	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
+	{
 		if(set_block(i, j, k) != Blocks::AIR)
 			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
@@ -68,7 +70,8 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	return hitboxes;
 }
 
-void World::set_block(int x, int y, int z, unsigned char type) {
+void World::set_block(int x, int y, int z, unsigned char type)
+{
 	// the the coordinates of the chunk where x, y, z is located
 	int chunk_x = x / CHUNK_X,
 		chunk_z = z / CHUNK_Z;
@@ -77,12 +80,13 @@ void World::set_block(int x, int y, int z, unsigned char type) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 	
-	if( x < 0 ) { // handle the case when x is negative
+	if( x < 0 )
+	{ // handle the case when x is negative
 		--chunk_x;
 		coord_x += CHUNK_X - 1;
 	}
-
-	if( z < 0 ) { // handle the case when z is negative
+	if( z < 0 )
+	{ // handle the case when z is negative
 		--chunk_z;
 		coord_z += CHUNK_Z - 1;
 	}
@@ -92,7 +96,8 @@ void World::set_block(int x, int y, int z, unsigned char type) {
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
-unsigned char World::set_block(int x, int y, int z) {
+unsigned char World::set_block(int x, int y, int z)
+{
 	// the the coordinates of the chunk where x, y, z is located
 	int chunk_x = x / CHUNK_X,
 		chunk_z = z / CHUNK_Z;
@@ -101,12 +106,14 @@ unsigned char World::set_block(int x, int y, int z) {
 	int coord_x = x % CHUNK_X,
 		coord_z = z % CHUNK_Z;
 
-	if( x < 0 ) { // handle the case when x is negative
+	if( x < 0 )
+	{ // handle the case when x is negative
 		--chunk_x;
 		coord_x += CHUNK_X - 1;
 	}
 
-	if( z < 0 ) { // handle the case when z is negative
+	if( z < 0 )
+	{ // handle the case when z is negative
 		--chunk_z;
 		coord_z += CHUNK_Z - 1;
 	}
@@ -117,7 +124,8 @@ unsigned char World::set_block(int x, int y, int z) {
 	return Blocks::AIR;
 }
 
-void World::update( double delta_time, Camera &camera ) {
+void World::update( double delta_time, Camera &camera ) 
+{
 	// calculate the position of the chunk ( / 16 )
 	
 	glm::ivec3 camera_position = camera.get_position();
@@ -126,14 +134,16 @@ void World::update( double delta_time, Camera &camera ) {
 	int chunk_z = ( static_cast<int>(camera_position.z) / CHUNK_Z );
 
 	// remove far away chunks
-	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) {
+	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
+	{
 		glm::ivec2 chunk_pos = chunk->second->getPosition();
 		if( // if the cunk is too far
 			chunk_pos.x > (chunk_x + RENDER_DISTANCE) * 16 ||
 			chunk_pos.x < (chunk_x - RENDER_DISTANCE) * 16 ||
 			chunk_pos.y > (chunk_z + RENDER_DISTANCE) * 16 ||
 			chunk_pos.y < (chunk_z - RENDER_DISTANCE) * 16
-			) {
+			) 
+		{
 			// erase, delete, kill
 			chunk = m_chunks.erase(chunk);
 		}
@@ -147,9 +157,11 @@ void World::update( double delta_time, Camera &camera ) {
 
 	// add a chunk if needed
 	for (int i = chunk_x - RENDER_DISTANCE; i <= chunk_x + RENDER_DISTANCE; ++i)
-	for (int j = chunk_z - RENDER_DISTANCE; j <= chunk_z + RENDER_DISTANCE; ++j) {
+	for (int j = chunk_z - RENDER_DISTANCE; j <= chunk_z + RENDER_DISTANCE; ++j) 
+	{
 		auto it = m_chunks.find(std::pair<int, int>(i * 16, j * 16));
-		if (it == m_chunks.end()) {
+		if (it == m_chunks.end()) 
+		{
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
 				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
 			)).first;
@@ -165,7 +177,8 @@ void World::update( double delta_time, Camera &camera ) {
 	
 }
 
-void World::draw( Camera &camera ){
+void World::draw( Camera &camera )
+{
 	m_shader.bind();
 
 	glm::mat4 view_matrix = camera.get_matrix();
@@ -174,7 +187,8 @@ void World::draw( Camera &camera ){
 	glm::vec3 cam_pos = camera.get_position(), cam_dir = camera.get_direction();
 
 
-	for (auto& chunk : m_chunks) {
+	for (auto& chunk : m_chunks) 
+	{
 		chunk.second->draw(camera, m_tilset, m_shader);
 	}
 }

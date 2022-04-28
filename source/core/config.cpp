@@ -4,6 +4,7 @@
 #include "core/logger.hpp"
 #include <fstream>
 #include <sstream>
+#include "utils.hpp"
 
 
 Config::Config( const std::string &path ) {
@@ -46,6 +47,9 @@ void Config::parse( const std::string &path ) {
 		std::string
 			name = line.substr(2, equ_index - 2),
 			value = line.substr(equ_index+1);
+
+		name = trim(name);
+		value = trim(value);
 
 		// conversion
 		char type = line[0];

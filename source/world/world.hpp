@@ -10,11 +10,12 @@
 #include "opengl_wrapper/texture2d.hpp"
 #include "core/aabb.hpp"
 
-#define RENDER_DISTANCE 6
+#define RENDER_DISTANCE 4
 
 class Camera;
 
-class World {
+class World
+{
 public:
 	World();
 	~World();
