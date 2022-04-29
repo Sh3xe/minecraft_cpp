@@ -6,7 +6,7 @@ PlayingState::PlayingState( Config &config ):
 	m_world(),
 	// place the camera at the center of the world
 	m_player(glm::vec3(0.0f, 64.0f, 0.0f)) {
-	m_player.get_camera().set_sensitivity(config.get_float("sensitivity"));
+	m_player.get_camera().set_sensitivity(config.sensitivity);
 }
 
 void PlayingState::update( Input &input, double delta_time ) {

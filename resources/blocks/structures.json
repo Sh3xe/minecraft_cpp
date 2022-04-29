@@ -1,0 +1,45 @@
+[
+    {
+        "name": "tree",
+        "x_length": 5,
+        "y_length": 6,
+        "z_length": 5,
+        "data": [
+            "a","a","a","a","a",
+            "a","a","a","a","a",
+            "a","a","l","a","a",
+            "a","a","a","a","a",
+            "a","a","a","a","a",
+    
+            "a","a","a","a","a",
+            "a","a","a","a","a",
+            "a","a","l","a","a",
+            "a","a","a","a","a",
+            "a","a","a","a","a",
+    
+            "le","le","le","le","le",
+            "le","le","le","le","le",
+            "le","le","l","le","le",
+            "le","le","le","le","le",
+            "le","le","le","le","le",
+    
+            "a","le","le","le","a",
+            "le","le","le","le","le",
+            "le","le","l","le","le",
+            "le","le","le","le","le",
+            "a","le","le","le","a",
+    
+            "a","a","a","a","a",
+            "a","le","le","le","a",
+            "a","le","le","le","a",
+            "a","le","le","le","a",
+            "a","a","a","a","a",
+    
+            "a","a","a","a","a",
+            "a","a","le","a","a",
+            "a","le","le","le","a",
+            "a","a","le","a","a",
+            "a","a","a","a","a"
+        ]
+    }
+]

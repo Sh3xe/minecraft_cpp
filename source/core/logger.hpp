@@ -7,7 +7,7 @@ inline std::string to_string( const std::string &str ) { return str; }
 
 namespace sd {
 
-	enum class log_level_t {
+	enum class LogLevel {
 		trace,
 		debug,
 		info,
@@ -26,38 +26,38 @@ namespace sd {
 			return instance;
 		}
 
-		inline void set_level_enabled( log_level_t level, bool enabled) {
+		inline void set_level_enabled( LogLevel level, bool enabled) {
 			m_enabled_levels[ static_cast<size_t>(level) ] = enabled;
 		}
 
-		inline bool get_level_enabled( log_level_t level ) const {
+		inline bool get_level_enabled( LogLevel level ) const {
 			return m_enabled_levels[static_cast<size_t>(level)];
 		}
 
 		template <typename ...types>
-		void log(log_level_t log_level, types&& ...args) {
+		void log(LogLevel log_level, types&& ...args) {
 			using ::to_string;
 			using std::to_string;
 			
 			if ( !m_enabled_levels[static_cast<size_t>(log_level)] ) return;
 
 			switch(log_level) {
-				case log_level_t::debug:
+				case LogLevel::debug:
 					send_to_streams( { "[DEBUG]:", to_string(args)... } );
 					break;
-				case log_level_t::error:
+				case LogLevel::error:
 					send_to_streams( { "[ERROR]:", to_string(args)... } );
 					break;
-				case log_level_t::fatal:
+				case LogLevel::fatal:
 					send_to_streams( { "[FATAL]:", to_string(args)... } );
 					break;
-				case log_level_t::info:
+				case LogLevel::info:
 					send_to_streams( { "[INFO ]:", to_string(args)... } );
 					break;
-				case log_level_t::trace:
+				case LogLevel::trace:
 					send_to_streams( { "[TRACE]:", to_string(args)... } );
 					break;
-				case log_level_t::warn:
+				case LogLevel::warn:
 					send_to_streams( { "[WARN ]:", to_string(args)... } );
 					break;
 				default: break;
@@ -86,12 +86,12 @@ namespace sd {
 
 #else
 
-	#define SD_DEBUG(...) sd::Logger::get().log( sd::log_level_t::debug, __VA_ARGS__ )
-	#define SD_TRACE(...) sd::Logger::get().log( sd::log_level_t::trace, __VA_ARGS__ )
+	#define SD_DEBUG(...) sd::Logger::get().log( sd::LogLevel::debug, __VA_ARGS__ )
+	#define SD_TRACE(...) sd::Logger::get().log( sd::LogLevel::trace, __VA_ARGS__ )
 
 #endif
 
-#define SD_INFO(...)  sd::Logger::get().log( sd::log_level_t::info, __VA_ARGS__ )
-#define SD_WARN(...)  sd::Logger::get().log( sd::log_level_t::warn, __VA_ARGS__ )
-#define SD_ERROR(...) sd::Logger::get().log( sd::log_level_t::error, __VA_ARGS__ )
-#define SD_FATAL(...) sd::Logger::get().log( sd::log_level_t::fatal, __VA_ARGS__ )
+#define SD_INFO(...)  sd::Logger::get().log( sd::LogLevel::info, __VA_ARGS__ )
+#define SD_WARN(...)  sd::Logger::get().log( sd::LogLevel::warn, __VA_ARGS__ )
+#define SD_ERROR(...) sd::Logger::get().log( sd::LogLevel::error, __VA_ARGS__ )
+#define SD_FATAL(...) sd::Logger::get().log( sd::LogLevel::fatal, __VA_ARGS__ )

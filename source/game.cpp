@@ -37,11 +37,11 @@ void Game::initWindow() {
 
 	// create window
 	m_window = SDL_CreateWindow(
-		m_config.get_str("window_title").c_str(),
+		m_config.title.c_str(),
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		m_config.get_int("window_width"),
-		m_config.get_int("window_height"),
+		m_config.window_width,
+		m_config.window_height,
 		SDL_WINDOW_OPENGL
 	);
 
@@ -56,7 +56,7 @@ void Game::initWindow() {
 
 	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_config.get_int("window_width"), m_config.get_int("window_height"));
+	glViewport(0, 0, m_config.window_width, m_config.window_height );
 }
 
 void Game::handle_events() {
@@ -95,8 +95,8 @@ void Game::run() {
 	auto previous_time = current_time;
 
 	double delta_time = 0.01;
-	double max_dt = 1 / static_cast<double>(m_config.get_int("fps"));
-	int fps_cap = m_config.get_int("fps");
+	double max_dt = 1 / static_cast<double>(m_config.fps);
+	int fps_cap = m_config.fps;
 
 	while( !m_states.empty() && !m_should_close ) {
 		// calculate delta_time (as seconds)

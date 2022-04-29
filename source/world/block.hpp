@@ -1,57 +1,57 @@
-#ifndef BLOCK_INCLUDED_
-#define BLOCK_INCLUDED_
+#pragma once
 
-namespace Blocks {
+#include <cstdint>
+#include <string>
+#include <vector>
 
-	enum BlockType: unsigned char {
-		AIR = 0,
-		DIRT,
-		GRASS,
-		WOOD,
-		STONE,
-		MOSSY_STONE,
-		IRON_ORE,
-		COAL,
-		DIAMOND_ORE,
-		GOLD_ORE,
-		COBBLESTONE,
-		MOSSY_COBBLESTONE,
-		LEAF,
-		SAND,
-		MOSSY_BRICK,
-		BRICK,
-		SNOW_GRASS,
-		WATER
-	};
+using BlockID = uint8_t;
 
-	// +x, -x, +y, -y, +z, -z
-	const unsigned char block_faces[][6] {
-		{0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0},
-		{1, 1, 2, 0, 1, 1},
-		{4, 4, 3, 3, 4, 4},
-		{5, 5, 5, 5, 5, 5},
-		{6, 6, 6, 6, 6, 6},
-		{7, 7, 7, 7, 7, 7},
-		{8, 8, 8, 8, 8, 8},
-		{9, 9, 9, 9, 9, 9},
-		{10, 10, 10, 10, 10, 10},
-		{11, 11, 11, 11, 11, 11},
-		{12, 12, 12, 12, 12, 12},
-		{13, 13, 13, 13, 13, 13},
-		{14, 14, 14, 14, 14, 14},
-		{15, 15, 15, 15, 15, 15},
-		{16, 16, 16, 16, 16, 16},
-		{17, 17, 18, 0, 17, 17},
-		{17, 17, 17, 17, 17, 17}
-	};
+enum class BlockShape: uint8_t
+{
+	cubic,
+	x
+};
 
-	const BlockType tree_blocks[36] {
-		AIR, AIR, AIR, AIR, WOOD, AIR, AIR, AIR, AIR,
-		LEAF, LEAF, LEAF, LEAF, WOOD, LEAF, LEAF, LEAF, LEAF,
-		AIR, LEAF, AIR, LEAF, WOOD, LEAF, AIR, LEAF, AIR,
-		AIR, AIR, AIR, AIR, LEAF, AIR, AIR, AIR, AIR,
-	};
-}
+struct BlockFaces
+{
+	// id into texture atlas
+	uint8_t up, down, left, right, front, back;
+};
 
-#endif
+struct BlockType
+{
+	std::string name;
+	std::string smallname;
+	BlockID id;
+
+	bool visible;
+	bool collidable;
+
+	BlockShape shape;
+	uint8_t mesh_group;
+};
+
+class BlockDB
+{
+public:
+	BlockDB operator=( const BlockDB& ) = delete;
+	BlockDB( const BlockDB& ) = delete;
+
+	inline static BlockDB &get()
+	{
+		static BlockDB instance;
+		return instance;
+	}
+
+	void load_from_file( const std::string &path );
+
+	const BlockType &id_get( BlockID id ) const;
+	const BlockType &name_get( const std::string &name ) const;
+	const BlockType &smallname_get( const std::string &smallname ) const;
+
+private:
+	BlockDB();
+
+	std::vector<BlockType> m_blocks;
+
+};

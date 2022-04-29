@@ -138,3 +138,35 @@ void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
 	
 	m_mesh.render(camera, tileset, shader);
 }
+
+
+
+std::pair<int, int> get_pos_inside_chunk( int x, int z )
+{
+    // get the coordinate of x, y, z inside this chunk
+    int coord_x = (x) % CHUNK_X,
+        coord_z = (z) % CHUNK_Z;
+    
+    if( (z) < 0 ) // handle the case when z is negative
+        coord_z += CHUNK_Z - 1;
+
+	if( (x) < 0 ) // handle the case when z is negative
+        coord_x += CHUNK_X - 1;
+    
+	return {coord_x, coord_z};
+}
+
+std::pair<int, int> get_pos_of_chunk( int x, int z )
+{
+	// the the coordinates of the chunk where x, y, z is located
+    int chunk_x = (x) / CHUNK_X,
+        chunk_z = (z) / CHUNK_Z;
+	
+	if( (x) < 0 ) // handle the case when x is negative
+        --chunk_x;
+
+	if( (z) < 0 ) // handle the case when z is negative
+        --chunk_z;
+
+	return {chunk_x, chunk_z};
+}

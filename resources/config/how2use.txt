@@ -1,3 +1,0 @@
-i -> int/ bool: 0 ou 1
-s -> str
-f -> float

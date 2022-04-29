@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <utility>
 #include <array>
 
 #include "block.hpp"
@@ -46,3 +47,7 @@ private:
 	std::array<Chunk*, 4> m_neighbours;
 
 };
+
+
+std::pair<int, int> get_pos_inside_chunk( int x, int z );
+std::pair<int, int> get_pos_of_chunk( int x, int z );
