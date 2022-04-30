@@ -2,8 +2,6 @@
 #include "game.hpp"
 #include "core/logger.hpp"
 
-
-
 bool init_sdl()
 {
 

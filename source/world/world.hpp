@@ -20,8 +20,8 @@ public:
 	World();
 	~World();
 
-	void set_block(int x, int y, int z, unsigned char type);
-	unsigned char set_block(int x, int y, int z);
+	void set_block(int x, int y, int z, BlockID type);
+	BlockID get_block(int x, int y, int z);
 
 	void draw( Camera &camera );
 	void update( double delta_time, Camera &camera );

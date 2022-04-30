@@ -2,7 +2,9 @@
 
 #include <cstdint>
 #include <string>
+#include <map>
 #include <vector>
+#include <array>
 
 using BlockID = uint8_t;
 
@@ -10,12 +12,6 @@ enum class BlockShape: uint8_t
 {
 	cubic,
 	x
-};
-
-struct BlockFaces
-{
-	// id into texture atlas
-	uint8_t up, down, left, right, front, back;
 };
 
 struct BlockType
@@ -27,6 +23,7 @@ struct BlockType
 	bool visible;
 	bool collidable;
 
+	std::array<uint8_t, 6> faces;
 	BlockShape shape;
 	uint8_t mesh_group;
 };
@@ -43,15 +40,20 @@ public:
 		return instance;
 	}
 
-	void load_from_file( const std::string &path );
+	bool load_from_file( const std::string &path );
 
 	const BlockType &id_get( BlockID id ) const;
-	const BlockType &name_get( const std::string &name ) const;
-	const BlockType &smallname_get( const std::string &smallname ) const;
+	const BlockType &name_get( const std::string &name );
+	const BlockType &smallname_get( const std::string &smallname );
 
 private:
-	BlockDB();
+	BlockDB()
+	{
+		
+	}
 
 	std::vector<BlockType> m_blocks;
+	std::map<std::string, BlockID> m_names;
+	std::map<std::string, BlockID> m_smallnames;
 
 };

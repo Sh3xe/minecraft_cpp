@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <string>
 
 #include "world/structure.hpp"
 #include "core/simplex_noise.hpp"
@@ -18,7 +19,7 @@ public:
 private:
 	struct ToBePlaced
 	{
-		ToBePlaced(int x, int y, int z, Blocks::BlockType block ):
+		ToBePlaced(int x, int y, int z, BlockID block ):
 			x( static_cast<uint8_t>(x) ),
 			y( static_cast<uint8_t>(y) ),
 			z( static_cast<uint8_t>(z) ),
@@ -27,7 +28,7 @@ private:
 		}
 		 
 		uint8_t x, y, z;
-		Blocks::BlockType block;
+		BlockID block;
 	};
 
 	void make_shape( Chunk& chunk );
@@ -36,9 +37,11 @@ private:
 	void place_blocks( Chunk &chunk );
 
 private:
+	bool load_structures( const std::string &path );
+
 	float m_surface_min{ 10 };
 	float m_surface_max{ 60 };
 	SimplexNoise m_noise;
-	Structure m_tree_struct;
+	std::vector<Structure> m_structs;
 	std::map< std::pair<int, int>, std::vector<ToBePlaced>> m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 };

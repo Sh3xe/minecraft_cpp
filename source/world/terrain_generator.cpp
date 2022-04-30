@@ -8,8 +8,13 @@
 
 TerrainGenerator::TerrainGenerator()
 {
-	if (!m_tree_struct.load_from_file("resources/blocks/tree.txt"))
-		SD_ERROR("Impossible de charger la structure: 'tree.txt'");
+	if (!load_structures("resources/blocks/structures.json"))
+		SD_ERROR("Impossible de charger les structures");
+}
+
+bool TerrainGenerator::load_structures( const std::string &path )
+{
+	return true;
 }
 
 Chunk &TerrainGenerator::generate(Chunk& chunk)
@@ -24,6 +29,8 @@ Chunk &TerrainGenerator::generate(Chunk& chunk)
 
 void TerrainGenerator::make_shape(Chunk& chunk)
 { 
+	auto &db = BlockDB::get();
+
 	constexpr float s1{ 0.01f };
 	constexpr float s2{ 0.05f };
 	constexpr float s3{ 0.003f };
@@ -49,13 +56,15 @@ void TerrainGenerator::make_shape(Chunk& chunk)
 			v += m_noise.fractal(3, X * s2, y * s2, Z * s2 ) * 0.3f * mask;
 
 			if(v > 0)
-				chunk.fast_set(x, y, z, Blocks::STONE);
+				chunk.fast_set(x, y, z, db.name_get("stone").id );
 		}
 	}
 }
 
 void TerrainGenerator::paint_blocks(Chunk& chunk)
 {
+	auto &db = BlockDB::get();
+
 	static std::bernoulli_distribution d { 0.005f };
 	static std::default_random_engine e;
 
@@ -66,19 +75,19 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 		for( int y = CHUNK_Y - 1; y >= 0; --y )
 		{
 			auto block = chunk.fast_get(x, y, z);
-			if( block != Blocks::AIR ) ++depth;
+			if( block != db.name_get("air").id ) ++depth;
 			else depth = 0;
 
 			if(depth == 1)
 			{
-				chunk.fast_set( x, y, z, Blocks::GRASS );
+				chunk.fast_set( x, y, z, db.name_get("grass").id );
 
-				if( d(e) )
-					push_structure( m_tree_struct, x + chunk.m_position.x, y, z + chunk.m_position.y );
+				//if( d(e) )
+				//	push_structure( m_tree_struct, x + chunk.m_position.x, y, z + chunk.m_position.y );
 			}
 
 			else if( depth > 1 && depth <= 4 )
-				chunk.fast_set( x, y, z, Blocks::DIRT );
+				chunk.fast_set( x, y, z, db.name_get("dirt").id );
 		}
 	}
 }
@@ -100,6 +109,8 @@ void TerrainGenerator::place_blocks( Chunk &chunk )
 
 void TerrainGenerator::push_structure( const Structure &structure, int px, int py, int pz )
 {
+	auto &db = BlockDB::get();
+
 	for( int x = 0; x < structure.x_length; ++x )
 	for( int z = 0; z < structure.z_length; ++z )
 	{
@@ -111,7 +122,7 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
 		{
 			ToBePlaced block_info (coord_x, py + y, coord_z, structure.get(x, y, z));
-			if( block_info.block != Blocks::BlockType::AIR )
+			if( block_info.block != db.name_get("air").id )
 				block_vector.push_back( block_info );
 		}
 	}

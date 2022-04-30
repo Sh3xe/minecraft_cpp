@@ -25,12 +25,12 @@ public:
 	Chunk(int x, int z);
 	~Chunk();
 
-	void setPosition(int x, int z);
-	void setNeighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
-	void set_block(int x, int y, int z, unsigned char type);
-	unsigned char set_block(int x, int y, int z);
-	glm::ivec2 getPosition() {return m_position;}
-	void generateMesh();
+	void set_position(int x, int z);
+	void set_neighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
+	void set_block(int x, int y, int z, BlockID type);
+	BlockID get_block(int x, int y, int z);
+	glm::ivec2 get_position() {return m_position;}
+	void generate_mesh();
 	void draw( Camera& camera, Texture& tileset, Shader& shader );
 
 public:
@@ -43,7 +43,7 @@ private:
 	glm::ivec2 m_position;
 	ChunkMesh m_mesh;
 
-	std::array<unsigned char, CHUNK_X* CHUNK_Y* CHUNK_Z> m_block_data;
+	std::array< BlockID, CHUNK_X* CHUNK_Y* CHUNK_Z> m_block_data;
 	std::array<Chunk*, 4> m_neighbours;
 
 };

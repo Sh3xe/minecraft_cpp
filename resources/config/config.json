@@ -2,7 +2,7 @@
     "title": "minecraft++",
     "window_width": 1280,
     "window_height": 720,
-    "fps": 25,
+    "fps": 120,
     "fps_cap": true,
     "sensitivity": 0.05
 }

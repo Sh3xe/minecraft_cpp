@@ -17,10 +17,12 @@ Chunk::Chunk(int x, int z):
 	m_mesh(x, z) {
 
 	// fill blocks array
+	BlockID air_block = BlockDB::get().name_get("air").id;
+
 	for(int x = 0; x < CHUNK_X; ++x)
 	for(int y = 0; y < CHUNK_Y; ++y)
 	for(int z = 0; z < CHUNK_Z; ++z)
-		m_block_data[ x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y ] = Blocks::AIR;
+		m_block_data[ x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y ] = air_block;
 }
 
 Chunk::Chunk() :
@@ -30,12 +32,12 @@ Chunk::Chunk() :
 Chunk::~Chunk() {
 }
 
-void Chunk::setPosition(int x, int z) {
+void Chunk::set_position(int x, int z) {
 	m_position.x = x;
 	m_position.y = z;
 }
 
-void Chunk::setNeighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
+void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 	// set neighbour's chunks (used for block checking)
 	m_neighbours[0] = px;
 	m_neighbours[1] = mx;
@@ -66,21 +68,24 @@ void Chunk::set_block(int x, int y, int z, unsigned char type) {
 	}
 }
 
-unsigned char Chunk::set_block(int x, int y, int z) {
+BlockID Chunk::get_block(int x, int y, int z) {
 	// warning: only works for 1 block out-of-range.
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
+
+	auto &db = BlockDB::get();
+
 	if(y >= CHUNK_Y)
-		return Blocks::AIR;
+		return db.name_get("air").id;
 	if(y < 0)
-		return Blocks::STONE;
+		return db.name_get("stone").id;;
 	if(x >= CHUNK_X)
-		return m_neighbours[0] != nullptr ? m_neighbours[0]->set_block(0, y, z): Blocks::STONE;
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): db.name_get("stone").id;
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->set_block(CHUNK_X - 1, y, z): Blocks::STONE;
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): db.name_get("stone").id;
 	if(z >= CHUNK_Z)
-		return m_neighbours[2] != nullptr ? m_neighbours[2]->set_block(x, y, 0): Blocks::STONE;
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): db.name_get("stone").id;
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->set_block(x, y, CHUNK_Z - 1): Blocks::STONE;
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): db.name_get("stone").id;
 
 	// return the block in the current chunk
 	return m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y];
@@ -96,7 +101,7 @@ void Chunk::fast_set(int x, int y, int z, uint8_t block )
 	m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y] = block;
 }
 
-void Chunk::generateMesh()
+void Chunk::generate_mesh()
 {
 	m_mesh.clear();
 
@@ -105,27 +110,28 @@ void Chunk::generateMesh()
 	for(int y = 0; y < CHUNK_Y; ++y) {
 		// adds a face the the mesh if needed
 
-		Blocks::BlockType type = (Blocks::BlockType)set_block(x, y, z);
-		if(type == Blocks::AIR) continue;
+		//__TODO
+		auto id = get_block(x, y, z);
+		if( id == BlockDB::get().name_get("air").id ) continue;
 	
 		// +x
-		if (!set_block(x + 1, y, z)  )
-			m_mesh.add_face(x, y, z, Directions::PX, type);
+		if ( !get_block(x + 1, y, z)  )
+			m_mesh.add_face(x, y, z, Directions::PX, id);
 		// -x
-		if (!set_block(x - 1, y, z) )
-			m_mesh.add_face(x, y, z, Directions::MX, type);
+		if ( !get_block(x - 1, y, z) )
+			m_mesh.add_face(x, y, z, Directions::MX, id);
 		// +y
-		if (!set_block(x, y + 1, z) )
-			m_mesh.add_face(x, y, z, Directions::PY, type);
+		if ( !get_block(x, y + 1, z) )
+			m_mesh.add_face(x, y, z, Directions::PY, id);
 		// -y
-		if (!set_block(x, y - 1, z) )
-			m_mesh.add_face(x, y, z, Directions::MY, type);
+		if ( !get_block(x, y - 1, z) )
+			m_mesh.add_face(x, y, z, Directions::MY, id);
 		// +z
-		if (!set_block(x, y, z + 1) )
-			m_mesh.add_face(x, y, z, Directions::PZ, type);
+		if ( !get_block(x, y, z + 1) )
+			m_mesh.add_face(x, y, z, Directions::PZ, id);
 		// -z
-		if (!set_block(x, y, z - 1) )
-			m_mesh.add_face(x, y, z, Directions::MZ, type);
+		if ( !get_block(x, y, z - 1) )
+			m_mesh.add_face(x, y, z, Directions::MZ, id);
 	}
 	
 	m_mesh.send_to_gpu();
@@ -134,7 +140,7 @@ void Chunk::generateMesh()
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
 	if( m_should_update )
-		generateMesh();
+		generate_mesh();
 	
 	m_mesh.render(camera, tileset, shader);
 }

@@ -3,6 +3,8 @@
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
+
+#include "utils.hpp"
 #include "../core/camera.hpp"
 #include "block.hpp"
 
@@ -51,7 +53,7 @@ void World::update_chunk_neighbours()
 			pz = neighbour->second.get();
 
 		// set the neighbours chunk for this current chunk
-		it->second->setNeighbours(px, mx, pz, mz);
+		it->second->set_neighbours(px, mx, pz, mz);
 	}
 }
 
@@ -63,65 +65,35 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
 	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
 	{
-		if(set_block(i, j, k) != Blocks::AIR)
+		if( BlockDB::get().id_get( get_block(i, j, k) ).collidable )
 			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
 
 	return hitboxes;
 }
 
-void World::set_block(int x, int y, int z, unsigned char type)
+void World::set_block(int x, int y, int z, BlockID type)
 {
-	// the the coordinates of the chunk where x, y, z is located
-	int chunk_x = x / CHUNK_X,
-		chunk_z = z / CHUNK_Z;
-
-	// get the coordinate of x, y, z inside this chunk
-	int coord_x = x % CHUNK_X,
-		coord_z = z % CHUNK_Z;
-	
-	if( x < 0 )
-	{ // handle the case when x is negative
-		--chunk_x;
-		coord_x += CHUNK_X - 1;
-	}
-	if( z < 0 )
-	{ // handle the case when z is negative
-		--chunk_z;
-		coord_z += CHUNK_Z - 1;
-	}
+	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
+	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
+
 	if (chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
-unsigned char World::set_block(int x, int y, int z)
+BlockID World::get_block(int x, int y, int z)
 {
-	// the the coordinates of the chunk where x, y, z is located
-	int chunk_x = x / CHUNK_X,
-		chunk_z = z / CHUNK_Z;
-
-	// get the coordinate of x, y, z inside this chunk
-	int coord_x = x % CHUNK_X,
-		coord_z = z % CHUNK_Z;
-
-	if( x < 0 )
-	{ // handle the case when x is negative
-		--chunk_x;
-		coord_x += CHUNK_X - 1;
-	}
-
-	if( z < 0 )
-	{ // handle the case when z is negative
-		--chunk_z;
-		coord_z += CHUNK_Z - 1;
-	}
+	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
+	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
+
 	if(chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
-		return chunk->second->set_block(coord_x, y, coord_z);
-	return Blocks::AIR;
+		return chunk->second->get_block(coord_x, y, coord_z);
+
+	return 0; //__TODO
 }
 
 void World::update( double delta_time, Camera &camera ) 
@@ -136,7 +108,7 @@ void World::update( double delta_time, Camera &camera )
 	// remove far away chunks
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
-		glm::ivec2 chunk_pos = chunk->second->getPosition();
+		glm::ivec2 chunk_pos = chunk->second->get_position();
 		if( // if the cunk is too far
 			chunk_pos.x > (chunk_x + RENDER_DISTANCE) * 16 ||
 			chunk_pos.x < (chunk_x - RENDER_DISTANCE) * 16 ||
