@@ -13,7 +13,7 @@ class Chunk;
 class TerrainGenerator
 {
 public:
-	TerrainGenerator();
+	TerrainGenerator( BlockDB &db );
 	Chunk &generate( Chunk& chunk );
 
 private:
@@ -37,11 +37,10 @@ private:
 	void place_blocks( Chunk &chunk );
 
 private:
-	bool load_structures( const std::string &path );
-
 	float m_surface_min{ 10 };
 	float m_surface_max{ 60 };
 	SimplexNoise m_noise;
+	BlockDB *m_db;
 	std::vector<Structure> m_structs;
 	std::map< std::pair<int, int>, std::vector<ToBePlaced>> m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 };

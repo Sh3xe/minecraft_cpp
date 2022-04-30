@@ -31,6 +31,7 @@ private:
 	/* used to update the m_neighbours ( used to communicate to adjacent chunks an update ) array of each chunk of the world */
 	void update_chunk_neighbours();
 
+	BlockDB m_db;
 	Shader m_shader;
 	Texture2D m_tilset;
 	TerrainGenerator m_generator;

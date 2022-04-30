@@ -28,7 +28,7 @@ public:
 	~ChunkMesh();
 
 	void clear();
-	void add_face(int x, int y, int z, Directions dir, BlockID block);
+	void add_face( int x, int y, int z, Directions dir, const BlockType &block );
 	void send_to_gpu();
 	inline uint32_t get_face_count() const { return m_face_count; }
 	void render(Camera& camera, Texture& tileset, Shader& shader);

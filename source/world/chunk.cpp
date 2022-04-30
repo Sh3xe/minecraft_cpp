@@ -11,13 +11,14 @@
 #include "../opengl_wrapper/shader.hpp"
 #include "../opengl_wrapper/texture.hpp"
 
-Chunk::Chunk(int x, int z):
+Chunk::Chunk( BlockDB &db, int x, int z):
 	m_position(x, z),
-	m_neighbours({nullptr, nullptr , nullptr , nullptr }),
-	m_mesh(x, z) {
-
+	m_db( &db ),
+	m_mesh(x, z),
+	m_neighbours({nullptr, nullptr , nullptr , nullptr })
+{
 	// fill blocks array
-	BlockID air_block = BlockDB::get().name_get("air").id;
+	BlockID air_block = m_db->name_get("air").id;
 
 	for(int x = 0; x < CHUNK_X; ++x)
 	for(int y = 0; y < CHUNK_Y; ++y)
@@ -25,11 +26,8 @@ Chunk::Chunk(int x, int z):
 		m_block_data[ x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y ] = air_block;
 }
 
-Chunk::Chunk() :
-	Chunk(0, 0) {
-}
-
-Chunk::~Chunk() {
+Chunk::~Chunk()
+{
 }
 
 void Chunk::set_position(int x, int z) {
@@ -68,24 +66,23 @@ void Chunk::set_block(int x, int y, int z, unsigned char type) {
 	}
 }
 
-BlockID Chunk::get_block(int x, int y, int z) {
+BlockID Chunk::get_block(int x, int y, int z)
+{
 	// warning: only works for 1 block out-of-range.
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 
-	auto &db = BlockDB::get();
-
 	if(y >= CHUNK_Y)
-		return db.name_get("air").id;
+		return m_db->name_get("air").id;
 	if(y < 0)
-		return db.name_get("stone").id;;
+		return m_db->name_get("stone").id;;
 	if(x >= CHUNK_X)
-		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): db.name_get("stone").id;
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): m_db->name_get("stone").id;
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): db.name_get("stone").id;
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): m_db->name_get("stone").id;
 	if(z >= CHUNK_Z)
-		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): db.name_get("stone").id;
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): m_db->name_get("stone").id;
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): db.name_get("stone").id;
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): m_db->name_get("stone").id;
 
 	// return the block in the current chunk
 	return m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y];
@@ -107,31 +104,30 @@ void Chunk::generate_mesh()
 
 	for(int x = 0; x < CHUNK_X; ++x)
 	for(int z = 0; z < CHUNK_Z; ++z)
-	for(int y = 0; y < CHUNK_Y; ++y) {
+	for(int y = 0; y < CHUNK_Y; ++y)
+	{
 		// adds a face the the mesh if needed
-
-		//__TODO
-		auto id = get_block(x, y, z);
-		if( id == BlockDB::get().name_get("air").id ) continue;
+		auto block = m_db->id_get( get_block(x, y, z) );
+		if( block.id == m_db->name_get("air").id ) continue;
 	
 		// +x
 		if ( !get_block(x + 1, y, z)  )
-			m_mesh.add_face(x, y, z, Directions::PX, id);
+			m_mesh.add_face(x, y, z, Directions::PX, block);
 		// -x
 		if ( !get_block(x - 1, y, z) )
-			m_mesh.add_face(x, y, z, Directions::MX, id);
+			m_mesh.add_face(x, y, z, Directions::MX, block);
 		// +y
 		if ( !get_block(x, y + 1, z) )
-			m_mesh.add_face(x, y, z, Directions::PY, id);
+			m_mesh.add_face(x, y, z, Directions::PY, block);
 		// -y
 		if ( !get_block(x, y - 1, z) )
-			m_mesh.add_face(x, y, z, Directions::MY, id);
+			m_mesh.add_face(x, y, z, Directions::MY, block);
 		// +z
 		if ( !get_block(x, y, z + 1) )
-			m_mesh.add_face(x, y, z, Directions::PZ, id);
+			m_mesh.add_face(x, y, z, Directions::PZ, block);
 		// -z
 		if ( !get_block(x, y, z - 1) )
-			m_mesh.add_face(x, y, z, Directions::MZ, id);
+			m_mesh.add_face(x, y, z, Directions::MZ, block);
 	}
 	
 	m_mesh.send_to_gpu();

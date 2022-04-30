@@ -5,12 +5,14 @@
 #include <glm/ext.hpp>
 
 #include "utils.hpp"
-#include "../core/camera.hpp"
+#include "core/logger.hpp"
+#include "core/camera.hpp"
 #include "block.hpp"
 
 World::World():
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
-	m_tilset("resources/images/tileset.png")
+	m_tilset("resources/images/tileset.png"),
+	m_generator( m_db )
 {	
 	// set shader uniforms
 	glm::mat4 model_matrix(1.0f);
@@ -18,6 +20,9 @@ World::World():
 
 	m_shader.bind();
 	m_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
+
+	if( !m_db.load_from_file("resources/blocks/blocks.json"))
+		SD_ERROR("Impossible de récuperer les infos sur les blocs");
 }
 
 World::~World()
@@ -65,7 +70,7 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
 	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
 	{
-		if( BlockDB::get().id_get( get_block(i, j, k) ).collidable )
+		if( m_db.id_get( get_block(i, j, k) ).collidable )
 			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
 
@@ -135,7 +140,7 @@ void World::update( double delta_time, Camera &camera )
 		if (it == m_chunks.end()) 
 		{
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(i * 16, j * 16))
+				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(m_db, i * 16, j * 16))
 			)).first;
 
 			added_chunks.push_back(new_chunk);

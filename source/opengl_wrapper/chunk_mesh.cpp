@@ -77,14 +77,12 @@ void ChunkMesh::clear()
 	m_vertices.clear();
 }
 
-void ChunkMesh::add_face(int x, int y, int z, Directions dir, BlockID block)
+void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &block )
 {
 	++m_face_count;
-	
-	auto &db = BlockDB::get();
 
-	int texture_x{ db.id_get(block).faces[static_cast<uint8_t>(dir)] % 16 };
-	int texture_y{ db.id_get(block).faces[static_cast<uint8_t>(dir)] / 16 };
+	int texture_x{ block.faces[static_cast<uint8_t>(dir)] % 16 };
+	int texture_y{ block.faces[static_cast<uint8_t>(dir)] / 16 };
 
 	for (int i = 0; i < 6; ++i)
 	{

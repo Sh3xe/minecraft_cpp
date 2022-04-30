@@ -21,8 +21,7 @@ class Chunk {
 public:
 	friend class TerrainGenerator;
 
-	Chunk();
-	Chunk(int x, int z);
+	Chunk( BlockDB &db, int x, int z);
 	~Chunk();
 
 	void set_position(int x, int z);
@@ -42,6 +41,7 @@ private:
 
 	glm::ivec2 m_position;
 	ChunkMesh m_mesh;
+	BlockDB *m_db;
 
 	std::array< BlockID, CHUNK_X* CHUNK_Y* CHUNK_Z> m_block_data;
 	std::array<Chunk*, 4> m_neighbours;

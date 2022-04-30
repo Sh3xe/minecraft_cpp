@@ -31,15 +31,11 @@ struct BlockType
 class BlockDB
 {
 public:
-	BlockDB operator=( const BlockDB& ) = delete;
-	BlockDB( const BlockDB& ) = delete;
-
-	inline static BlockDB &get()
-	{
-		static BlockDB instance;
-		return instance;
+	BlockDB()
+	{	
 	}
-
+	
+	BlockDB operator=( const BlockDB& ) = delete;
 	bool load_from_file( const std::string &path );
 
 	const BlockType &id_get( BlockID id ) const;
@@ -47,11 +43,6 @@ public:
 	const BlockType &smallname_get( const std::string &smallname );
 
 private:
-	BlockDB()
-	{
-		
-	}
-
 	std::vector<BlockType> m_blocks;
 	std::map<std::string, BlockID> m_names;
 	std::map<std::string, BlockID> m_smallnames;

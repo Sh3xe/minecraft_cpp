@@ -5,13 +5,9 @@
 
 PlayingState::PlayingState( Config &config ):
 	m_world(),
-	// place the camera at the center of the world
 	m_player(glm::vec3(0.0f, 64.0f, 0.0f))
 {
 	m_player.get_camera().set_sensitivity(config.sensitivity);
-	
-	if( !BlockDB::get().load_from_file("resources/blocks/blocks.json"))
-		SD_ERROR("Impossible de charger les informations relatives aux blocs");
 }
 
 void PlayingState::update( Input &input, double delta_time )
