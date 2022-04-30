@@ -1,5 +1,4 @@
-#ifndef VERTEX_INCLUDED_
-#define VERTEX_INCLUDED_
+#pragma once
 
 #include <cstdint>
 
@@ -45,5 +44,3 @@ struct BlockVertex
 
     uint32_t data;
 };
-
-#endif

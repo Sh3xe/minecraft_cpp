@@ -7,7 +7,7 @@
 #include "utils.hpp"
 #include "core/logger.hpp"
 #include "core/camera.hpp"
-#include "block.hpp"
+#include "blocks.hpp"
 
 World::World():
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
@@ -21,8 +21,11 @@ World::World():
 	m_shader.bind();
 	m_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
 
-	if( !m_db.load_from_file("resources/blocks/blocks.json"))
+	if( !m_db.load_blocks_from_file("resources/blocks/blocks.json"))
 		SD_ERROR("Impossible de récuperer les infos sur les blocs");
+
+	if( !m_db.load_structures_from_file("resources/blocks/structures.json"))
+		SD_ERROR("Impossible de récuperer les infos sur les structures");
 }
 
 World::~World()
@@ -70,7 +73,7 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
 	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
 	{
-		if( m_db.id_get( get_block(i, j, k) ).collidable )
+		if( m_db.get_block( get_block(i, j, k) ).collidable )
 			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
 
@@ -84,7 +87,7 @@ void World::set_block(int x, int y, int z, BlockID type)
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 
-	if (chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
+	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
@@ -95,7 +98,7 @@ BlockID World::get_block(int x, int y, int z)
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 
-	if(chunk != m_chunks.end() && y < CHUNK_Y && y >= 0)
+	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
 
 	return 0; //__TODO

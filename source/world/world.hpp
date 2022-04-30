@@ -6,8 +6,8 @@
 
 #include "chunk.hpp"
 #include "terrain_generator.hpp"
-#include "opengl_wrapper/shader.hpp"
-#include "opengl_wrapper/texture2d.hpp"
+#include "renderer/shader.hpp"
+#include "renderer/texture2d.hpp"
 #include "core/aabb.hpp"
 
 #define RENDER_DISTANCE 4

@@ -2,11 +2,14 @@
 #include "../core/logger.hpp"
 #include "gl_functions.hpp"
 
-void _logGlErrors(int line, const char* file) {
+void _log_gl_errors(int line, const char* file)
+{
 	GLenum error_flag = GL_NO_ERROR;
-	while((error_flag = glGetError()) != GL_NO_ERROR) {
+	while((error_flag = glGetError()) != GL_NO_ERROR)
+	{
 		SD_ERROR("OpenGL Error in file: ", file, " at line", line, ": ");
-		switch(error_flag) {
+		switch(error_flag)
+		{
 			case GL_INVALID_ENUM:
 				SD_ERROR("GL_INVALID_ENUM");
 				break;

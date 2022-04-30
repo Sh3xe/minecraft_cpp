@@ -17,7 +17,8 @@ Config load_config_from_file( const std::string &path )
 		1280,
 		720,
 		true, 60,
-		0.05f
+		0.05f,
+		false
 	};
 
 	if( !file )
@@ -35,6 +36,7 @@ Config load_config_from_file( const std::string &path )
 	config.fps_cap = data["fps_cap"];
 	config.fps = data["fps"];
 	config.sensitivity = data["sensitivity"];
+	config.fullscreen = data["fullscreen"];
 
 	file.close();
 

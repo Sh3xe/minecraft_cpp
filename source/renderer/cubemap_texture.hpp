@@ -5,10 +5,12 @@
 #include <initializer_list>
 #include <string>
 
-class CubemapTexture: public Texture {
+class CubemapTexture: public Texture
+{
 public:
 	CubemapTexture():
-		Texture() {
+		Texture()
+	{
 	}
 
 	CubemapTexture(
@@ -22,7 +24,8 @@ public:
 
 	CubemapTexture( const std::initializer_list<std::string> &paths );
 
-	bool load_from_file( const std::string &right,
+	bool load_from_file(
+		const std::string &right,
 		const std::string &left,
 		const std::string &top,
 		const std::string &bottom,

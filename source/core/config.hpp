@@ -10,6 +10,7 @@ struct Config
 	bool fps_cap;
 	int fps;
 	float sensitivity;
+	bool fullscreen;
 };
 
 Config load_config_from_file( const std::string &path );

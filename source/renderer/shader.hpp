@@ -3,7 +3,8 @@
 #include <string>
 #include <stdint.h>
 
-class Shader {
+class Shader
+{
 public:
 	Shader(const std::string& vs_path, const std::string& gs_path, const std::string& fs_path);
 	~Shader();

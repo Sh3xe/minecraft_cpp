@@ -4,9 +4,13 @@
 
 #include "input.hpp"
 
-class Camera {
+class Camera
+{
 public:
-	Camera() {}
+	Camera()
+	{
+	}
+	
 	Camera( const glm::vec3& pos, const glm::vec3& dir );
 
 	void update_keyboard( Input &input, float delta_time );

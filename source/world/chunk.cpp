@@ -1,15 +1,16 @@
 #include "chunk.hpp"
 
 #include <random>
+#include <cmath>
 #include "gl_functions.hpp"
 
 #include "world.hpp"
 #include "../core/timer.hpp"
 #include "../core/camera.hpp"
 
-#include "../opengl_wrapper/vertex.hpp"
-#include "../opengl_wrapper/shader.hpp"
-#include "../opengl_wrapper/texture.hpp"
+#include "../renderer/vertex.hpp"
+#include "../renderer/shader.hpp"
+#include "../renderer/texture.hpp"
 
 Chunk::Chunk( BlockDB &db, int x, int z):
 	m_position(x, z),
@@ -18,7 +19,7 @@ Chunk::Chunk( BlockDB &db, int x, int z):
 	m_neighbours({nullptr, nullptr , nullptr , nullptr })
 {
 	// fill blocks array
-	BlockID air_block = m_db->name_get("air").id;
+	BlockID air_block = m_db->id_from_name("air");
 
 	for(int x = 0; x < CHUNK_X; ++x)
 	for(int y = 0; y < CHUNK_Y; ++y)
@@ -43,7 +44,7 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 	m_neighbours[3] = mz;
 }
 
-void Chunk::set_block(int x, int y, int z, unsigned char type) {
+void Chunk::set_block(int x, int y, int z, BlockID type) {
 
 	if (x >= CHUNK_X && m_neighbours[0] != nullptr)
 		m_neighbours[0]->set_block(0, y, z, type);
@@ -72,17 +73,17 @@ BlockID Chunk::get_block(int x, int y, int z)
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 
 	if(y >= CHUNK_Y)
-		return m_db->name_get("air").id;
+		return m_db->id_from_name("air");
 	if(y < 0)
-		return m_db->name_get("stone").id;;
+		return m_db->id_from_name("stone");
 	if(x >= CHUNK_X)
-		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): m_db->name_get("stone").id;
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): m_db->id_from_name("stone");
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): m_db->name_get("stone").id;
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): m_db->id_from_name("stone");
 	if(z >= CHUNK_Z)
-		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): m_db->name_get("stone").id;
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): m_db->id_from_name("stone");
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): m_db->name_get("stone").id;
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): m_db->id_from_name("stone");
 
 	// return the block in the current chunk
 	return m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y];
@@ -107,8 +108,8 @@ void Chunk::generate_mesh()
 	for(int y = 0; y < CHUNK_Y; ++y)
 	{
 		// adds a face the the mesh if needed
-		auto block = m_db->id_get( get_block(x, y, z) );
-		if( block.id == m_db->name_get("air").id ) continue;
+		auto block = m_db->get_block( get_block(x, y, z) );
+		if( block.id == m_db->id_from_name("air") ) continue;
 	
 		// +x
 		if ( !get_block(x + 1, y, z)  )
@@ -141,34 +142,24 @@ void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
 	m_mesh.render(camera, tileset, shader);
 }
 
-
-
 std::pair<int, int> get_pos_inside_chunk( int x, int z )
 {
-    // get the coordinate of x, y, z inside this chunk
-    int coord_x = (x) % CHUNK_X,
-        coord_z = (z) % CHUNK_Z;
-    
-    if( (z) < 0 ) // handle the case when z is negative
-        coord_z += CHUNK_Z - 1;
+	int coord_x = (x < 0) ?
+		((x+1) % CHUNK_X) + CHUNK_X - 1: x%CHUNK_X;
 
-	if( (x) < 0 ) // handle the case when z is negative
-        coord_x += CHUNK_X - 1;
-    
+	int coord_z = (z < 0) ?
+		((z+1) % CHUNK_Z) + CHUNK_Z - 1: z%CHUNK_Z;
+
 	return {coord_x, coord_z};
 }
 
 std::pair<int, int> get_pos_of_chunk( int x, int z )
 {
-	// the the coordinates of the chunk where x, y, z is located
-    int chunk_x = (x) / CHUNK_X,
-        chunk_z = (z) / CHUNK_Z;
-	
-	if( (x) < 0 ) // handle the case when x is negative
-        --chunk_x;
+	int chunk_x = (x < 0) ?
+		floor( x / (float)CHUNK_X): x/CHUNK_X;
 
-	if( (z) < 0 ) // handle the case when z is negative
-        --chunk_z;
+	int chunk_z = (z < 0) ?
+		floor( z / (float)CHUNK_Z): z/CHUNK_Z;
 
 	return {chunk_x, chunk_z};
 }

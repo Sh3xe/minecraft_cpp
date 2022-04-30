@@ -10,59 +10,23 @@
 using namespace std::chrono;
 using dseconds = duration<double>;
 
-Game::Game(const Config &config):
-	m_config(config) {
-
-	initWindow();
+Game::Game( const Config &config, SDL_Window *window ):
+	m_config(config),
+	m_window( window )
+{
 	m_states.push_back( std::unique_ptr<PlayingState>( new PlayingState(m_config) ) );
-	
 }
 
-Game::~Game() {
-	SDL_DestroyWindow(m_window);
-	SDL_GL_DeleteContext(m_context);
+Game::~Game()
+{
 }
 
-void Game::initWindow() {
-	// init sdl
-	SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS );
-
-	// set gl atribs
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-	// create window
-	m_window = SDL_CreateWindow(
-		m_config.title.c_str(),
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		m_config.window_width,
-		m_config.window_height,
-		SDL_WINDOW_OPENGL
-	);
-
-	// hide cursor
-	SDL_ShowCursor(0);
-	SDL_SetRelativeMouseMode( SDL_TRUE );
-
-	// create opengl context
-	m_context = SDL_GL_CreateContext(m_window);
-
-	glewInit();
-
-	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_config.window_width, m_config.window_height );
-}
-
-void Game::handle_events() {
+void Game::handle_events()
+{
 	// handles keyboard events
 	SDL_Event event;
-	while(SDL_PollEvent(&event)) {
+	while(SDL_PollEvent(&event))
+	{
 		if(event.type == SDL_QUIT)
 			m_should_close = true;
 		if(event.type == SDL_KEYDOWN)
@@ -89,8 +53,8 @@ void Game::handle_events() {
 }
 
 
-void Game::run() {
-
+void Game::run()
+{
 	auto current_time = steady_clock::now();
 	auto previous_time = current_time;
 
@@ -98,14 +62,16 @@ void Game::run() {
 	double max_dt = 1 / static_cast<double>(m_config.fps);
 	int fps_cap = m_config.fps;
 
-	while( !m_states.empty() && !m_should_close ) {
+	while( !m_states.empty() && !m_should_close )
+	{
 		// calculate delta_time (as seconds)
 		previous_time = current_time;
 		current_time = steady_clock::now();
 		delta_time = dseconds(current_time - previous_time).count();
 
 		// cap the fps
-		if( fps_cap && delta_time < max_dt ) {
+		if( fps_cap && delta_time < max_dt )
+		{
 			std::this_thread::sleep_for( dseconds(max_dt - delta_time) );
 			delta_time += max_dt - delta_time;
 		}

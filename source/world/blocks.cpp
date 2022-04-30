@@ -1,4 +1,4 @@
-#include "block.hpp"
+#include "blocks.hpp"
 
 #include "core/logger.hpp"
 #include "cmake_defines.hpp"
@@ -9,7 +9,53 @@
 
 using namespace nlohmann;
 
-bool BlockDB::load_from_file( const std::string &path )
+bool BlockDB::load_structures_from_file( const std::string &path )
+{
+	m_structures.clear();
+    std::fstream file { std::string{ROOT_DIR} + "/" + path };
+
+	if( !file )
+	{
+		SD_ERROR( "Impossible de charger: ", path );
+		return false;
+	}
+
+	try
+	{
+		json data;
+		file >> data;
+
+		Structure structure;
+		std::string name;
+		for( auto &struct_data: data )
+		{
+			name = struct_data["name"];
+
+			structure.x_length = struct_data["x_length"];
+			structure.y_length = struct_data["y_length"];
+			structure.z_length = struct_data["z_length"];
+
+			uint32_t struct_volume = structure.x_length * structure.y_length * structure.z_length;
+
+			structure.blocks.reserve( struct_volume );
+
+			auto block_array = struct_data["data"];
+
+			for( int i = 0; i < struct_volume; ++i )
+				structure.blocks.push_back( id_from_smallname( block_array[i] ) );
+
+			m_structures[name] = structure;
+		}
+
+		return true;
+	}
+	catch( std::runtime_error &err )
+	{
+		return false;
+	}
+}
+
+bool BlockDB::load_blocks_from_file( const std::string &path )
 {
 	m_blocks.clear();
     std::fstream file { std::string{ROOT_DIR} + "/" + path };
@@ -61,18 +107,23 @@ bool BlockDB::load_from_file( const std::string &path )
 	}
 }
 
-const BlockType &BlockDB::id_get( BlockID id ) const
+const Structure &BlockDB::get_struct( const std::string &name )
+{
+	return m_structures.at( name );
+}
+
+const BlockType &BlockDB::get_block( BlockID id ) const
 {
 	assert( id < m_blocks.size() );
 	return m_blocks[id];
 }
 
-const BlockType &BlockDB::name_get( const std::string &name )
+const BlockID &BlockDB::id_from_name( const std::string &name )
 {
-	return id_get(m_names[name]);
+	return m_names.at(name);
 }
 
-const BlockType &BlockDB::smallname_get( const std::string &smallname )
+const BlockID &BlockDB::id_from_smallname( const std::string &smallname )
 {
-	return id_get(m_smallnames[smallname]);
+	return m_smallnames.at(smallname);
 }

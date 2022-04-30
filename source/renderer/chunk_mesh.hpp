@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vertex.hpp"
-#include "../world/block.hpp"
+#include "world/blocks.hpp"
 
 #include <cstdint>
 #include <vector>

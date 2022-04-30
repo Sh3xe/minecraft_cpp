@@ -4,8 +4,8 @@
 #include <utility>
 #include <array>
 
-#include "block.hpp"
-#include "../opengl_wrapper/chunk_mesh.hpp"
+#include "blocks.hpp"
+#include "../renderer/chunk_mesh.hpp"
 
 constexpr int CHUNK_X{ 16 };
 constexpr int CHUNK_Y{ 64 };

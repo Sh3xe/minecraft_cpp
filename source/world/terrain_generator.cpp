@@ -6,6 +6,10 @@
 #include <cassert>
 #include <random>
 
+static constexpr float s1{ 0.01f };
+static constexpr float s2{ 0.05f };
+static constexpr float s3{ 0.003f };
+
 TerrainGenerator::TerrainGenerator( BlockDB &db ):
 	m_db( &db )
 {
@@ -21,11 +25,8 @@ Chunk &TerrainGenerator::generate(Chunk& chunk)
 	return chunk;
 }
 
-void TerrainGenerator::make_shape(Chunk& chunk)
+void TerrainGenerator::make_shape( Chunk& chunk )
 {
-	constexpr float s1{ 0.01f };
-	constexpr float s2{ 0.05f };
-	constexpr float s3{ 0.003f };
 	const float delta_h = m_surface_max - m_surface_min;
 
 	for(int x = 0; x < CHUNK_X; x++)
@@ -48,36 +49,41 @@ void TerrainGenerator::make_shape(Chunk& chunk)
 			v += m_noise.fractal(3, X * s2, y * s2, Z * s2 ) * 0.3f * mask;
 
 			if(v > 0)
-				chunk.fast_set(x, y, z, m_db->name_get("stone").id );
+				chunk.fast_set(x, y, z, m_db->id_from_name("stone") );
 		}
 	}
 }
 
 void TerrainGenerator::paint_blocks(Chunk& chunk)
 {
-	static std::bernoulli_distribution d { 0.005f };
 	static std::default_random_engine e;
 
 	for( int x = 0; x < CHUNK_X; ++x )
 	for( int z = 0; z < CHUNK_X; ++z )
 	{
+		float X = x + chunk.m_position.x;
+		float Z = z + chunk.m_position.y;
+
+		const float mask = to_01(m_noise.noise(X*s3, Z*s3), -1, 1);
+		std::bernoulli_distribution d { 0.04f * ( 1.0f - mask ) };
+
 		int depth = 0;
 		for( int y = CHUNK_Y - 1; y >= 0; --y )
 		{
 			auto block = chunk.fast_get(x, y, z);
-			if( block != m_db->name_get("air").id ) ++depth;
+			if( block != m_db->id_from_name("air") ) ++depth;
 			else depth = 0;
 
 			if(depth == 1)
 			{
-				chunk.fast_set( x, y, z, m_db->name_get("grass").id );
+				chunk.fast_set( x, y, z, m_db->id_from_name("grass") );
 
-				//if( d(e) )
-				//	push_structure( m_tree_struct, x + chunk.m_position.x, y, z + chunk.m_position.y );
+				if( d(e) )
+					push_structure( m_db->get_struct("tree"), x + chunk.m_position.x, y, z + chunk.m_position.y );
 			}
 
 			else if( depth > 1 && depth <= 4 )
-				chunk.fast_set( x, y, z, m_db->name_get("dirt").id );
+				chunk.fast_set( x, y, z, m_db->id_from_name("dirt") );
 		}
 	}
 }
@@ -112,7 +118,7 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
 		{
 			ToBePlaced block_info (coord_x, py + y, coord_z, structure.get(x, y, z));
-			if( block_info.block != m_db->name_get("air").id )
+			if( block_info.block != m_db->id_from_name("air") )
 				block_vector.push_back( block_info );
 		}
 	}

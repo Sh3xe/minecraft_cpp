@@ -18,12 +18,12 @@ void PlayingState::update( Input &input, double delta_time )
 	m_player.update(input, m_world, delta_time);
 	m_world.update(delta_time, m_player.get_camera());
 
-	if (input.get_key(SDL_SCANCODE_Q)) {
+	if (input.get_key(SDL_SCANCODE_Q))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	if (input.get_key(SDL_SCANCODE_E)) {
+
+	if (input.get_key(SDL_SCANCODE_E))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
+
 
 	// update block_lock
 	block_lock -= delta_time;
@@ -37,7 +37,8 @@ void PlayingState::update( Input &input, double delta_time )
 				  position = m_player.get_camera().get_position();
 
 		bool done = false;
-		for(int i = 0; i < 25 && !done; ++i) {
+		for(int i = 0; i < 25 && !done; ++i)
+		{
 			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 5.0);
 			// if we find a block
 			if(m_world.get_block(ray_pos.x, ray_pos.y, ray_pos.z))

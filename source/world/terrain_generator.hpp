@@ -5,7 +5,7 @@
 #include <utility>
 #include <string>
 
-#include "world/structure.hpp"
+#include "blocks.hpp"
 #include "core/simplex_noise.hpp"
 
 class Chunk;

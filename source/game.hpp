@@ -12,21 +12,20 @@
 struct SDL_Window;
 typedef void *SDL_GLContext;
 
-class Game {
+class Game
+{
 public:
-	Game(const Config &config);
+	Game( const Config &config, SDL_Window *window );
 	~Game();
 
 	void run();
 
 private:
-	void initWindow();
 	void handle_events();
 
 	Config m_config;
 	Input m_input;
 	SDL_Window *m_window;
-	SDL_GLContext m_context;
 	bool m_should_close = false;
 	std::vector< std::unique_ptr<State> > m_states;
 };

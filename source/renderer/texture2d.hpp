@@ -3,15 +3,17 @@
 #include "texture.hpp"
 #include <string>
 
-class Texture2D: public Texture {
-	
+class Texture2D: public Texture
+{
 public:
 	Texture2D():
-		Texture() {
+		Texture()
+	{
 	}
 
 	Texture2D( const std::string &path ):
-		Texture() {
+		Texture()
+	{
 		load_from_file( path );
 	}
 

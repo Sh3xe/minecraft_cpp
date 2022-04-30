@@ -8,7 +8,8 @@
 #include <fstream>
 #include <iterator>
 
-Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std::string &fs_path) {
+Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std::string &fs_path)
+{
 	m_is_valid = true;
 	uint32_t vs = 0, gs = 0, fs = 0;
 
@@ -39,7 +40,8 @@ Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std
 	// error handling
 	int success;
 	glGetProgramiv(m_id, GL_LINK_STATUS, &success);
-	if (!success) {
+	if (!success)
+	{
 		char info[512];
 		glGetProgramInfoLog(m_id, 512, nullptr, info);
 		SD_ERROR("Can't link shader: ", info);
@@ -56,50 +58,60 @@ Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std
 
 }
 
-Shader::~Shader() {
+Shader::~Shader()
+{
 	glDeleteProgram(m_id);
 }
 
-void Shader::bind() {
+void Shader::bind()
+{
 	if (!m_is_valid)
 		throw std::runtime_error("Can't use a unvalid shader");
 	else
 		glUseProgram(m_id);
 }
 
-void Shader::unbind() {
+void Shader::unbind()
+{
 	glUseProgram(0);
 }
 
-void Shader::set_int(const std::string& name, int value) {
+void Shader::set_int(const std::string& name, int value)
+{
 	glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
-void Shader::set_float(const std::string& name, float value) {
+void Shader::set_float(const std::string& name, float value)
+{
 	glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
-void Shader::set_vec2(const std::string& name, float x, float y) {
+void Shader::set_vec2(const std::string& name, float x, float y)
+{
 	glUniform2f(glGetUniformLocation(m_id, name.c_str()), x, y);
 }
 
-void Shader::set_vec3(const std::string& name, float x, float y, float z) {
+void Shader::set_vec3(const std::string& name, float x, float y, float z)
+{
 	glUniform3f(glGetUniformLocation(m_id, name.c_str()), x, y, z);
 }
 
-void Shader::set_vec4(const std::string& name, float x, float y, float z, float w) {
+void Shader::set_vec4(const std::string& name, float x, float y, float z, float w)
+{
 	glUniform4f(glGetUniformLocation(m_id, name.c_str()), x, y, z, w);
 }
 
-void Shader::set_mat4(const std::string& name, float* matrix) {
+void Shader::set_mat4(const std::string& name, float* matrix)
+{
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, matrix);
 }
 
-uint32_t Shader::compile_shader(const std::string& path, uint32_t type) {
-
+uint32_t Shader::compile_shader(const std::string& path, uint32_t type)
+{
 	std::fstream file{ ROOT_DIR + ("/" + path), std::ios::in };
 
-	if(!file) {
+	if(!file)
+	{
 		SD_ERROR("Failed to open shader: ", path, "\n");
 		return 0;
 	}
@@ -117,7 +129,8 @@ uint32_t Shader::compile_shader(const std::string& path, uint32_t type) {
 
 	int success;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
+	if (!success)
+	{
 		char infos[512];
 		glGetShaderInfoLog(shader, 512, nullptr, infos);
 		SD_ERROR("Failed to compile shader : ", infos);
@@ -126,5 +139,4 @@ uint32_t Shader::compile_shader(const std::string& path, uint32_t type) {
 	}
 
 	return shader;
-
 }
