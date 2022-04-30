@@ -37,8 +37,10 @@ private:
 	void place_blocks( Chunk &chunk );
 
 private:
-	float m_surface_min{ 10 };
+	float m_surface_min{ 5 };
 	float m_surface_max{ 60 };
+	const float water_level { 10 };
+
 	SimplexNoise m_noise;
 	BlockDB *m_db;
 	std::vector<Structure> m_structs;

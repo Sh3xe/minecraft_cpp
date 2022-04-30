@@ -5,9 +5,10 @@
 
 inline std::string to_string( const std::string &str ) { return str; }
 
-namespace sd {
-
-	enum class LogLevel {
+namespace sd
+{
+	enum class LogLevel
+	{
 		trace,
 		debug,
 		info,
@@ -16,32 +17,38 @@ namespace sd {
 		fatal
 	};
 
-	class Logger {
+	class Logger
+	{
 	public:
 		Logger(const Logger&)           = delete;
 		Logger operator=(const Logger&) = delete;
 
-		inline static Logger &get() {
+		inline static Logger &get()
+		{
 			static Logger instance;
 			return instance;
 		}
 
-		inline void set_level_enabled( LogLevel level, bool enabled) {
+		inline void set_level_enabled( LogLevel level, bool enabled)
+		{
 			m_enabled_levels[ static_cast<size_t>(level) ] = enabled;
 		}
 
-		inline bool get_level_enabled( LogLevel level ) const {
+		inline bool get_level_enabled( LogLevel level ) const
+		{
 			return m_enabled_levels[static_cast<size_t>(level)];
 		}
 
 		template <typename ...types>
-		void log(LogLevel log_level, types&& ...args) {
+		void log(LogLevel log_level, types&& ...args)
+		{
 			using ::to_string;
 			using std::to_string;
 			
 			if ( !m_enabled_levels[static_cast<size_t>(log_level)] ) return;
 
-			switch(log_level) {
+			switch(log_level)
+			{
 				case LogLevel::debug:
 					send_to_streams( { "[DEBUG]:", to_string(args)... } );
 					break;
@@ -67,7 +74,8 @@ namespace sd {
 	private:
 		void send_to_streams( std::initializer_list<std::string> init_list );
 
-		Logger() {
+		Logger()
+		{
 			m_enabled_levels = {true, true, true, true, true, true};
 		}
 

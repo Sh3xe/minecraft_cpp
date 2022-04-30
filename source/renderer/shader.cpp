@@ -3,6 +3,7 @@
 #include "cmake_defines.hpp"
 #include "gldebug.hpp"
 #include "core/logger.hpp"
+#include "utils.hpp"
 
 #include <GL/glew.h>
 #include <fstream>
@@ -44,7 +45,7 @@ Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std
 	{
 		char info[512];
 		glGetProgramInfoLog(m_id, 512, nullptr, info);
-		SD_ERROR("Can't link shader: ", info);
+		SD_ERROR("Impossible de lier les shaders: ", info);
 		m_is_valid = false;
 	}
 
@@ -66,7 +67,7 @@ Shader::~Shader()
 void Shader::bind()
 {
 	if (!m_is_valid)
-		throw std::runtime_error("Can't use a unvalid shader");
+		throw std::runtime_error("Impossible d'utiliser un shader non valide");
 	else
 		glUseProgram(m_id);
 }
@@ -108,20 +109,14 @@ void Shader::set_mat4(const std::string& name, float* matrix)
 
 uint32_t Shader::compile_shader(const std::string& path, uint32_t type)
 {
-	std::fstream file{ ROOT_DIR + ("/" + path), std::ios::in };
-
-	if(!file)
-	{
-		SD_ERROR("Failed to open shader: ", path, "\n");
-		return 0;
-	}
-
-	file << std::noskipws;
-	std::string source{ std::istream_iterator<char>(file), std::istream_iterator<char>() };
-
+	std::string source = get_file_content( std::string{ROOT_DIR} + "/" + path );
 	auto c_str_source = source.c_str();
 
-	file.close();
+	if( source == "" )
+	{
+		SD_ERROR("Impossible de récuperer le shader: ", path );
+		return 0;
+	}
 
 	uint32_t shader = glCreateShader(type);
 	glShaderSource(shader, 1, &c_str_source, nullptr);
@@ -133,7 +128,7 @@ uint32_t Shader::compile_shader(const std::string& path, uint32_t type)
 	{
 		char infos[512];
 		glGetShaderInfoLog(shader, 512, nullptr, infos);
-		SD_ERROR("Failed to compile shader : ", infos);
+		SD_ERROR("Impossible de compiler le shader: ", infos);
 		m_is_valid = false;
 		return 0;
 	}

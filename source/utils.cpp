@@ -1,4 +1,8 @@
 #include "utils.hpp"
+#include "core/logger.hpp"
+
+#include <fstream>
+#include <iterator>
 
 std::string trim( const std::string &str )
 {
@@ -9,7 +13,19 @@ std::string trim( const std::string &str )
 
 std::string get_file_content( const std::string &path )
 {
-    return "";
+    std::fstream file{ path };
+
+	if(!file)
+	{
+		SD_WARN("impossible de récuperer le contenu de: ", path, "\n");
+		return "";
+	}
+
+	file << std::noskipws;
+	std::string source { std::istream_iterator<char>(file), std::istream_iterator<char>() };
+    file.close();
+    
+    return source;
 }
 
 float map( float v, float min1, float max1, float min2, float max2)

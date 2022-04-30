@@ -158,7 +158,7 @@
         "visible": true,
         "collidable": true,
         "shape": "c",
-        "faces": [10, 10, 10, 10, 10, 10],
+        "faces": [17, 17, 17, 17, 17, 17],
         "mesh_group": 1
     }
 ]

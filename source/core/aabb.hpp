@@ -9,11 +9,11 @@ struct AABB
 	{	
 	}
 
-	inline double getWidth() { return xmax - xmin; };
-	inline double getHeight() { return ymax - ymin; };
-	inline double getDepth() { return zmax - zmin; };
+	inline double get_width() { return xmax - xmin; };
+	inline double get_height() { return ymax - ymin; };
+	inline double get_depth() { return zmax - zmin; };
 
-	inline bool collideWith(const AABB& other) const
+	inline bool collide_width(const AABB& other) const
 	{
 		return
 			this->xmin >= other.xmax && this->xmax >= other.xmin &&
