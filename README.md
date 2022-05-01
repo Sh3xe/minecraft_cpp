@@ -1,23 +1,22 @@
 # Minecraft C++
-A simple minecraft clone,
 
-some solutions to some problemes (ex: placing trees..) are not good at all
-but will be replaced in later commit
+Un clone de minecraft écrit en c++ avec opengl
 
-## features
-- can remove blocks
-- simple world gen
-- infinite world
-- cam remove blocks, place bricks
+# bibliothèques:
+- SDL2 
+- stb_image
+- nlohmann/json.hpp
+- opengl
 
-## screenshots
+## images
 
-![screenshot1](screenshots/screenshot1.jpg "screenshot1")
-![screenshot2](screenshots/screenshot2.jpg "screenshot1")
-![screenshot3](screenshots/screenshot3.jpg "screenshot1")
+![screenshot1](screenshots/1.jpg "screenshot1")
+![screenshot2](screenshots/2.jpg "screenshot1")
+![screenshot3](screenshots/3.jpg "screenshot1")
+![screenshot3](screenshots/4.jpg "screenshot1")
 
-## Todo
+## à faire
 
-- better world gen
-- water
-- optimizations
+- ajouter du multithreading
+- refaire toute la physique
+- refaire le placement des blocs
