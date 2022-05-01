@@ -41,12 +41,14 @@ Chunk::~Chunk()
 {
 }
 
-void Chunk::set_position(int x, int z) {
+void Chunk::set_position(int x, int z)
+{
 	m_position.x = x;
 	m_position.y = z;
 }
 
-void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
+void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz)
+{
 	// set neighbour's chunks (used for block checking)
 	m_neighbours[0] = px;
 	m_neighbours[1] = mx;
@@ -54,9 +56,9 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz) {
 	m_neighbours[3] = mz;
 }
 
-void Chunk::set_block(int x, int y, int z, BlockID type) {
-
-	if (x >= CHUNK_X && m_neighbours[0] != nullptr)
+void Chunk::set_block(int x, int y, int z, BlockID type)
+{
+		if (x >= CHUNK_X && m_neighbours[0] != nullptr)
 		m_neighbours[0]->set_block(0, y, z, type);
 	if (x < 0 && m_neighbours[1] != nullptr)
 		m_neighbours[1]->set_block(CHUNK_X - 1, y, z, type);
@@ -64,16 +66,16 @@ void Chunk::set_block(int x, int y, int z, BlockID type) {
 		m_neighbours[2]->set_block(x, y, 0, type);
 	if (z < 0 && m_neighbours[3] != nullptr)
 		m_neighbours[3]->set_block(x, y, CHUNK_Z - 1, type);
+	
 
 	if (x >= 0 && x < CHUNK_X && y >= 0 && y < CHUNK_Y && z >= 0 && z < CHUNK_Z) {
 		m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y] = type;
-		m_should_update = true;
+		state = ChunkState::need_mesh_update;
 
-		
-		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->m_should_update = true;
-		if (x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->m_should_update = true;
-		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->m_should_update = true;
-		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->m_should_update = true;
+		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->state = ChunkState::need_mesh_update;
+		if (x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->state = ChunkState::need_mesh_update;
+		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->state = ChunkState::need_mesh_update;
+		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->state = ChunkState::need_mesh_update;
 	}
 }
 
@@ -151,17 +153,12 @@ void Chunk::generate_mesh()
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mz, block);
 	}
 	
-	for( int i = 0; i < 3; ++i )
-		m_meshes[i].send_to_gpu();
-	m_should_update = false;
+	state = ChunkState::need_upload;
 }
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader )
 {
 	auto cam_pos = camera.get_position();
-
-	if( m_should_update )
-		generate_mesh();
 
 	for( int i = 0; i < 3; ++i )
 	{

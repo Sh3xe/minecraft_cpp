@@ -3,7 +3,9 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <thread>
 
+#include "core/ts_queue.hpp"
 #include "chunk.hpp"
 #include "terrain_generator.hpp"
 #include "renderer/shader.hpp"
@@ -29,9 +31,13 @@ public:
 private:
 	/* met à jour les relations de voisins entres tronçons */
 	void update_chunk_neighbours();
+	void update_neighbours_of( Chunk &chunk );
 
 	/* Ajoute les blocks de structures à chunk */
 	void add_blocks( Chunk &chunk );
+
+	/* fonction qui sera lancé par un thread */
+	void prepare_chunks();
 
 	int m_render_distance { 3 };
 	Shader m_shader;
@@ -41,4 +47,9 @@ private:
 	TerrainGenerator m_generator;
 	ChunkToBePlace m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
+
+	std::mutex m_map_mutex;
+	std::thread m_worker;
+	TSQueue< std::pair<int, int> > m_update_queue;
+	std::atomic<bool> m_running {true};
 };

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <utility>
 #include <array>
+#include <atomic>
 
 #include "blocks.hpp"
 #include "renderer/chunk_mesh.hpp"
@@ -10,6 +11,14 @@
 constexpr int CHUNK_X{ 16 };
 constexpr int CHUNK_Y{ 64 };
 constexpr int CHUNK_Z{ 16 };
+
+enum class ChunkState
+{
+	ready,
+	need_generation,
+	need_mesh_update,
+	need_upload
+};
 
 class Camera;
 class Texture;
@@ -34,7 +43,7 @@ public:
 	void draw( Camera &camera, Texture& tileset, Shader& shader );
 
 public:
-	bool m_should_update = true;
+	std::atomic< ChunkState > state { ChunkState::need_generation };
 
 private:
 	uint8_t fast_get(int x, int y, int z);

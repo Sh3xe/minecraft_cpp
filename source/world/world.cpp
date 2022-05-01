@@ -14,7 +14,8 @@
 World::World( Config &config ):
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
 	m_tileset( "resources/images/" + config.texture_pack ),
-	m_generator( m_db, &m_chunk_blocks )
+	m_generator( m_db, &m_chunk_blocks ),
+	m_worker( &World::prepare_chunks, this )
 {	
 	m_render_distance = config.render_distance;
 
@@ -34,6 +35,9 @@ World::World( Config &config ):
 
 World::~World()
 {
+	m_running = false;
+	if( m_worker.joinable() )
+		m_worker.join();
 	m_chunks.clear();
 }
 
@@ -69,6 +73,47 @@ void World::update_chunk_neighbours()
 	}
 }
 
+void World::update_neighbours_of( Chunk &chunk )
+{
+	// set all pointers to nullptr
+	Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
+
+	// try to find the -x neighbour, if found, set "mx" to it
+	auto neighbour = m_chunks.find( std::pair<int, int>(chunk.m_position.x - 16, chunk.m_position.y) );
+	if (neighbour != m_chunks.end())
+	{
+		mx = neighbour->second.get();
+		mx->m_neighbours[1] = &chunk;
+	}
+
+	// same for +x
+	neighbour = m_chunks.find( std::pair<int, int>(chunk.m_position.x + 16, chunk.m_position.y) );
+	if(neighbour != m_chunks.end())
+	{
+		px = neighbour->second.get();
+		px->m_neighbours[0] = &chunk;
+	}
+
+	// same for -z
+	neighbour = m_chunks.find( std::pair<int, int>(chunk.m_position.x, chunk.m_position.y - 16) );
+	if(neighbour != m_chunks.end())
+	{
+		mz = neighbour->second.get();
+		mz->m_neighbours[3] = &chunk;
+	}
+
+	// same for +z
+	neighbour = m_chunks.find( std::pair<int, int>(chunk.m_position.x, chunk.m_position.y + 16) );
+	if(neighbour != m_chunks.end())
+	{
+		pz = neighbour->second.get();
+		pz->m_neighbours[2] = &chunk;
+	}
+
+	// set the neighbours chunk for this current chunk
+	chunk.set_neighbours(px, mx, pz, mz);
+}
+
 std::vector<AABB> World::get_hit_boxes( AABB& box)
 {
 	std::vector<AABB> hitboxes;
@@ -93,19 +138,52 @@ void World::set_block(int x, int y, int z, BlockID type)
 
 	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
 		chunk->second->set_block(coord_x, y, coord_z, type);
+	
 }
 
 BlockID World::get_block(int x, int y, int z)
 {
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
-
+	
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 
 	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
-
+	
 	return 0; //__TODO
+}
+
+void  World::prepare_chunks()
+{
+	using namespace std::chrono_literals;
+
+	while( m_running )
+	{
+		if( m_update_queue.size() != 0 )
+		{
+			auto pos = m_update_queue.pop();
+			
+			m_map_mutex.lock();
+			auto pair = m_chunks.find( pos );
+			if( pair != m_chunks.end() )
+			{
+				auto &chunk = *(pair->second);
+				if( chunk.state == ChunkState::need_generation )
+				{
+					m_generator.generate( chunk );
+					chunk.generate_mesh();
+				}
+				else if( chunk.state == ChunkState::need_mesh_update )
+				{
+					chunk.generate_mesh();
+				}
+			}
+			m_map_mutex.unlock();
+		}
+		
+		std::this_thread::sleep_for( 1ms );
+	}
 }
 
 void World::update( double delta_time, Camera &camera ) 
@@ -113,6 +191,8 @@ void World::update( double delta_time, Camera &camera )
 	glm::ivec3 camera_position = camera.get_position();
 	auto [chunk_x, chunk_z] = get_pos_of_chunk( camera_position.x, camera_position.z );
 
+	m_map_mutex.lock();
+	
 	// on supprime les tronçons trop éloigné
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
@@ -129,14 +209,17 @@ void World::update( double delta_time, Camera &camera )
 		}
 		else
 		{
-			add_blocks( *chunk->second );
+			if( chunk->second->state == ChunkState::ready )
+				add_blocks( *chunk->second );
+			
+			if( chunk->second->state == ChunkState::need_mesh_update && !m_update_queue.in(chunk->first) )
+				m_update_queue.push( chunk->first );
+
 			++chunk;
 		}
 	}
 
 	// on ajoute un tronçon si besoin
-	std::vector < decltype(m_chunks.begin()) > added_chunks;
-
 	for (int i = chunk_x - m_render_distance; i <= chunk_x + m_render_distance; ++i)
 	for (int j = chunk_z - m_render_distance; j <= chunk_z + m_render_distance; ++j) 
 	{
@@ -147,34 +230,32 @@ void World::update( double delta_time, Camera &camera )
 				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(m_db, i * 16, j * 16))
 			)).first;
 
-			added_chunks.push_back(new_chunk);
+			//update_neighbours_of( *new_chunk->second );
+			new_chunk->second->state = ChunkState::need_generation;
+			m_update_queue.push( new_chunk->first );
 		}
 	}
 
-	if( added_chunks.size() == 0 ) return;
-	
-	// on met à jour tous les voisins
-	update_chunk_neighbours();
+	//update_chunk_neighbours();
 
-	// on génère le terrain
-	for (auto chunk : added_chunks)
-		m_generator.generate(*chunk->second);
+	m_map_mutex.unlock();
 }
 
 void World::add_blocks( Chunk &chunk )
 {
-	//Timer timer {"World::add_blocks()"};
 	auto chunk_blocks = m_chunk_blocks.find( { chunk.m_position.x , chunk.m_position.y } );
 	if( chunk_blocks == m_chunk_blocks.end() ) return;
 
 	auto &blocks = chunk_blocks->second;
 
+	if( !blocks.empty() )
+		chunk.state = ChunkState::need_mesh_update;
+	
 	while( !blocks.empty() )
 	{
 		auto block = blocks.back();
 		blocks.pop_back();
 		chunk.fast_set( block.x, block.y, block.z, block.block );
-		chunk.m_should_update = true;
 	}
 
 	m_chunk_blocks.erase( chunk_blocks );
@@ -190,7 +271,6 @@ void World::draw( Camera &camera )
 
 	// on tri les tronçons du plus éloigné au plus proche
 	// par rapport à la camera et au centre des chunks
-	
 	std::vector<Chunk*> sorted_chunks;
 	sorted_chunks.reserve( m_chunks.size() );
 	for(auto &c: m_chunks) sorted_chunks.push_back( c.second.get() );
@@ -203,7 +283,21 @@ void World::draw( Camera &camera )
 		return p1.x * p1.x + p1.y * p1.y > p2.x * p2.x + p2.y * p2.y ;
 	} );
 
+	m_map_mutex.lock();
 	// puis on les affiches
-	for (auto &chunk : sorted_chunks)
-		chunk->draw( camera, m_tileset, m_shader );
+	for (auto &chunk: sorted_chunks)
+	{
+		if( chunk->state == ChunkState::need_upload )
+		{
+			for(int i = 0; i < 3; ++i)
+				chunk->m_meshes[i].send_to_gpu();
+			chunk->state = ChunkState::ready;
+		}
+
+		if( chunk->state == ChunkState::ready )
+		{
+			chunk->draw( camera, m_tileset, m_shader );
+		}
+	}
+	m_map_mutex.unlock();
 }

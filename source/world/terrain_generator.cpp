@@ -23,9 +23,9 @@ Chunk &TerrainGenerator::generate( Chunk& chunk )
 
 	for( auto *c: chunk.m_neighbours )
 		if( c != nullptr )
-			c->m_should_update = true;
+			c->state = ChunkState::need_mesh_update;
 
-	chunk.m_should_update = true;
+	chunk.state = ChunkState::need_mesh_update;
 	return chunk;
 }
 

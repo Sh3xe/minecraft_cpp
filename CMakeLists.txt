@@ -44,7 +44,7 @@ if( WIN32 )
 	message("Glad found")
 	set(LIBS ${SDL2_LIBRARY} STB_IMAGE  GLAD opengl32 )
 else()
-	set(LIBS ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} STB_IMAGE ${GLEW_LIBRARIES} )
+	set(LIBS ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} STB_IMAGE ${GLEW_LIBRARIES} pthread )
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
