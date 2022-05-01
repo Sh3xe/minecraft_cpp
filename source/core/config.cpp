@@ -37,6 +37,8 @@ Config load_config_from_file( const std::string &path )
 	config.fps = data["fps"];
 	config.sensitivity = data["sensitivity"];
 	config.fullscreen = data["fullscreen"];
+	config.render_distance = data["render_distance"];
+	config.texture_pack = data["texture_pack"];
 
 	file.close();
 

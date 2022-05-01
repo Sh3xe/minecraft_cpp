@@ -10,16 +10,20 @@ static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
 static constexpr float s3{ 0.003f };
 
-TerrainGenerator::TerrainGenerator( BlockDB &db ):
-	m_db( &db )
+TerrainGenerator::TerrainGenerator( BlockDB &db, ChunkToBePlace *chunk_blocks ):
+	m_db( &db ),
+	m_chunk_blocks( chunk_blocks )
 {
 }
 
-Chunk &TerrainGenerator::generate(Chunk& chunk)
+Chunk &TerrainGenerator::generate( Chunk& chunk )
 {
 	make_shape(chunk);
 	paint_blocks(chunk);
-	place_blocks(chunk);
+
+	for( auto *c: chunk.m_neighbours )
+		if( c != nullptr )
+			c->m_should_update = true;
 
 	chunk.m_should_update = true;
 	return chunk;
@@ -114,32 +118,15 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 	}
 }
 
-void TerrainGenerator::place_blocks( Chunk &chunk )
-{
-	auto chunk_blocks = m_chunk_blocks.find( {chunk.m_position.x, chunk.m_position.y} );
-	if( chunk_blocks == m_chunk_blocks.end() ) return;
-
-	auto &blocks = chunk_blocks->second;
-
-	while( !blocks.empty() )
-	{
-		auto block = blocks.back();
-		blocks.pop_back();
-		chunk.fast_set( block.x, block.y, block.z, block.block );
-	}
-}
-
 void TerrainGenerator::push_structure( const Structure &structure, int px, int py, int pz )
 {
-	auto &db = m_db;
-
 	for( int x = 0; x < structure.x_length; ++x )
 	for( int z = 0; z < structure.z_length; ++z )
 	{
 		auto [chunk_x, chunk_z] = get_pos_of_chunk(px+x, pz+z);
 		auto [coord_x, coord_z] = get_pos_inside_chunk(px+x, pz+z);
 
-		auto &block_vector = m_chunk_blocks[{chunk_x*CHUNK_X, chunk_z*CHUNK_Z}];
+		auto &block_vector = (*m_chunk_blocks)[{chunk_x*CHUNK_X, chunk_z*CHUNK_Z}];
 
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
 		{

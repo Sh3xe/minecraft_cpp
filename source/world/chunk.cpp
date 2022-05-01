@@ -15,10 +15,19 @@
 Chunk::Chunk( BlockDB &db, int x, int z):
 	m_position(x, z),
 	m_db( &db ),
-	m_mesh(x, z),
 	m_neighbours({nullptr, nullptr , nullptr , nullptr })
 {
-	// fill blocks array
+	// créer 3 maillages: un pour les blocs solides, un pour les blocs transparents, un pour la végétation
+	for( int i = 0; i < 3; ++i )
+	{
+		m_meshes[i].x = x;
+		m_meshes[i].y = z;
+	}
+
+	m_meshes[1].transparency = true;
+	m_meshes[2].face_culling = false;
+
+	// remplit le tronçon par de l'air
 	BlockID air_block = m_db->id_from_name("air");
 
 	for(int x = 0; x < CHUNK_X; ++x)
@@ -101,7 +110,8 @@ void Chunk::fast_set(int x, int y, int z, uint8_t block )
 
 void Chunk::generate_mesh()
 {
-	m_mesh.clear();
+	for( int i = 0; i < 3; ++i )
+		m_meshes[i].clear();
 
 	for(int x = 0; x < CHUNK_X; ++x)
 	for(int z = 0; z < CHUNK_Z; ++z)
@@ -109,37 +119,77 @@ void Chunk::generate_mesh()
 	{
 		// adds a face the the mesh if needed
 		auto block = m_db->get_block( get_block(x, y, z) );
+
 		if( block.id == m_db->id_from_name("air") ) continue;
 	
+		BlockType blk;
+
 		// +x
-		if ( !get_block(x + 1, y, z)  )
-			m_mesh.add_face(x, y, z, Directions::PX, block);
+		blk = m_db->get_block( get_block(x + 1, y, z) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::px, block);
+		// -x
+		blk = m_db->get_block( get_block(x - 1, y, z) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mx, block);
+		// +y
+		blk = m_db->get_block( get_block(x, y + 1, z) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::py, block);
+		// -y
+		blk = m_db->get_block( get_block(x, y - 1, z) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::my, block);
+		// +z
+		blk = m_db->get_block( get_block(x, y, z + 1) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::pz, block);
+		// -z
+		blk = m_db->get_block( get_block(x, y, z - 1) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mz, block);
+
+		/*
+		// +x
+		blk = m_db->get_block( get_block(x + 1, y, z) );
+		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+			m_meshes[block.mesh_group].add_face(x, y, z, Directions::px, block);
 		// -x
 		if ( !get_block(x - 1, y, z) )
-			m_mesh.add_face(x, y, z, Directions::MX, block);
+			m_mesh.add_face(x, y, z, Directions::mx, block);
 		// +y
 		if ( !get_block(x, y + 1, z) )
 			m_mesh.add_face(x, y, z, Directions::PY, block);
 		// -y
 		if ( !get_block(x, y - 1, z) )
-			m_mesh.add_face(x, y, z, Directions::MY, block);
+			m_mesh.add_face(x, y, z, Directions::my, block);
 		// +z
 		if ( !get_block(x, y, z + 1) )
 			m_mesh.add_face(x, y, z, Directions::PZ, block);
 		// -z
 		if ( !get_block(x, y, z - 1) )
-			m_mesh.add_face(x, y, z, Directions::MZ, block);
+			m_mesh.add_face(x, y, z, Directions::mz, block);
+			*/
 	}
 	
-	m_mesh.send_to_gpu();
+	for( int i = 0; i < 3; ++i )
+		m_meshes[i].send_to_gpu();
 	m_should_update = false;
 }
 
-void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader ) {
+void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader )
+{
+	auto cam_pos = camera.get_position();
+
 	if( m_should_update )
 		generate_mesh();
-	
-	m_mesh.render(camera, tileset, shader);
+
+	for( int i = 0; i < 3; ++i )
+	{
+		if( m_meshes[i].transparency )
+			m_meshes[i].sort_faces_from_distance( cam_pos );
+		m_meshes[i].render( tileset, shader );
+	}
 }
 
 std::pair<int, int> get_pos_inside_chunk( int x, int z )

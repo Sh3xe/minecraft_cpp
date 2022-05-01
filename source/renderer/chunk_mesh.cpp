@@ -59,9 +59,10 @@ ChunkMesh::ChunkMesh()
 	glGenVertexArrays(1, &m_vao);
 }
 
-ChunkMesh::ChunkMesh(int x, int y):
+ChunkMesh::ChunkMesh(int x, int y, bool transparency ):
 	ChunkMesh()
 {
+	transparency = transparency;
 	this->x = x;
 	this->y = y;
 }
@@ -102,7 +103,13 @@ void ChunkMesh::send_to_gpu()
 	glEnableVertexAttribArray(0);
 }
 
-void ChunkMesh::render(Camera& camera, Texture& tileset, Shader& shader)
+void ChunkMesh::sort_faces_from_distance( const glm::vec3 &pos )
+{
+
+}
+
+
+void ChunkMesh::render( Texture& tileset, Shader& shader )
 {
 	if (m_vertices.size() == 0) return;
 
@@ -113,9 +120,23 @@ void ChunkMesh::render(Camera& camera, Texture& tileset, Shader& shader)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tileset.get_id());
 	shader.set_int("u_texture", 0);
-
-	// matrix magic
 	shader.set_vec3("chunk_position", this->x, 0, this->y);
+
+	if( face_culling )
+		glEnable( GL_CULL_FACE );
+	else
+		glDisable( GL_CULL_FACE );
+
+	if( transparency )
+	{
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		glBlendEquation( GL_FUNC_ADD );
+	}
+	else
+	{
+		glDisable( GL_BLEND );
+	}
 
 	glDrawArrays(GL_TRIANGLES, 0, m_face_count * 6);
 }

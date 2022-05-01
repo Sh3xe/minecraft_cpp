@@ -4,7 +4,7 @@
 #include "core/logger.hpp"
 
 PlayingState::PlayingState( Config &config ):
-	m_world(),
+	m_world( config ),
 	m_player(glm::vec3(0.0f, 64.0f, 0.0f))
 {
 	m_player.get_camera().set_sensitivity(config.sensitivity);

@@ -8,33 +8,36 @@
 #include "blocks.hpp"
 #include "core/simplex_noise.hpp"
 
+
+struct ToBePlaced
+{
+	ToBePlaced(int x, int y, int z, BlockID block ):
+		x( static_cast<uint8_t>(x) ),
+		y( static_cast<uint8_t>(y) ),
+		z( static_cast<uint8_t>(z) ),
+		block(block)
+	{
+	}
+		
+	uint8_t x, y, z;
+	BlockID block;
+};
+
+using ChunkToBePlace = std::map< std::pair<int, int>, std::vector<ToBePlaced>>;
+
 class Chunk;
 
 class TerrainGenerator
 {
 public:
-	TerrainGenerator( BlockDB &db );
+	TerrainGenerator( BlockDB &db, ChunkToBePlace* chunk_blocks );
 	Chunk &generate( Chunk& chunk );
 
 private:
-	struct ToBePlaced
-	{
-		ToBePlaced(int x, int y, int z, BlockID block ):
-			x( static_cast<uint8_t>(x) ),
-			y( static_cast<uint8_t>(y) ),
-			z( static_cast<uint8_t>(z) ),
-			block(block)
-		{
-		}
-		 
-		uint8_t x, y, z;
-		BlockID block;
-	};
-
 	void make_shape( Chunk& chunk );
 	void paint_blocks( Chunk& chunk );
 	void push_structure( const Structure &structure, int px, int py, int cz );
-	void place_blocks( Chunk &chunk );
+	//void place_blocks( Chunk &chunk );
 
 private:
 	float m_surface_min{ 5 };
@@ -44,5 +47,5 @@ private:
 	SimplexNoise m_noise;
 	BlockDB *m_db;
 	std::vector<Structure> m_structs;
-	std::map< std::pair<int, int>, std::vector<ToBePlaced>> m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
+	ChunkToBePlace *m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 };

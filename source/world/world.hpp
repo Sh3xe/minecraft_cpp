@@ -9,15 +9,14 @@
 #include "renderer/shader.hpp"
 #include "renderer/texture2d.hpp"
 #include "core/aabb.hpp"
-
-#define RENDER_DISTANCE 4
+#include "core/config.hpp"
 
 class Camera;
 
 class World
 {
 public:
-	World();
+	World( Config &config );
 	~World();
 
 	void set_block(int x, int y, int z, BlockID type);
@@ -28,12 +27,18 @@ public:
 	std::vector<AABB> get_hit_boxes( AABB& box);
 
 private:
-	/* used to update the m_neighbours ( used to communicate to adjacent chunks an update ) array of each chunk of the world */
+	/* met à jour les relations de voisins entres tronçons */
 	void update_chunk_neighbours();
 
-	BlockDB m_db;
+	/* Ajoute les blocks de structures à chunk */
+	void add_blocks( Chunk &chunk );
+
+	int m_render_distance { 3 };
 	Shader m_shader;
-	Texture2D m_tilset;
+	Texture2D m_tileset;
+	
+	BlockDB m_db;
 	TerrainGenerator m_generator;
+	ChunkToBePlace m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
 };

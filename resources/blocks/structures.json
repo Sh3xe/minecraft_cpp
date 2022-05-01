@@ -17,17 +17,17 @@
             "a","a","a","a","a",
             "a","a","a","a","a",
     
-            "le","le","le","le","le",
-            "le","le","le","le","le",
-            "le","le","l","le","le",
-            "le","le","le","le","le",
-            "le","le","le","le","le",
-    
-            "a","le","le","le","a",
+            "le","le","le","le","a",
             "le","le","le","le","le",
             "le","le","l","le","le",
             "le","le","le","le","le",
+            "le","le","le","le","le",
+    
             "a","le","le","le","a",
+            "le","le","le","le","le",
+            "le","le","l","le","le",
+            "le","le","le","le","le",
+            "le","le","le","le","a",
     
             "a","a","a","a","a",
             "a","le","le","le","a",
@@ -36,7 +36,7 @@
             "a","a","a","a","a",
     
             "a","a","a","a","a",
-            "a","a","le","a","a",
+            "a","le","le","a","a",
             "a","le","le","le","a",
             "a","a","le","a","a",
             "a","a","a","a","a"
