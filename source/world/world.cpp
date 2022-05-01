@@ -5,6 +5,7 @@
 #include <glm/ext.hpp>
 #include <algorithm>
 
+#include "core/timer.hpp"
 #include "utils.hpp"
 #include "core/logger.hpp"
 #include "core/camera.hpp"
@@ -162,6 +163,7 @@ void World::update( double delta_time, Camera &camera )
 
 void World::add_blocks( Chunk &chunk )
 {
+	//Timer timer {"World::add_blocks()"};
 	auto chunk_blocks = m_chunk_blocks.find( { chunk.m_position.x , chunk.m_position.y } );
 	if( chunk_blocks == m_chunk_blocks.end() ) return;
 

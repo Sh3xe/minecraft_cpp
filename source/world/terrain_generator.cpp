@@ -40,7 +40,7 @@ void TerrainGenerator::make_shape( Chunk& chunk )
 		float Z = z + chunk.m_position.y;
 
 		const float mask = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
-		const float value = to_01(m_noise.fractal(3, X * s1, 0, Z * s1), -1, 1);
+		const float value = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
 
 		for( int y = 0; y < CHUNK_Y; y++ )
 		{
@@ -50,7 +50,7 @@ void TerrainGenerator::make_shape( Chunk& chunk )
 				Y = (y - m_surface_min);
 
 			float v = value*mask - (Y / delta_h);
-			v += m_noise.fractal(3, X * s2, y * s2, Z * s2 ) * 0.3f * mask;
+			v += m_noise.noise( X * s2, y * s2, Z * s2 ) * 0.3f * mask;
 
 			if( v > 0 )
 				chunk.fast_set(x, y, z, m_db->id_from_name("stone") );

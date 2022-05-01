@@ -14,7 +14,7 @@ constexpr int CHUNK_Z{ 16 };
 class Camera;
 class Texture;
 class Shader;
-class PerlinNoise;
+class SimplexNoise;
 class World;
 
 class Chunk {

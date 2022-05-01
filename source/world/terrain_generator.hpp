@@ -37,7 +37,6 @@ private:
 	void make_shape( Chunk& chunk );
 	void paint_blocks( Chunk& chunk );
 	void push_structure( const Structure &structure, int px, int py, int cz );
-	//void place_blocks( Chunk &chunk );
 
 private:
 	float m_surface_min{ 5 };

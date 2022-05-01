@@ -299,7 +299,7 @@ float SimplexNoise::noise(float x, float y) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x, float y, float z) {
+float SimplexNoise::noise( float x, float y, float z) {
     float n0, n1, n2, n3; // Noise contributions from the four corners
 
     // Skewing/Unskewing factors for 3D

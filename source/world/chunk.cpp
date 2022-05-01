@@ -1,5 +1,6 @@
 #include "chunk.hpp"
 
+#include <cassert>
 #include <random>
 #include <cmath>
 #include "gl_functions.hpp"
@@ -148,28 +149,6 @@ void Chunk::generate_mesh()
 		blk = m_db->get_block( get_block(x, y, z - 1) );
 		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mz, block);
-
-		/*
-		// +x
-		blk = m_db->get_block( get_block(x + 1, y, z) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
-			m_meshes[block.mesh_group].add_face(x, y, z, Directions::px, block);
-		// -x
-		if ( !get_block(x - 1, y, z) )
-			m_mesh.add_face(x, y, z, Directions::mx, block);
-		// +y
-		if ( !get_block(x, y + 1, z) )
-			m_mesh.add_face(x, y, z, Directions::PY, block);
-		// -y
-		if ( !get_block(x, y - 1, z) )
-			m_mesh.add_face(x, y, z, Directions::my, block);
-		// +z
-		if ( !get_block(x, y, z + 1) )
-			m_mesh.add_face(x, y, z, Directions::PZ, block);
-		// -z
-		if ( !get_block(x, y, z - 1) )
-			m_mesh.add_face(x, y, z, Directions::mz, block);
-			*/
 	}
 	
 	for( int i = 0; i < 3; ++i )
