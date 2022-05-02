@@ -73,7 +73,7 @@ void World::update_chunk_neighbours()
 	}
 }
 
-void World::update_neighbours_of( Chunk &chunk )
+void World::update_neighbours_of( Chunk &chunk, Chunk *ptr )
 {
 	// set all pointers to nullptr
 	Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
@@ -83,7 +83,7 @@ void World::update_neighbours_of( Chunk &chunk )
 	if (neighbour != m_chunks.end())
 	{
 		mx = neighbour->second.get();
-		mx->m_neighbours[1] = &chunk;
+		mx->m_neighbours[1] = ptr;
 	}
 
 	// same for +x
@@ -91,7 +91,7 @@ void World::update_neighbours_of( Chunk &chunk )
 	if(neighbour != m_chunks.end())
 	{
 		px = neighbour->second.get();
-		px->m_neighbours[0] = &chunk;
+		px->m_neighbours[0] = ptr;
 	}
 
 	// same for -z
@@ -99,7 +99,7 @@ void World::update_neighbours_of( Chunk &chunk )
 	if(neighbour != m_chunks.end())
 	{
 		mz = neighbour->second.get();
-		mz->m_neighbours[3] = &chunk;
+		mz->m_neighbours[3] = ptr;
 	}
 
 	// same for +z
@@ -107,7 +107,8 @@ void World::update_neighbours_of( Chunk &chunk )
 	if(neighbour != m_chunks.end())
 	{
 		pz = neighbour->second.get();
-		pz->m_neighbours[2] = &chunk;
+		pz->m_neighbours[2] = ptr;
+		//pz->state = ChunkState::need_mesh_update;
 	}
 
 	// set the neighbours chunk for this current chunk
@@ -151,7 +152,7 @@ BlockID World::get_block(int x, int y, int z)
 	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
 	
-	return 0; //__TODO
+	return 0;
 }
 
 void  World::prepare_chunks()
@@ -205,6 +206,7 @@ void World::update( double delta_time, Camera &camera )
 			) 
 		{
 			// pouf
+			update_neighbours_of( *chunk->second, nullptr );
 			chunk = m_chunks.erase(chunk);
 		}
 		else
@@ -227,16 +229,14 @@ void World::update( double delta_time, Camera &camera )
 		if (it == m_chunks.end()) 
 		{
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-				std::pair<int, int>(i * 16, j * 16), std::unique_ptr<Chunk>(new Chunk(m_db, i * 16, j * 16))
+				std::pair<int, int>(i * 16, j * 16), std::make_unique<Chunk>(m_db, i * 16, j * 16)
 			)).first;
 
-			//update_neighbours_of( *new_chunk->second );
+			update_neighbours_of( *new_chunk->second, new_chunk->second.get() );
 			new_chunk->second->state = ChunkState::need_generation;
 			m_update_queue.push( new_chunk->first );
 		}
 	}
-
-	//update_chunk_neighbours();
 
 	m_map_mutex.unlock();
 }
@@ -268,6 +268,7 @@ void World::draw( Camera &camera )
 	glm::mat4 view_matrix = camera.get_matrix();
 	m_shader.set_mat4("view", glm::value_ptr(view_matrix));
 	auto cam_pos = camera.get_position();
+	m_map_mutex.lock();
 
 	// on tri les tronçons du plus éloigné au plus proche
 	// par rapport à la camera et au centre des chunks
@@ -283,7 +284,6 @@ void World::draw( Camera &camera )
 		return p1.x * p1.x + p1.y * p1.y > p2.x * p2.x + p2.y * p2.y ;
 	} );
 
-	m_map_mutex.lock();
 	// puis on les affiches
 	for (auto &chunk: sorted_chunks)
 	{
@@ -294,10 +294,8 @@ void World::draw( Camera &camera )
 			chunk->state = ChunkState::ready;
 		}
 
-		if( chunk->state == ChunkState::ready )
-		{
-			chunk->draw( camera, m_tileset, m_shader );
-		}
+		chunk->draw( camera, m_tileset, m_shader );
+
 	}
 	m_map_mutex.unlock();
 }

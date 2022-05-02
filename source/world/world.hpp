@@ -31,7 +31,7 @@ public:
 private:
 	/* met à jour les relations de voisins entres tronçons */
 	void update_chunk_neighbours();
-	void update_neighbours_of( Chunk &chunk );
+	void update_neighbours_of( Chunk &chunk, Chunk *ptr );
 
 	/* Ajoute les blocks de structures à chunk */
 	void add_blocks( Chunk &chunk );

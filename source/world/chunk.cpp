@@ -72,10 +72,14 @@ void Chunk::set_block(int x, int y, int z, BlockID type)
 		m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y] = type;
 		state = ChunkState::need_mesh_update;
 
-		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr) m_neighbours[0]->state = ChunkState::need_mesh_update;
-		if (x == 0 && m_neighbours[1] != nullptr) m_neighbours[1]->state = ChunkState::need_mesh_update;
-		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr) m_neighbours[2]->state = ChunkState::need_mesh_update;
-		if (z == 0 && m_neighbours[3] != nullptr) m_neighbours[3]->state = ChunkState::need_mesh_update;
+		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr && m_neighbours[0]->state != ChunkState::need_generation )
+			m_neighbours[0]->state = ChunkState::need_mesh_update;
+		if (x == 0 && m_neighbours[1] != nullptr && m_neighbours[1]->state != ChunkState::need_generation)
+			m_neighbours[1]->state = ChunkState::need_mesh_update;
+		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr && m_neighbours[2]->state != ChunkState::need_generation)
+			m_neighbours[2]->state = ChunkState::need_mesh_update;
+		if (z == 0 && m_neighbours[3] != nullptr  && m_neighbours[3]->state != ChunkState::need_generation)
+			m_neighbours[3]->state = ChunkState::need_mesh_update;
 	}
 }
 

@@ -22,7 +22,7 @@ Chunk &TerrainGenerator::generate( Chunk& chunk )
 	paint_blocks(chunk);
 
 	for( auto *c: chunk.m_neighbours )
-		if( c != nullptr )
+		if( c != nullptr && c->state != ChunkState::need_generation )
 			c->state = ChunkState::need_mesh_update;
 
 	chunk.state = ChunkState::need_mesh_update;

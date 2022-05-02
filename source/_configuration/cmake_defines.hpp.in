@@ -1,6 +1,2 @@
-#ifndef CONFIG_H_INCLUDED
-#define CONFIG_H_INCLUDED
-
+#pragma once
 #define ROOT_DIR "@CMAKE_SOURCE_DIR@"
-
-#endif // CONFIG_H_INCLUDED
