@@ -1,7 +1,7 @@
 #include "terrain_generator.hpp"
-#include "chunk.hpp"
 #include "core/logger.hpp"
 #include "utils.hpp"
+#include "world.hpp"
 
 #include <cassert>
 #include <random>
@@ -10,9 +10,9 @@ static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
 static constexpr float s3{ 0.003f };
 
-TerrainGenerator::TerrainGenerator( BlockDB &db, ChunkToBePlace *chunk_blocks ):
+TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
 	m_db( &db ),
-	m_chunk_blocks( chunk_blocks )
+	m_world( world )
 {
 }
 
@@ -21,9 +21,9 @@ Chunk &TerrainGenerator::generate( Chunk& chunk )
 	make_shape(chunk);
 	paint_blocks(chunk);
 
-	for( auto *c: chunk.m_neighbours )
-		if( c != nullptr && c->state != ChunkState::need_generation )
-			c->state = ChunkState::need_mesh_update;
+	for( int i = 0; i < 4; ++i )
+		if( chunk.m_neighbours[i] != nullptr && chunk.m_neighbours[i]->state != ChunkState::need_generation )
+			chunk.m_neighbours[i]->state = ChunkState::need_mesh_update;
 
 	chunk.state = ChunkState::need_mesh_update;
 	return chunk;
@@ -126,7 +126,7 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 		auto [chunk_x, chunk_z] = get_pos_of_chunk(px+x, pz+z);
 		auto [coord_x, coord_z] = get_pos_inside_chunk(px+x, pz+z);
 
-		auto &block_vector = (*m_chunk_blocks)[{chunk_x*CHUNK_X, chunk_z*CHUNK_Z}];
+		auto &block_vector = m_world->m_chunk_blocks[{chunk_x*CHUNK_X, chunk_z*CHUNK_Z}];
 
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
 		{

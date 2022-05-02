@@ -1,11 +1,11 @@
 {
     "title": "minecraft++",
-    "window_width": 640,
-    "window_height": 360,
-    "fps": 25,
+    "window_width": 1280,
+    "window_height": 720,
+    "fps": 35,
     "fps_cap": true,
     "sensitivity": 0.05,
     "fullscreen": false,
     "texture_pack": "tileset.png",
-    "render_distance": 4
+    "render_distance": 8
 }

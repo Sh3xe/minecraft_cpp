@@ -39,7 +39,6 @@ public:
 public:
 	int x {0}, y{0};
 	bool transparency {false};
-	bool face_culling {true};
 
 private:
 	std::vector<BlockVertex> m_vertices;

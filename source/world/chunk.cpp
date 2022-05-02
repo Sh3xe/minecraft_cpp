@@ -26,7 +26,6 @@ Chunk::Chunk( BlockDB &db, int x, int z):
 	}
 
 	m_meshes[1].transparency = true;
-	m_meshes[2].face_culling = false;
 
 	// remplit le tronçon par de l'air
 	BlockID air_block = m_db->id_from_name("air");
@@ -58,7 +57,7 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz)
 
 void Chunk::set_block(int x, int y, int z, BlockID type)
 {
-		if (x >= CHUNK_X && m_neighbours[0] != nullptr)
+	if (x >= CHUNK_X && m_neighbours[0] != nullptr)
 		m_neighbours[0]->set_block(0, y, z, type);
 	if (x < 0 && m_neighbours[1] != nullptr)
 		m_neighbours[1]->set_block(CHUNK_X - 1, y, z, type);

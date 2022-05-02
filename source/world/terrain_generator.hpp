@@ -8,6 +8,7 @@
 #include "blocks.hpp"
 #include "core/simplex_noise.hpp"
 
+class World;
 
 struct ToBePlaced
 {
@@ -30,7 +31,7 @@ class Chunk;
 class TerrainGenerator
 {
 public:
-	TerrainGenerator( BlockDB &db, ChunkToBePlace* chunk_blocks );
+	TerrainGenerator( BlockDB &db, World *world );
 	Chunk &generate( Chunk& chunk );
 
 private:
@@ -46,5 +47,5 @@ private:
 	SimplexNoise m_noise;
 	BlockDB *m_db;
 	std::vector<Structure> m_structs;
-	ChunkToBePlace *m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
+	World *m_world; // pour un tronçon donnée, la liste des blocks à placer
 };

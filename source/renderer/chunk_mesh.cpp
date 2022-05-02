@@ -121,12 +121,7 @@ void ChunkMesh::render( Texture& tileset, Shader& shader )
 	glBindTexture(GL_TEXTURE_2D, tileset.get_id());
 	shader.set_int("u_texture", 0);
 	shader.set_vec3("chunk_position", this->x, 0, this->y);
-
-	if( face_culling )
-		glEnable( GL_CULL_FACE );
-	else
-		glDisable( GL_CULL_FACE );
-
+	
 	if( transparency )
 	{
 		glEnable( GL_BLEND );

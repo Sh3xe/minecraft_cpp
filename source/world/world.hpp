@@ -18,6 +18,8 @@ class Camera;
 class World
 {
 public:
+	friend class TerrainGenerator;
+
 	World( Config &config );
 	~World();
 
@@ -31,7 +33,6 @@ public:
 private:
 	/* met à jour les relations de voisins entres tronçons */
 	void update_chunk_neighbours();
-	void update_neighbours_of( Chunk &chunk, Chunk *ptr );
 
 	/* Ajoute les blocks de structures à chunk */
 	void add_blocks( Chunk &chunk );
