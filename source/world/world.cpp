@@ -153,8 +153,8 @@ void  World::prepare_chunks()
 
 void World::update( double delta_time, Camera &camera ) 
 {
-	glm::ivec3 camera_position = camera.get_position();
-	auto [chunk_x, chunk_z] = get_pos_of_chunk( camera_position.x, camera_position.z );
+	glm::ivec3 cam_pos = camera.get_position();
+	auto [chunk_x, chunk_z] = get_pos_of_chunk( cam_pos.x, cam_pos.z );
 
 	m_map_mutex.lock();
 	
@@ -194,6 +194,7 @@ void World::update( double delta_time, Camera &camera )
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
 				std::pair<int, int>(i * 16, j * 16), std::make_unique<Chunk>(m_db, i * 16, j * 16)
 			)).first;
+
 			new_chunks = true;
 			new_chunk->second->state = ChunkState::need_generation;
 			m_update_queue.push( new_chunk->first );
@@ -201,7 +202,16 @@ void World::update( double delta_time, Camera &camera )
 	}
 
 	if(new_chunks)
+	{
 		update_chunk_neighbours();
+		m_update_queue.sort( [cam_pos]( const std::pair<int, int> &c1, const std::pair<int, int> &c2 )
+		{
+			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_X / 2), c1.second + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_X / 2), c2.second + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+
+			return p1.x * p1.x + p1.y * p1.y < p2.x * p2.x + p2.y * p2.y ;
+		});
+	}
 
 	m_map_mutex.unlock();
 }
@@ -221,6 +231,8 @@ void World::add_blocks( Chunk &chunk )
 		auto block = blocks.back();
 		blocks.pop_back();
 		chunk.fast_set( block.x, block.y, block.z, block.block );
+		if( block.block != 0 && block.y > chunk.m_layer_max )
+			chunk.m_layer_max = block.y;
 	}
 
 	m_chunk_blocks.erase( chunk_blocks );

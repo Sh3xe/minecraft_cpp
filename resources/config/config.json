@@ -7,5 +7,5 @@
     "sensitivity": 0.05,
     "fullscreen": false,
     "texture_pack": "tileset.png",
-    "render_distance": 8
+    "render_distance": 4
 }

@@ -9,7 +9,7 @@
 #include "renderer/chunk_mesh.hpp"
 
 constexpr int CHUNK_X{ 16 };
-constexpr int CHUNK_Y{ 64 };
+constexpr int CHUNK_Y{ 128 };
 constexpr int CHUNK_Z{ 16 };
 
 enum class ChunkState
@@ -55,7 +55,7 @@ private:
 
 	std::array< BlockID, CHUNK_X* CHUNK_Y* CHUNK_Z> m_block_data;
 	std::array<Chunk*, 4> m_neighbours;
-
+	int m_layer_max {0}; // le dernier niveau non vide du tronçon
 };
 
 

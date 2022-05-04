@@ -6,6 +6,7 @@
 #include <string>
 
 #include "blocks.hpp"
+//#include "core/perlin.hpp"
 #include "core/simplex_noise.hpp"
 
 class World;
@@ -44,6 +45,7 @@ private:
 	float m_surface_max{ 60 };
 	const float water_level { 10 };
 
+	//PerlinNoise m_noise;
 	SimplexNoise m_noise;
 	BlockDB *m_db;
 	std::vector<Structure> m_structs;

@@ -6,12 +6,12 @@
 #include "gl_functions.hpp"
 
 #include "world.hpp"
-#include "../core/timer.hpp"
-#include "../core/camera.hpp"
+#include "core/timer.hpp"
+#include "core/camera.hpp"
 
-#include "../renderer/vertex.hpp"
-#include "../renderer/shader.hpp"
-#include "../renderer/texture.hpp"
+#include "renderer/vertex.hpp"
+#include "renderer/shader.hpp"
+#include "renderer/texture.hpp"
 
 Chunk::Chunk( BlockDB &db, int x, int z):
 	m_position(x, z),
@@ -80,6 +80,10 @@ void Chunk::set_block(int x, int y, int z, BlockID type)
 		if (z == 0 && m_neighbours[3] != nullptr  && m_neighbours[3]->state != ChunkState::need_generation)
 			m_neighbours[3]->state = ChunkState::need_mesh_update;
 	}
+
+	if( type != 0 && y > m_layer_max )
+		m_layer_max = y;
+
 }
 
 BlockID Chunk::get_block(int x, int y, int z)
@@ -123,7 +127,12 @@ void Chunk::generate_mesh()
 	for(int z = 0; z < CHUNK_Z; ++z)
 	for(int y = 0; y < CHUNK_Y; ++y)
 	{
-		// adds a face the the mesh if needed
+		if( y > m_layer_max &&
+			x != 0 && x != CHUNK_X - 1 &&
+			z != 0 && z != CHUNK_Z - 1 )
+			continue;
+
+		// ajoute une face si besoin
 		auto block = m_db->get_block( get_block(x, y, z) );
 
 		if( block.id == m_db->id_from_name("air") ) continue;

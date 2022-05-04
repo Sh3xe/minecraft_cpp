@@ -3,6 +3,7 @@
 #include "core/logger.hpp"
 
 #include <mutex>
+#include <algorithm>
 #include <deque>
 
 template <typename T>
@@ -54,6 +55,14 @@ public:
 		int size = m_deq.size();
 		m_mut.unlock();
 		return size;
+	}
+
+	template <typename Func>
+	void sort( Func function )
+	{
+		m_mut.lock();
+		std::sort( m_deq.begin(), m_deq.end(), function );
+		m_mut.unlock();
 	}
 
 private:

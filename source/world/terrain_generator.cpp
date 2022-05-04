@@ -1,10 +1,16 @@
 #include "terrain_generator.hpp"
 #include "core/logger.hpp"
 #include "utils.hpp"
+#include "core/timer.hpp"
 #include "world.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <random>
+
+//static constexpr float s1{ 0.01f };
+//static constexpr float s2{ 0.05f };
+//static constexpr float s3{ 0.003f };
 
 static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
@@ -18,8 +24,8 @@ TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
 
 Chunk &TerrainGenerator::generate( Chunk& chunk )
 {
-	make_shape(chunk);
-	paint_blocks(chunk);
+	make_shape( chunk );
+	paint_blocks( chunk );
 
 	for( int i = 0; i < 4; ++i )
 		if( chunk.m_neighbours[i] != nullptr && chunk.m_neighbours[i]->state != ChunkState::need_generation )
@@ -42,7 +48,7 @@ void TerrainGenerator::make_shape( Chunk& chunk )
 		const float mask = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
 		const float value = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
 
-		for( int y = 0; y < CHUNK_Y; y++ )
+		for( int y = 0; y < m_surface_max; y++ )
 		{
 			float Y = 0;
 
@@ -51,10 +57,12 @@ void TerrainGenerator::make_shape( Chunk& chunk )
 
 			float v = value*mask - (Y / delta_h);
 			v += m_noise.noise( X * s2, y * s2, Z * s2 ) * 0.3f * mask;
+			//v += m_noise.noise( X, y, Z, s2 ) * 0.3f * mask;
 
 			if( v > 0 )
 				chunk.fast_set(x, y, z, m_db->id_from_name("stone") );
 		}
+
 	}
 }
 
@@ -71,6 +79,9 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 	BlockID sand_id = m_db->id_from_name("sand");
 	BlockID water_id = m_db->id_from_name("water");
 	auto &tree = m_db->get_struct("tree");
+	
+	// couche maximale non vide du tronçon
+	int layer_max = 0;
 
 	// pour chaque colonne du tronçon
 	for( int x = 0; x < CHUNK_X; ++x )
@@ -80,17 +91,26 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 		float X = x + chunk.m_position.x;
 		float Z = z + chunk.m_position.y;
 
-		// le même masque utilisé pour "aplatir" le terrain: + plat = + d'arbre
-		const float mask = to_01(m_noise.noise(X*s3, Z*s3), -1, 1);
-		std::bernoulli_distribution d { 0.04f * ( 1.0f - mask ) };
+		std::bernoulli_distribution d { 0.04f };
 
 		int depth = 0;
+		bool layer_empty = true;
+		int layer_local_max = CHUNK_Y - 1;
 		for( int y = CHUNK_Y - 1; y >= 0; --y )
 		{
 			auto block = chunk.fast_get(x, y, z);
 
-			if( block != air_id ) ++depth;
-			else depth = 0;
+			if( block != air_id )
+			{
+				layer_empty = false;
+				++depth;
+			}
+			else
+			{
+				if( layer_empty )
+					layer_local_max--;
+				depth = 0;	
+			}
 
 			if( y <= water_level )
 			{
@@ -115,7 +135,12 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 			else if( depth > 1 && depth <= 4 )
 				chunk.fast_set( x, y, z, dirt_id );
 		}
+
+		if( layer_local_max > layer_max )
+			layer_max = layer_local_max;
 	}
+
+	chunk.m_layer_max = layer_max;
 }
 
 void TerrainGenerator::push_structure( const Structure &structure, int px, int py, int pz )

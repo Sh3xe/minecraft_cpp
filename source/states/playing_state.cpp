@@ -31,20 +31,23 @@ void PlayingState::update( Input &input, double delta_time )
 
 	// BLOCK BREAKING
 	if(input.get_mouse_state().first && block_lock == 0.0)
-	{   // if the player left-click and is not locked
-		// cast a ray
+	{   // si le joueur clique 
 		glm::vec3 direction = m_player.get_camera().get_direction(),
 				  position = m_player.get_camera().get_position();
 
 		bool done = false;
-		for(int i = 0; i < 25 && !done; ++i)
+		for(int i = 0; i < 30 && !done; ++i)
 		{
-			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 5.0);
-			// if we find a block
-			if(m_world.get_block(ray_pos.x, ray_pos.y, ray_pos.z))
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 4.0);
+			int rx = floor( ray_pos.x );
+			int ry = floor( ray_pos.y );
+			int rz = floor( ray_pos.z );
+
+			// on trouve le block sur lequel il click
+			if(m_world.get_block(rx, ry, rz))
 			{
-				// destroy it, stop the ray cast, and reset "block_lock"
-				m_world.set_block(ray_pos.x, ray_pos.y, ray_pos.z, 0); //__TODO
+				// on le supprimer et réinitialise le compteur
+				m_world.set_block(rx, ry, rz, 0);
 				done = true;
 				block_lock = 0.25;
 			}
@@ -59,16 +62,23 @@ void PlayingState::update( Input &input, double delta_time )
 				  position = m_player.get_camera().get_position();
 
 		bool done = false;
-		for(int i = 0; i < 25 && !done; ++i)
+		for(int i = 0; i < 30 && !done; ++i)
 		{
-			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 5.0);
-			// if we find a block
-			if( m_world.get_block(ray_pos.x, ray_pos.y, ray_pos.z) != 0 ) //__TODO
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 4.0);
+			int rx = floor( ray_pos.x );
+			int ry = floor( ray_pos.y );
+			int rz = floor( ray_pos.z );
+			// si on trouve un block
+			if( m_world.get_block(rx, ry, rz) != 0 )
 			{
-				// get the previous position
+				// on récupère la dernière position
 				ray_pos -= direction * 0.2f;
-				// place a brick block
-				m_world.set_block(ray_pos.x, ray_pos.y, ray_pos.z, 3); //__TODO
+				rx = floor( ray_pos.x );
+				ry = floor( ray_pos.y );
+				rz = floor( ray_pos.z );
+
+				// on place un bloc
+				m_world.set_block(rx, ry, rz, 3);
 				done = true;
 				block_lock = 0.25;
 			}
