@@ -7,6 +7,7 @@ Un clone de minecraft écrit en c++ avec opengl
 - stb_image
 - nlohmann/json.hpp
 - opengl
+- glm
 
 ## images
 
