@@ -5,6 +5,7 @@
 
 #include <json.hpp>
 #include <cassert>
+#include <iostream>
 #include <fstream>
 
 using namespace nlohmann;
@@ -35,15 +36,20 @@ bool BlockDB::load_structures_from_file( const std::string &path )
 			structure.y_length = struct_data["y_length"];
 			structure.z_length = struct_data["z_length"];
 
+			structure.center_x = struct_data["center_x"];
+			structure.center_y = struct_data["center_y"];
+			structure.center_z = struct_data["center_z"];
+
 			uint32_t struct_volume = structure.x_length * structure.y_length * structure.z_length;
 
+			structure.blocks.clear();
 			structure.blocks.reserve( struct_volume );
 
 			auto block_array = struct_data["data"];
 
 			for( int i = 0; i < struct_volume; ++i )
-				structure.blocks.push_back( id_from_smallname( block_array[i] ) );
-
+				structure.blocks.push_back( std::make_pair( (int)id_from_smallname( block_array[i][0] ), block_array[i][1] ) );
+			
 			m_structures[name] = structure;
 		}
 

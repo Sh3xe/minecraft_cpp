@@ -13,7 +13,7 @@ class World;
 
 struct ToBePlaced
 {
-	ToBePlaced(int x, int y, int z, BlockID block ):
+	ToBePlaced(int x, int y, int z, std::pair< BlockID, bool > block ):
 		x( static_cast<uint8_t>(x) ),
 		y( static_cast<uint8_t>(y) ),
 		z( static_cast<uint8_t>(z) ),
@@ -22,7 +22,7 @@ struct ToBePlaced
 	}
 		
 	uint8_t x, y, z;
-	BlockID block;
+	std::pair< BlockID, bool > block;
 };
 
 using ChunkToBePlace = std::map< std::pair<int, int>, std::vector<ToBePlaced>>;

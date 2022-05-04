@@ -230,8 +230,9 @@ void World::add_blocks( Chunk &chunk )
 	{
 		auto block = blocks.back();
 		blocks.pop_back();
-		chunk.fast_set( block.x, block.y, block.z, block.block );
-		if( block.block != 0 && block.y > chunk.m_layer_max )
+		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == 0 )
+			chunk.fast_set( block.x, block.y, block.z, block.block.first );
+		if( block.block.first != 0 && block.y > chunk.m_layer_max )
 			chunk.m_layer_max = block.y;
 	}
 

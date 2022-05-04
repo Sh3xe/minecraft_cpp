@@ -8,41 +8,41 @@
         "y_length": 6,
         "z_length": 5,
         "data": [ 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "le", "a",
-            "a", "le", "le", "le", "a",
-            "le", "le", "l", "le", "a",
-            "le", "le", "le", "le", "le",
-            "le", "le", "a", "a", "le",
+            ["a", false], ["a", false], ["a", false], ["le", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["l", true], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["a", false], ["a", false], ["le", false],
 
-            "a", "le", "le", "le", "a",
-            "le", "le", "le", "le", "a",
-            "le", "le", "l", "le", "le",
-            "le", "le", "le", "le", "le",
-            "le", "le", "le", "le", "le",
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["l", true], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "le", "le", "le", "a",
-            "a", "le", "le", "le", "a",
-            "a", "le", "le", "le", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a",
-            "a", "le", "le", "le", "a",
-            "a", "a", "le", "a", "a",
-            "a", "a", "a", "a", "a"
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -54,54 +54,54 @@
         "y_length": 7,
         "z_length": 6,
         "data": [
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a", "a",
-            "a", "le", "l", "l", "a", "a",
-            "a", "a", "le", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["l", true], ["l", true], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "le", "a", "a", "a",
-            "le", "le", "le", "a", "le", "le",
-            "le", "le", "l", "a", "l", "le",
-            "a", "le", "le", "le", "le", "le",
-            "a", "le", "le", "le", "a", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["a", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["l", true], ["a", false], ["l", true], ["le", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "le", "le", "le", "a", "a",
-            "le", "le", "le", "le", "le", "a",
-            "le", "le", "l", "le", "le", "le",
-            "le", "le", "le", "le", "le", "a",
-            "a", "a", "le", "le", "a", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["l", true], ["le", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "le", "le", "a", "a", "a",
-            "le", "le", "le", "le", "a", "a",
-            "le", "le", "le", "le", "le", "a",
-            "a", "le", "le", "le", "le", "a",
-            "a", "a", "le", "le", "le", "a",
-            "a", "a", "a", "a", "a", "a",
+            ["a", false], ["le", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["a", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a", "a",
-            "a", "le", "le", "le", "a", "a",
-            "a", "a", "le", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a", "a"
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -114,54 +114,54 @@
         "z_length": 6,
         "data": [
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "l", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["l", true], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a",
-            "a", "le", "l", "le", "a",
-            "a", "a", "le", "a", "a",
-            "a", "a", "a", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["l", true], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "le", "a", "a",
-            "a", "le", "le", "le", "a",
-            "le", "le", "le", "le", "le",
-            "le", "le", "l", "le", "le",
-            "le", "le", "le", "le", "le",
-            "a", "le", "le", "a", "a",
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["l", true], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["a", false], ["le", false], ["le", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "le", "le", "le", "a",
-            "le", "le", "le", "le", "le",
-            "le", "le", "le", "le", "le",
-            "a", "le", "le", "le", "le",
-            "a", "a", "le", "le", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["le", false], ["le", false], ["l", true], ["le", false], ["le", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["a", false], ["a", false], ["le", false], ["le", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a",
-            "a", "le", "le", "le", "a",
-            "le", "le", "ll", "le", "le",
-            "a", "le", "le", "le", "a",
-            "a", "a", "le", "a", "a",
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["le", false], ["le", false], ["le", false], ["le", false], ["le", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
 
-            "a", "a", "a", "a", "a",
-            "a", "a", "a", "a", "a",
-            "a", "a", "le", "a", "a",
-            "a", "le", "le", "le", "a",
-            "a", "a", "le", "a", "a",
-            "a", "a", "a", "a", "a"
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["le", false], ["a", false], ["a", false],
+            ["a", false], ["a", false], ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -173,25 +173,25 @@
         "y_length": 5,
         "z_length": 3,
         "data": [
-            "a", "a", "a",
-            "a", "l", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["l", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "le", "le", "a",
-            "le", "l", "le",
-            "le", "le", "le",
+            ["le", false], ["le", false], ["a", false],
+            ["le", false], ["l", true], ["le", false],
+            ["le", false], ["le", false], ["le", false],
 
-            "a", "le", "a",
-            "le", "l", "le",
-            "le", "le", "a",
+            ["a", false], ["le", false], ["a", false],
+            ["le", false], ["l", true], ["le", false],
+            ["le", false], ["le", false], ["a", false],
 
-            "a", "a", "a",
-            "le", "le", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["le", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a",
-            "a", "le", "a",
-            "a", "a", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -203,25 +203,25 @@
         "y_length": 5,
         "z_length": 3,
         "data": [
-            "a", "a", "a",
-            "a", "l", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["l", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a",
-            "a", "l", "le",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["l", true], ["le", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "le", "le", "le",
-            "le", "l", "le",
-            "le", "le", "le",
+            ["le", false], ["le", false], ["le", false],
+            ["le", false], ["l", true], ["le", false],
+            ["le", false], ["le", false], ["le", false],
 
-            "a", "le", "a",
-            "le", "l", "le",
-            "a", "le", "a",
+            ["a", false], ["le", false], ["a", false],
+            ["le", false], ["l", true], ["le", false],
+            ["a", false], ["le", false], ["a", false],
 
-            "a", "a", "a",
-            "a", "le", "a",
-            "a", "a", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -233,29 +233,29 @@
         "y_length": 6,
         "z_length": 3,
         "data": [
-            "a", "a", "a",
-            "a", "l", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["l", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
             
-            "a", "a", "a",
-            "l", "l", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["l", true], ["l", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
             
-            "le", "le", "a",
-            "le", "l", "le",
-            "a", "le", "le",
+            ["le", false], ["le", false], ["a", false],
+            ["le", false], ["l", true], ["le", false],
+            ["a", false], ["le", false], ["le", false],
             
-            "a", "a", "le",
-            "le", "le", "le",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["le", false],
+            ["le", false], ["le", false], ["le", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "a", "a", "a",
-            "a", "le", "le",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false],
+            ["a", false], ["a", false], ["a", false],
             
-            "a", "a", "a",
-            "a", "le", "a",
-            "a", "a", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["a", false],
+            ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -267,13 +267,13 @@
         "y_length": 2,
         "z_length": 3,
         "data": [
-            "a", "le", "a",
-            "le", "l", "le",
-            "le", "le", "le",
+            ["a", false], ["le", false], ["a", false],
+            ["le", false], ["l", true], ["le", false],
+            ["le", false], ["le", false], ["le", false],
 
-            "a", "a", "a",
-            "a", "le", "le",
-            "a", "a", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["le", false], ["le", false],
+            ["a", false], ["a", false], ["a", false]
         ]
     },
     {
@@ -285,11 +285,11 @@
         "y_length": 2,
         "z_length": 2,
         "data": [
-            "le", "le",
-            "l", "le",
+            ["le", false], ["le", false],
+            ["l", true], ["le", false],
             
-            "a", "a",
-            "le", "a"
+            ["a", false], ["a", false],
+            ["le", false], ["a", false]
         ]
     },
     {
@@ -301,55 +301,55 @@
         "y_length": 2,
         "z_length": 2,
         "data": [
-            "le", "le",
-            "l", "le",
+            ["le", false], ["le", false],
+            ["l", true], ["le", false],
             
-            "a", "a",
-            "le", "le"
+            ["a", false], ["a", false],
+            ["le", false], ["le", false]
         ]
     },
     {
         "name": "rock1",
         "center_x": 1,
-        "center_y": 1,
+        "center_y": 2,
         "center_z": 1,
         "x_length": 3,
         "y_length": 3,
         "z_length": 3,
         "data": [
-            "a", "a", "a",
-            "a", "mc", "a",
-            "a", "a", "a",
+            ["a", false], ["a", false], ["a", false],
+            ["a", false], ["mc", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "c", "c", "a",
-            "a", "mc", "a",
-            "a", "c", "a",
+            ["c", true], ["c", true], ["a", false],
+            ["a", false], ["mc", true], ["a", false],
+            ["a", false], ["c", true], ["a", false],
 
-            "a", "a", "a",
-            "mc", "c", "a",
-            "a", "c", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["mc", true], ["c", true], ["a", false],
+            ["a", false], ["c", true], ["a", false]
         ]
     },
     {
         "name": "rock2",
         "center_x": 1,
-        "center_y": 1,
+        "center_y": 2,
         "center_z": 1,
         "x_length": 3,
         "y_length": 3,
         "z_length": 3,
         "data": [
-            "a", "mc", "a",
-            "c", "c", "a",
-            "a", "a", "a",
+            ["a", false], ["mc", true], ["a", false],
+            ["c", true], ["c", true], ["a", false],
+            ["a", false], ["a", false], ["a", false],
 
-            "a", "c", "a",
-            "mc", "c", "a",
-            "c", "c", "a",
+            ["a", false], ["c", true], ["a", false],
+            ["mc", true], ["c", true], ["a", false],
+            ["c", true], ["c", true], ["a", false],
 
-            "a", "a", "a",
-            "c", "mc", "a",
-            "a", "a", "a"
+            ["a", false], ["a", false], ["a", false],
+            ["c", true], ["mc", true], ["a", false],
+            ["a", false], ["a", false], ["a", false]
         ]
     }
 ]

@@ -78,7 +78,7 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 	BlockID dirt_id = m_db->id_from_name("dirt");
 	BlockID sand_id = m_db->id_from_name("sand");
 	BlockID water_id = m_db->id_from_name("water");
-	auto &tree = m_db->get_struct("tree");
+	auto &tree = m_db->get_struct("bigtree1");
 	
 	// couche maximale non vide du tronçon
 	int layer_max = 0;
@@ -91,7 +91,7 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 		float X = x + chunk.m_position.x;
 		float Z = z + chunk.m_position.y;
 
-		std::bernoulli_distribution d { 0.04f };
+		std::bernoulli_distribution d { 0.01f };
 
 		int depth = 0;
 		bool layer_empty = true;
@@ -101,16 +101,15 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 			auto block = chunk.fast_get(x, y, z);
 
 			if( block != air_id )
-			{
-				layer_empty = false;
 				++depth;
-			}
 			else
-			{
-				if( layer_empty )
-					layer_local_max--;
-				depth = 0;	
-			}
+				depth = 0;
+
+			if( block != air_id || y <= water_level )
+				layer_empty = false;
+
+			if (layer_empty)
+				layer_local_max--;
 
 			if( y <= water_level )
 			{
@@ -128,7 +127,10 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 			{
 				chunk.fast_set( x, y, z, grass_id );
 				if( d(e) && y > water_level )
-					push_structure( tree, x + chunk.m_position.x - (tree.x_length/2), y+1, z + chunk.m_position.y -(tree.z_length/2) );
+					push_structure( tree,
+						x + chunk.m_position.x - tree.center_x,
+						y+1 - tree.center_y,
+						z + chunk.m_position.y - tree.center_z );
 			}
 
 			// puis de la terre sur 3 autres blocs
@@ -156,8 +158,7 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
 		{
 			ToBePlaced block_info (coord_x, py + y, coord_z, structure.get(x, y, z));
-			if( block_info.block != m_db->id_from_name("air") )
-				block_vector.push_back( block_info );
+			block_vector.push_back( block_info );
 		}
 	}
 }

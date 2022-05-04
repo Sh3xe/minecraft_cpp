@@ -9,7 +9,7 @@
 
 void Player::update(Input &input, World& world, double delta_time) {
 
-	float speed = 10.0f;
+	float speed = 5.0f;
 
 	m_camera.update_mouse(input);
 
