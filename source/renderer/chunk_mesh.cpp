@@ -2,7 +2,8 @@
 
 #include "texture.hpp"
 #include "shader.hpp"
-#include "../core/camera.hpp"
+#include "core/camera.hpp"
+#include "core/logger.hpp"
 
 #include "gl_functions.hpp"
 
@@ -81,7 +82,6 @@ void ChunkMesh::clear()
 void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &block )
 {
 	++m_face_count;
-
 	int texture_x{ block.faces[static_cast<uint8_t>(dir)] % 16 };
 	int texture_y{ block.faces[static_cast<uint8_t>(dir)] / 16 };
 
@@ -132,6 +132,11 @@ void ChunkMesh::render( Texture& tileset, Shader& shader )
 	{
 		glDisable( GL_BLEND );
 	}
+
+	if( cull )
+		glEnable( GL_CULL_FACE );
+	else
+		glDisable( GL_CULL_FACE );
 
 	glDrawArrays(GL_TRIANGLES, 0, m_face_count * 6);
 }

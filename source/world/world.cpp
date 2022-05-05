@@ -101,7 +101,7 @@ void World::set_block(int x, int y, int z, BlockID type)
 
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 
-	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
+	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
@@ -112,7 +112,7 @@ BlockID World::get_block(int x, int y, int z)
 	
 	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
 
-	if( chunk != m_chunks.end() && y < CHUNK_Y && y >= 0 )
+	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
 	
 	return 0;
@@ -206,8 +206,8 @@ void World::update( double delta_time, Camera &camera )
 		update_chunk_neighbours();
 		m_update_queue.sort( [cam_pos]( const std::pair<int, int> &c1, const std::pair<int, int> &c2 )
 		{
-			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_X / 2), c1.second + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
-			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_X / 2), c2.second + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_SIDE / 2), c1.second + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_SIDE / 2), c2.second + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
 
 			return p1.x * p1.x + p1.y * p1.y < p2.x * p2.x + p2.y * p2.y ;
 		});
@@ -232,8 +232,8 @@ void World::add_blocks( Chunk &chunk )
 		blocks.pop_back();
 		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == 0 )
 			chunk.fast_set( block.x, block.y, block.z, block.block.first );
-		if( block.block.first != 0 && block.y > chunk.m_layer_max )
-			chunk.m_layer_max = block.y;
+		//if( block.block.first != 0 && block.y > chunk.m_layer_max )
+		//	chunk.m_layer_max = block.y;
 	}
 
 	m_chunk_blocks.erase( chunk_blocks );
@@ -256,8 +256,8 @@ void World::draw( Camera &camera )
 
 	std::sort( sorted_chunks.begin(), sorted_chunks.end(), [cam_pos]( Chunk *c1, Chunk *c2 )
 	{
-		glm::vec2 p1 = glm::vec2{ c1->get_position().x + (CHUNK_X / 2), c1->get_position().y + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
-		glm::vec2 p2 = glm::vec2{ c2->get_position().x + (CHUNK_X / 2), c2->get_position().y + (CHUNK_Z / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+		glm::vec2 p1 = glm::vec2{ c1->get_position().x + (CHUNK_SIDE / 2), c1->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+		glm::vec2 p2 = glm::vec2{ c2->get_position().x + (CHUNK_SIDE / 2), c2->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
 
 		return p1.x * p1.x + p1.y * p1.y > p2.x * p2.x + p2.y * p2.y ;
 	} );

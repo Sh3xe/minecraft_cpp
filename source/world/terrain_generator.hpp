@@ -1,11 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <map>
 #include <utility>
 #include <string>
 
 #include "blocks.hpp"
+#include "chunk.hpp"
+
 //#include "core/perlin.hpp"
 #include "core/simplex_noise.hpp"
 
@@ -26,8 +29,7 @@ struct ToBePlaced
 };
 
 using ChunkToBePlace = std::map< std::pair<int, int>, std::vector<ToBePlaced>>;
-
-class Chunk;
+using NoiseMap = std::array< std::array< float , CHUNK_SIDE>, CHUNK_SIDE >;
 
 class TerrainGenerator
 {
@@ -36,8 +38,10 @@ public:
 	Chunk &generate( Chunk& chunk );
 
 private:
-	void make_shape( Chunk& chunk );
-	void paint_blocks( Chunk& chunk );
+	void make_shape( Chunk& chunk, int x, int y );
+	
+	void paint_blocks( Chunk& chunk, int x, int y );
+
 	void push_structure( const Structure &structure, int px, int py, int cz );
 
 private:
@@ -45,9 +49,13 @@ private:
 	float m_surface_max{ 60 };
 	const float water_level { 10 };
 
+	NoiseMap m_height;
+	NoiseMap m_mask;
+
 	//PerlinNoise m_noise;
 	SimplexNoise m_noise;
+	std::array<Structure*, 9> m_trees;
+	
 	BlockDB *m_db;
-	std::vector<Structure> m_structs;
 	World *m_world; // pour un tronçon donnée, la liste des blocks à placer
 };

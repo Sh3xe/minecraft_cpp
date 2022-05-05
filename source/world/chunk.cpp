@@ -30,10 +30,10 @@ Chunk::Chunk( BlockDB &db, int x, int z):
 	// remplit le tronçon par de l'air
 	BlockID air_block = m_db->id_from_name("air");
 
-	for(int x = 0; x < CHUNK_X; ++x)
-	for(int y = 0; y < CHUNK_Y; ++y)
-	for(int z = 0; z < CHUNK_Z; ++z)
-		m_block_data[ x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y ] = air_block;
+	for(int x = 0; x < CHUNK_SIDE; ++x)
+	for(int y = 0; y < CHUNK_HEIGHT; ++y)
+	for(int z = 0; z < CHUNK_SIDE; ++z)
+		m_block_data[ x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT ] = air_block;
 }
 
 Chunk::~Chunk()
@@ -57,32 +57,32 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz)
 
 void Chunk::set_block(int x, int y, int z, BlockID type)
 {
-	if (x >= CHUNK_X && m_neighbours[0] != nullptr)
+	if (x >= CHUNK_SIDE && m_neighbours[0] != nullptr)
 		m_neighbours[0]->set_block(0, y, z, type);
 	if (x < 0 && m_neighbours[1] != nullptr)
-		m_neighbours[1]->set_block(CHUNK_X - 1, y, z, type);
-	if (z >= CHUNK_Z && m_neighbours[2] != nullptr)
+		m_neighbours[1]->set_block(CHUNK_SIDE - 1, y, z, type);
+	if (z >= CHUNK_SIDE && m_neighbours[2] != nullptr)
 		m_neighbours[2]->set_block(x, y, 0, type);
 	if (z < 0 && m_neighbours[3] != nullptr)
-		m_neighbours[3]->set_block(x, y, CHUNK_Z - 1, type);
+		m_neighbours[3]->set_block(x, y, CHUNK_SIDE - 1, type);
 	
 
-	if (x >= 0 && x < CHUNK_X && y >= 0 && y < CHUNK_Y && z >= 0 && z < CHUNK_Z) {
-		m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y] = type;
+	if (x >= 0 && x < CHUNK_SIDE && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_SIDE) {
+		m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT] = type;
 		state = ChunkState::need_mesh_update;
 
-		if (x == CHUNK_X - 1 && m_neighbours[0] != nullptr && m_neighbours[0]->state != ChunkState::need_generation )
+		if (x == CHUNK_SIDE - 1 && m_neighbours[0] != nullptr && m_neighbours[0]->state != ChunkState::need_generation )
 			m_neighbours[0]->state = ChunkState::need_mesh_update;
 		if (x == 0 && m_neighbours[1] != nullptr && m_neighbours[1]->state != ChunkState::need_generation)
 			m_neighbours[1]->state = ChunkState::need_mesh_update;
-		if (z == CHUNK_Z - 1 && m_neighbours[2] != nullptr && m_neighbours[2]->state != ChunkState::need_generation)
+		if (z == CHUNK_SIDE - 1 && m_neighbours[2] != nullptr && m_neighbours[2]->state != ChunkState::need_generation)
 			m_neighbours[2]->state = ChunkState::need_mesh_update;
 		if (z == 0 && m_neighbours[3] != nullptr  && m_neighbours[3]->state != ChunkState::need_generation)
 			m_neighbours[3]->state = ChunkState::need_mesh_update;
 	}
 
-	if( type != 0 && y > m_layer_max )
-		m_layer_max = y;
+//	if( type != 0 && y > m_layer_max )
+//		m_layer_max = y;
 
 }
 
@@ -91,31 +91,31 @@ BlockID Chunk::get_block(int x, int y, int z)
 	// warning: only works for 1 block out-of-range.
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 
-	if(y >= CHUNK_Y)
+	if(y >= CHUNK_HEIGHT)
 		return m_db->id_from_name("air");
 	if(y < 0)
 		return m_db->id_from_name("stone");
-	if(x >= CHUNK_X)
+	if(x >= CHUNK_SIDE)
 		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): m_db->id_from_name("stone");
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_X - 1, y, z): m_db->id_from_name("stone");
-	if(z >= CHUNK_Z)
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_SIDE - 1, y, z): m_db->id_from_name("stone");
+	if(z >= CHUNK_SIDE)
 		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): m_db->id_from_name("stone");
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_Z - 1): m_db->id_from_name("stone");
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_SIDE - 1): m_db->id_from_name("stone");
 
 	// return the block in the current chunk
-	return m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y];
+	return m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT];
 }
 
 uint8_t Chunk::fast_get(int x, int y, int z)
 {
-	return m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y];
+	return m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT];
 }
 
 void Chunk::fast_set(int x, int y, int z, uint8_t block )
 {
-	m_block_data[x + y * CHUNK_X + z * CHUNK_X * CHUNK_Y] = block;
+	m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT] = block;
 }
 
 void Chunk::generate_mesh()
@@ -123,19 +123,17 @@ void Chunk::generate_mesh()
 	for( int i = 0; i < 3; ++i )
 		m_meshes[i].clear();
 
-	for(int x = 0; x < CHUNK_X; ++x)
-	for(int z = 0; z < CHUNK_Z; ++z)
-	for(int y = 0; y < CHUNK_Y; ++y)
+	auto air_id = m_db->id_from_name("air");
+
+	for(int x = 0; x < CHUNK_SIDE; ++x)
+	for(int z = 0; z < CHUNK_SIDE; ++z)
+	for(int y = 0; y < CHUNK_HEIGHT; ++y)
 	{
-		if( y > m_layer_max &&
-			x != 0 && x != CHUNK_X - 1 &&
-			z != 0 && z != CHUNK_Z - 1 )
-			continue;
 
 		// ajoute une face si besoin
 		auto block = m_db->get_block( get_block(x, y, z) );
 
-		if( block.id == m_db->id_from_name("air") ) continue;
+		if( block.id == air_id ) continue;
 	
 		BlockType blk;
 
@@ -183,10 +181,10 @@ void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader )
 std::pair<int, int> get_pos_inside_chunk( int x, int z )
 {
 	int coord_x = (x < 0) ?
-		((x+1) % CHUNK_X) + CHUNK_X - 1: x%CHUNK_X;
+		((x+1) % CHUNK_SIDE) + CHUNK_SIDE - 1: x%CHUNK_SIDE;
 
 	int coord_z = (z < 0) ?
-		((z+1) % CHUNK_Z) + CHUNK_Z - 1: z%CHUNK_Z;
+		((z+1) % CHUNK_SIDE) + CHUNK_SIDE - 1: z%CHUNK_SIDE;
 
 	return {coord_x, coord_z};
 }
@@ -194,10 +192,10 @@ std::pair<int, int> get_pos_inside_chunk( int x, int z )
 std::pair<int, int> get_pos_of_chunk( int x, int z )
 {
 	int chunk_x = (x < 0) ?
-		floor( x / (float)CHUNK_X): x/CHUNK_X;
+		floor( x / (float)CHUNK_SIDE): x/CHUNK_SIDE;
 
 	int chunk_z = (z < 0) ?
-		floor( z / (float)CHUNK_Z): z/CHUNK_Z;
+		floor( z / (float)CHUNK_SIDE): z/CHUNK_SIDE;
 
 	return {chunk_x, chunk_z};
 }

@@ -8,9 +8,8 @@
 #include "blocks.hpp"
 #include "renderer/chunk_mesh.hpp"
 
-constexpr int CHUNK_X{ 16 };
-constexpr int CHUNK_Y{ 128 };
-constexpr int CHUNK_Z{ 16 };
+constexpr int CHUNK_SIDE{ 16 };
+constexpr int CHUNK_HEIGHT{ 128 };
 
 enum class ChunkState
 {
@@ -53,9 +52,8 @@ private:
 	std::array<ChunkMesh, 3> m_meshes;
 	BlockDB *m_db;
 
-	std::array< BlockID, CHUNK_X* CHUNK_Y* CHUNK_Z> m_block_data;
+	std::array< BlockID, CHUNK_SIDE * CHUNK_HEIGHT * CHUNK_SIDE> m_block_data;
 	std::array<Chunk*, 4> m_neighbours;
-	int m_layer_max {0}; // le dernier niveau non vide du tronçon
 };
 
 

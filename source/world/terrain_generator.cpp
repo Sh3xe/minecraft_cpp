@@ -24,8 +24,31 @@ TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
 
 Chunk &TerrainGenerator::generate( Chunk& chunk )
 {
-	make_shape( chunk );
-	paint_blocks( chunk );
+
+	for( int x = 0; x < CHUNK_SIDE; ++x )
+	for( int z = 0; z < CHUNK_SIDE; ++z )
+	{
+		int X = chunk.m_position.x + x;
+		int Z = chunk.m_position.y + z;
+
+		m_mask[x][z] = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
+		m_height[x][z] = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
+
+		make_shape( chunk, x, z );
+		paint_blocks( chunk, x, z );
+
+		/*
+		shape_underworld( chunk, x, z );
+		shape_caves( chunk, x, z );
+		shape_surface( chunk, x, z );
+		shape_sky( chunk, x, z );
+
+		paint_underworld( chunk, x, z );
+		paint_caves( chunk, x, z );
+		paint_surface( chunk, x, z );
+		paint_sky( chunk, x, z );
+		*/
+	}
 
 	for( int i = 0; i < 4; ++i )
 		if( chunk.m_neighbours[i] != nullptr && chunk.m_neighbours[i]->state != ChunkState::need_generation )
@@ -35,38 +58,32 @@ Chunk &TerrainGenerator::generate( Chunk& chunk )
 	return chunk;
 }
 
-void TerrainGenerator::make_shape( Chunk& chunk )
+void TerrainGenerator::make_shape( Chunk& chunk, int x, int z )
 {
 	const float delta_h = m_surface_max - m_surface_min;
 
-	for( int x = 0; x < CHUNK_X; x++ )
-	for( int z = 0; z < CHUNK_Z; z++ )
+	auto stone_id = m_db->id_from_name("stone");
+
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
+
+	for( int y = 0; y < m_surface_max; y++ )
 	{
-		float X = x + chunk.m_position.x;
-		float Z = z + chunk.m_position.y;
+		float Y = 0;
 
-		const float mask = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
-		const float value = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
+		if( y >= m_surface_min )
+			Y = (y - m_surface_min);
 
-		for( int y = 0; y < m_surface_max; y++ )
-		{
-			float Y = 0;
+		float v = m_height[x][z]*m_mask[x][z] - (Y / delta_h);
+		v += m_noise.noise( X * s2, y * s2, Z * s2 ) * 0.3f * m_mask[x][z];
+		//v += m_noise.noise( X, y, Z, s2 ) * 0.3f * mask;
 
-			if( y >= m_surface_min )
-				Y = (y - m_surface_min);
-
-			float v = value*mask - (Y / delta_h);
-			v += m_noise.noise( X * s2, y * s2, Z * s2 ) * 0.3f * mask;
-			//v += m_noise.noise( X, y, Z, s2 ) * 0.3f * mask;
-
-			if( v > 0 )
-				chunk.fast_set(x, y, z, m_db->id_from_name("stone") );
-		}
-
+		if( v > 0 )
+			chunk.fast_set(x, y, z, stone_id );
 	}
 }
 
-void TerrainGenerator::paint_blocks(Chunk& chunk)
+void TerrainGenerator::paint_blocks( Chunk& chunk, int x, int z )
 {
 	// generateur aléatoire
 	static std::default_random_engine e;
@@ -83,66 +100,49 @@ void TerrainGenerator::paint_blocks(Chunk& chunk)
 	// couche maximale non vide du tronçon
 	int layer_max = 0;
 
-	// pour chaque colonne du tronçon
-	for( int x = 0; x < CHUNK_X; ++x )
-	for( int z = 0; z < CHUNK_X; ++z )
+	// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
+
+	std::bernoulli_distribution d { 0.01f };
+
+	int depth = 0;
+	for( int y = CHUNK_HEIGHT - 1; y >= 0; --y )
 	{
-		// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
-		float X = x + chunk.m_position.x;
-		float Z = z + chunk.m_position.y;
+		auto block = chunk.fast_get(x, y, z);
 
-		std::bernoulli_distribution d { 0.01f };
+		if( block != air_id )
+			++depth;
+		else
+			depth = 0;
 
-		int depth = 0;
-		bool layer_empty = true;
-		int layer_local_max = CHUNK_Y - 1;
-		for( int y = CHUNK_Y - 1; y >= 0; --y )
+		if( y <= water_level )
 		{
-			auto block = chunk.fast_get(x, y, z);
+			if( block == air_id && y != water_level )
+				chunk.fast_set(x, y, z, water_id);
 
-			if( block != air_id )
-				++depth;
-			else
-				depth = 0;
-
-			if( block != air_id || y <= water_level )
-				layer_empty = false;
-
-			if (layer_empty)
-				layer_local_max--;
-
-			if( y <= water_level )
-			{
-				if( block == air_id && y != water_level )
-					chunk.fast_set(x, y, z, water_id);
-
-				else if( depth >= 1 && depth < 4 )
-					chunk.fast_set(x, y, z, sand_id);
-					
-				continue;
-			}
-
-			// si on est juste en dessous d'un bloc d'air: on place du gazon
-			if( depth == 1 )
-			{
-				chunk.fast_set( x, y, z, grass_id );
-				if( d(e) && y > water_level )
-					push_structure( tree,
-						x + chunk.m_position.x - tree.center_x,
-						y+1 - tree.center_y,
-						z + chunk.m_position.y - tree.center_z );
-			}
-
-			// puis de la terre sur 3 autres blocs
-			else if( depth > 1 && depth <= 4 )
-				chunk.fast_set( x, y, z, dirt_id );
+			else if( depth >= 1 && depth < 4 )
+				chunk.fast_set(x, y, z, sand_id);
+				
+			continue;
 		}
 
-		if( layer_local_max > layer_max )
-			layer_max = layer_local_max;
+		// si on est juste en dessous d'un bloc d'air: on place du gazon
+		if( depth == 1 )
+		{
+			chunk.fast_set( x, y, z, grass_id );
+			if( d(e) && y > water_level )
+				push_structure( tree,
+					x + chunk.m_position.x - tree.center_x,
+					y+1 - tree.center_y,
+					z + chunk.m_position.y - tree.center_z );
+		}
+
+		// puis de la terre sur 3 autres blocs
+		else if( depth > 1 && depth <= 4 )
+			chunk.fast_set( x, y, z, dirt_id );
 	}
 
-	chunk.m_layer_max = layer_max;
 }
 
 void TerrainGenerator::push_structure( const Structure &structure, int px, int py, int pz )
@@ -153,9 +153,9 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 		auto [chunk_x, chunk_z] = get_pos_of_chunk(px+x, pz+z);
 		auto [coord_x, coord_z] = get_pos_inside_chunk(px+x, pz+z);
 
-		auto &block_vector = m_world->m_chunk_blocks[{chunk_x*CHUNK_X, chunk_z*CHUNK_Z}];
+		auto &block_vector = m_world->m_chunk_blocks[{chunk_x*CHUNK_SIDE, chunk_z*CHUNK_SIDE}];
 
-		for( int y = 0; y < structure.y_length && (py + y < CHUNK_Y); ++y )
+		for( int y = 0; y < structure.y_length && (py + y < CHUNK_HEIGHT); ++y )
 		{
 			ToBePlaced block_info (coord_x, py + y, coord_z, structure.get(x, y, z));
 			block_vector.push_back( block_info );
