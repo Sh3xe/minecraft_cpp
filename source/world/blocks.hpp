@@ -54,8 +54,8 @@ public:
 	bool load_structures_from_file( const std::string &path );
 
 	const BlockType &get_block( BlockID id ) const;
-	const BlockID &id_from_name( const std::string &name );
-	const BlockID &id_from_smallname( const std::string &smallname );
+	BlockID id_from_name( const std::string &name );
+	BlockID id_from_smallname( const std::string &smallname );
 
 	const Structure &get_struct( const std::string &name );
 

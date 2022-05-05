@@ -19,7 +19,7 @@ World::World( Config &config ):
 {	
 	m_render_distance = config.render_distance;
 
-	// set shader uniforms
+	// initialise les matrices
 	glm::mat4 model_matrix(1.0f);
 	glm::mat4 projection_matrix =
 	glm::perspective (
@@ -36,6 +36,9 @@ World::World( Config &config ):
 
 	if( !m_db.load_structures_from_file("resources/blocks/structures.json"))
 		SD_ERROR("Impossible de récuperer les infos sur les structures");
+
+	// met en "cache" les structures
+	m_generator.load_structs();
 }
 
 World::~World()

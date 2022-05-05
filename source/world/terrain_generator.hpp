@@ -36,6 +36,8 @@ public:
 	TerrainGenerator( BlockDB &db, World *world );
 	Chunk &generate( Chunk& chunk );
 
+	void load_structs();
+
 private:
 	void shape_underworld( Chunk& chunk, int x, int z );
 	void shape_caves( Chunk& chunk, int x, int z );
@@ -63,7 +65,8 @@ private:
 	NoiseMap m_ocean;
 
 	SimplexNoise m_noise;
-	std::array<Structure*, 9> m_trees;
+	std::array<const Structure*, 9> m_trees;
+	std::array<BlockID, 5> m_flowers;
 	
 	BlockDB *m_db;
 	World *m_world; // pour un tronçon donnée, la liste des blocks à placer

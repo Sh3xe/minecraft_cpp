@@ -160,5 +160,50 @@
         "shape": "c",
         "faces": [17, 17, 17, 17, 17, 17],
         "mesh_group": 1
+    },
+    {
+        "name": "bluesmallflower",
+        "smallname": "bsf",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [128, 128, 128, 128, 128, 128],
+        "mesh_group": 1
+    },
+    {
+        "name": "blueflower",
+        "smallname": "bf",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [129, 129, 129, 129, 129, 129],
+        "mesh_group": 2
+    },
+    {
+        "name": "purplesmallflower",
+        "smallname": "psf",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [130, 130, 130, 130, 130, 130],
+        "mesh_group": 2
+    },
+    {
+        "name": "purpleflower",
+        "smallname": "pf",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [131, 131, 131, 131, 131, 131],
+        "mesh_group": 2
+    },
+    {
+        "name": "xgrass",
+        "smallname": "xg",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [132, 132, 132, 132, 132, 132],
+        "mesh_group": 2
     }
 ]

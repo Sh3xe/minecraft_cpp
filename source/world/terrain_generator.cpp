@@ -12,6 +12,8 @@ static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
 static constexpr float s3{ 0.005f };
 
+/* Fonctions mathématiques */
+
 float get_caves_transitions( int y, float min, float max )
 {
 	float Y = y - min;
@@ -45,6 +47,13 @@ float ocean_floor_add( int y )
 	float val = 1.0f - (y / 7.0f);
 	return val * val;
 }
+
+float get_tree_density( int y, float min, float max )
+{
+	return 1.0f - (y - min) / (max - min);
+}
+
+/* constructeurs / méthodes */
 
 TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
 	m_db( &db ),
@@ -104,6 +113,26 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 	}
 }
 
+void TerrainGenerator::load_structs()
+{
+	m_trees[0] = &m_db->get_struct("smalltree1");
+	m_trees[1] = &m_db->get_struct("smalltree2");
+	m_trees[2] = &m_db->get_struct("smalltree3");
+	m_trees[3] = &m_db->get_struct("mediumtree1");
+	m_trees[4] = &m_db->get_struct("mediumtree2");
+	m_trees[5] = &m_db->get_struct("mediumtree3");
+	m_trees[6] = &m_db->get_struct("bigtree1");
+	m_trees[7] = &m_db->get_struct("bigtree2");
+	m_trees[8] = &m_db->get_struct("bigtree3");
+
+	m_flowers[0] = m_db->id_from_smallname("bsf");
+	m_flowers[1] = m_db->id_from_smallname("bf");
+	m_flowers[2] = m_db->id_from_smallname("psf");
+	m_flowers[3] = m_db->id_from_smallname("pf");
+	m_flowers[4] = m_db->id_from_smallname("xg");
+}
+
+/* création forme */
 
 void TerrainGenerator::shape_underworld( Chunk &chunk, int x, int z )
 {
@@ -118,7 +147,7 @@ void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 
 	for( int y = m_caverns_min; y < m_caverns_max; y++ )
 	{
-		float v = to_01(m_noise.noise( X * s2, y * s2, Z * s2 ), 1, -1) * get_caves_transitions( y, m_caverns_min, m_caverns_max ) * 0.7f;
+		float v = to_01(m_noise.noise( X * s2, y * s2 * 1.5f, Z * s2 ), 1, -1) * get_caves_transitions( y, m_caverns_min, m_caverns_max ) * 0.7f;
 		v -= 0.5f;
 		if( v < 0 )
 			chunk.fast_set(x, y, z, stone_id );
@@ -156,6 +185,7 @@ void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 
 }
 
+/* remplissage blocs */
 
 void TerrainGenerator::paint_underworld( Chunk &chunk, int x, int z )
 {
@@ -171,7 +201,9 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 {
 	// generateur aléatoire
 	static std::default_random_engine e;
-	std::bernoulli_distribution demi { 0.5f };
+	std::bernoulli_distribution flower_gen { 0.1f };
+	static int tree_type = 0;
+	static int flower_type = 0;
 
 	// on met en cache certains id pour ne pas les re-récuperer dans une map
 	BlockID air_id = m_db->id_from_name("air");
@@ -179,7 +211,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	BlockID dirt_id = m_db->id_from_name("dirt");
 	BlockID sand_id = m_db->id_from_name("sand");
 	BlockID water_id = m_db->id_from_name("water");
-	auto &tree = m_db->get_struct("bigtree1");
+	BlockID flower = m_db->id_from_name("purpleflower");
 	
 	// couche maximale non vide du tronçon
 	int layer_max = 0;
@@ -187,8 +219,6 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
 	float X = x + chunk.m_position.x;
 	float Z = z + chunk.m_position.y;
-
-	std::bernoulli_distribution d { 0.01f };
 
 	int depth = 0;
 	for( int y = m_surface_max; y >= m_ocean_bottom; --y )
@@ -214,12 +244,34 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 		// si on est juste en dessous d'un bloc d'air: on place du gazon
 		if( depth == 1 )
 		{
+			float tree_dens_value = get_tree_density(y, m_surface_min, m_surface_max);
+			std::bernoulli_distribution tree_dis { tree_dens_value * 0.05f };
+
 			chunk.fast_set( x, y, z, grass_id );
-			if( d(e) && y > m_water_level )
+
+			if( tree_dis(e) && y > m_water_level )
+			{
+				auto &tree = *m_trees[ tree_type % static_cast<int>( ceil(9 * tree_dens_value)) ];
 				push_structure( tree,
 					x + chunk.m_position.x - tree.center_x,
 					y+1 - tree.center_y,
 					z + chunk.m_position.y - tree.center_z );
+				tree_type = (++tree_type) % 9;
+			}
+
+			if( y < CHUNK_HEIGHT && chunk.fast_get(x, y+1, z) == air_id )
+			{
+				if (flower_gen(e))
+				{
+					chunk.fast_set(x, y+1, z, m_flowers[flower_type]);
+				}
+				if (flower_gen(e))
+				{
+					chunk.fast_set(x, y+1, z, m_flowers[4]);
+				}
+
+				flower_type = (++flower_type) % 3;
+			}
 		}
 
 		// puis de la terre sur 3 autres blocs

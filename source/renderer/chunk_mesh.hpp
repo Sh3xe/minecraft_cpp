@@ -29,10 +29,14 @@ public:
 	~ChunkMesh();
 
 	void clear();
-	void add_face( int x, int y, int z, Directions dir, const BlockType &block );
 	void send_to_gpu();
+
+	void add_face( int x, int y, int z, Directions dir, const BlockType &block );
+	void add_x_shape( int x, int y, int z, const BlockType &block );
+	
 	inline uint32_t get_face_count() const { return m_face_count; }
 	void render( Texture& tileset, Shader& shader );
+	
 	// tri les triangles du plus loin au plus proche par rapport a [x, y, z]
 	void sort_faces_from_distance( const glm::vec3 &pos );
 

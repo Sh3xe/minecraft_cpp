@@ -4,6 +4,7 @@
 #include "shader.hpp"
 #include "core/camera.hpp"
 #include "core/logger.hpp"
+#include <cassert>
 
 #include "gl_functions.hpp"
 
@@ -54,6 +55,25 @@ static const int faces[6][6][6] =
 	}
 };
 
+static const int xfaces[2][6][6] = 
+{
+	{
+		{0, 0, 0, 1, 1, 6}, // x, y, tx, ty, num
+		{1, 0, 1, 0, 1, 6}, 
+		{1, 1, 1, 0, 0, 6}, 
+		{0, 0, 0, 1, 1, 6}, 
+		{1, 1, 1, 0, 0, 6}, 
+		{0, 1, 0, 1, 0, 6}
+	}, {
+		{1, 0, 0, 1, 1, 7},
+		{0, 0, 1, 0, 1, 7},
+		{0, 1, 1, 0, 0, 7},
+		{1, 0, 0, 1, 1, 7},
+		{0, 1, 1, 0, 0, 7},
+		{1, 1, 0, 1, 0, 7}
+	}
+};
+
 ChunkMesh::ChunkMesh()
 {
 	glGenBuffers(1, &m_vbo);
@@ -80,7 +100,7 @@ void ChunkMesh::clear()
 }
 
 void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &block )
-{
+{	
 	++m_face_count;
 	int texture_x{ block.faces[static_cast<uint8_t>(dir)] % 16 };
 	int texture_y{ block.faces[static_cast<uint8_t>(dir)] / 16 };
@@ -90,6 +110,23 @@ void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &
 		auto model = faces[static_cast<uint8_t>(dir)][i];
 		m_vertices.emplace_back( x + model[0], y + model[1], z + model[2], texture_x + model[3], texture_y + model[4], model[5] );
 	}
+}
+
+void ChunkMesh::add_x_shape( int x, int y, int z, const BlockType &block )
+{
+	assert( block.shape == BlockShape::x );
+	m_face_count == 2;
+
+	int texture_x{ block.faces[0] % 16 };
+	int texture_y{ block.faces[0] / 16 };
+
+	for( int i = 0; i < 2; ++i )
+	for( int j = 0; j < 6; ++j )
+	{
+		auto model = xfaces[i][j];
+		m_vertices.emplace_back( x + model[0], y + model[1], z + model[2], texture_x + model[3], texture_y + model[4], model[5] );
+	}
+
 }
 
 void ChunkMesh::send_to_gpu()

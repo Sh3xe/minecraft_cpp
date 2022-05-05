@@ -16,8 +16,8 @@ const float light_values[8] = float[8](
 	0.5,
 	0.9,
 	0.7,
-	0.0,
-	0.0
+	1.0,
+	1.0
 );
 
 void main() {

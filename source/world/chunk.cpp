@@ -26,6 +26,7 @@ Chunk::Chunk( BlockDB &db, int x, int z):
 	}
 
 	m_meshes[1].transparency = true;
+	m_meshes[2].cull = false;
 
 	// remplit le tronçon par de l'air
 	BlockID air_block = m_db->id_from_name("air");
@@ -134,7 +135,13 @@ void Chunk::generate_mesh()
 		auto block = m_db->get_block( get_block(x, y, z) );
 
 		if( block.id == air_id ) continue;
-	
+
+		if( block.shape == BlockShape::x )
+		{
+			m_meshes[block.mesh_group].add_x_shape(x, y, z, block);
+			continue;
+		}
+
 		BlockType blk;
 
 		// +x

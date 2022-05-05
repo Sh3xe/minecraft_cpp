@@ -94,7 +94,7 @@ bool BlockDB::load_blocks_from_file( const std::string &path )
 			for( int i = 0; i < 6; ++i )
 				block.faces[i] = block_data["faces"][i];
 
-			std::string shape = block_data["name"];
+			std::string shape = block_data["shape"];
 			if( shape == "x" )
 				block.shape = BlockShape::x;
 			else
@@ -124,12 +124,12 @@ const BlockType &BlockDB::get_block( BlockID id ) const
 	return m_blocks[id];
 }
 
-const BlockID &BlockDB::id_from_name( const std::string &name )
+BlockID BlockDB::id_from_name( const std::string &name )
 {
 	return m_names.at(name);
 }
 
-const BlockID &BlockDB::id_from_smallname( const std::string &smallname )
+BlockID BlockDB::id_from_smallname( const std::string &smallname )
 {
 	return m_smallnames.at(smallname);
 }
