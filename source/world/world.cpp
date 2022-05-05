@@ -147,7 +147,7 @@ void  World::prepare_chunks()
 			m_map_mutex.unlock();
 		}
 		
-		std::this_thread::sleep_for( 1ms );
+		std::this_thread::sleep_for( 0.5ms );
 	}
 }
 
@@ -156,11 +156,11 @@ void World::update( double delta_time, Camera &camera )
 	glm::ivec3 cam_pos = camera.get_position();
 	auto [chunk_x, chunk_z] = get_pos_of_chunk( cam_pos.x, cam_pos.z );
 
-	m_map_mutex.lock();
 	
 	// on supprime les tronçons trop éloigné
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
+		m_map_mutex.lock();
 		glm::ivec2 chunk_pos = chunk->second->get_position();
 		if( // si le tronçon est trop loin
 			chunk_pos.x > (chunk_x + m_render_distance) * 16 ||
@@ -181,10 +181,12 @@ void World::update( double delta_time, Camera &camera )
 
 			++chunk;
 		}
+		m_map_mutex.unlock();
 	}
 
 	bool new_chunks {false};
 	// on ajoute un tronçon si besoin
+	m_map_mutex.lock();
 	for (int i = chunk_x - m_render_distance; i <= chunk_x + m_render_distance; ++i)
 	for (int j = chunk_z - m_render_distance; j <= chunk_z + m_render_distance; ++j) 
 	{
@@ -246,7 +248,6 @@ void World::draw( Camera &camera )
 	glm::mat4 view_matrix = camera.get_matrix();
 	m_shader.set_mat4("view", glm::value_ptr(view_matrix));
 	auto cam_pos = camera.get_position();
-	m_map_mutex.lock();
 
 	// on tri les tronçons du plus éloigné au plus proche
 	// par rapport à la camera et au centre des chunks
@@ -254,6 +255,7 @@ void World::draw( Camera &camera )
 	sorted_chunks.reserve( m_chunks.size() );
 	for(auto &c: m_chunks) sorted_chunks.push_back( c.second.get() );
 
+	m_map_mutex.lock();
 	std::sort( sorted_chunks.begin(), sorted_chunks.end(), [cam_pos]( Chunk *c1, Chunk *c2 )
 	{
 		glm::vec2 p1 = glm::vec2{ c1->get_position().x + (CHUNK_SIDE / 2), c1->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};

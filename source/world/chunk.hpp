@@ -9,7 +9,7 @@
 #include "renderer/chunk_mesh.hpp"
 
 constexpr int CHUNK_SIDE{ 16 };
-constexpr int CHUNK_HEIGHT{ 128 };
+constexpr int CHUNK_HEIGHT{ 256 };
 
 enum class ChunkState
 {

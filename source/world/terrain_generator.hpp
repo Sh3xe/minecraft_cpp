@@ -9,7 +9,6 @@
 #include "blocks.hpp"
 #include "chunk.hpp"
 
-//#include "core/perlin.hpp"
 #include "core/simplex_noise.hpp"
 
 class World;
@@ -38,21 +37,31 @@ public:
 	Chunk &generate( Chunk& chunk );
 
 private:
-	void make_shape( Chunk& chunk, int x, int y );
-	
-	void paint_blocks( Chunk& chunk, int x, int y );
+	void shape_underworld( Chunk& chunk, int x, int z );
+	void shape_caves( Chunk& chunk, int x, int z );
+	void shape_surface( Chunk& chunk, int x, int z );
+	void shape_sky( Chunk& chunk, int x, int z );
+
+	void paint_underworld( Chunk& chunk, int x, int z );
+	void paint_caves( Chunk& chunk, int x, int z );
+	void paint_surface( Chunk& chunk, int x, int z );
+	void paint_sky( Chunk& chunk, int x, int z );
 
 	void push_structure( const Structure &structure, int px, int py, int cz );
 
 private:
-	float m_surface_min{ 5 };
-	float m_surface_max{ 60 };
-	const float water_level { 10 };
+	const float m_caverns_min { 40 };
+	const float m_caverns_max { 105 };
+	const float m_ocean_bottom { 105 };
+	const float m_water_level { 117 };
+	const float m_surface_min { 120 };
+	const float m_surface_max { 180 };
+	const float m_sky_min { 220 };
 
 	NoiseMap m_height;
 	NoiseMap m_mask;
+	NoiseMap m_ocean;
 
-	//PerlinNoise m_noise;
 	SimplexNoise m_noise;
 	std::array<Structure*, 9> m_trees;
 	
