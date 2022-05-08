@@ -38,16 +38,16 @@ void PlayingState::update( Input &input, double delta_time )
 		bool done = false;
 		for(int i = 0; i < 30 && !done; ++i)
 		{
-			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 4.0);
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 7.0);
 			int rx = floor( ray_pos.x );
 			int ry = floor( ray_pos.y );
 			int rz = floor( ray_pos.z );
 
 			// on trouve le block sur lequel il click
-			if(m_world.get_block(rx, ry, rz))
+			if( m_world.get_block(rx, ry, rz) != BlockType::air )
 			{
 				// on le supprimer et réinitialise le compteur
-				m_world.set_block(rx, ry, rz, 0);
+				m_world.set_block(rx, ry, rz, BlockType::air );
 				done = true;
 				block_lock = 0.25;
 			}
@@ -64,12 +64,12 @@ void PlayingState::update( Input &input, double delta_time )
 		bool done = false;
 		for(int i = 0; i < 30 && !done; ++i)
 		{
-			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 4.0);
+			glm::vec3 ray_pos = position + direction * static_cast<float>(i / 7.0);
 			int rx = floor( ray_pos.x );
 			int ry = floor( ray_pos.y );
 			int rz = floor( ray_pos.z );
 			// si on trouve un block
-			if( m_world.get_block(rx, ry, rz) != 0 )
+			if( m_world.get_block(rx, ry, rz) != BlockType::air )
 			{
 				// on récupère la dernière position
 				ray_pos -= direction * 0.2f;
@@ -78,7 +78,7 @@ void PlayingState::update( Input &input, double delta_time )
 				rz = floor( ray_pos.z );
 
 				// on place un bloc
-				m_world.set_block(rx, ry, rz, 3);
+				m_world.set_block(rx, ry, rz, BlockType::brick );
 				done = true;
 				block_lock = 0.25;
 			}

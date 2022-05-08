@@ -162,13 +162,31 @@
         "mesh_group": 1
     },
     {
+        "name": "wood_plank",
+        "smallname": "wp",
+        "visible": true,
+        "collidable": true,
+        "shape": "c",
+        "faces": [18, 18, 18, 18, 18, 18],
+        "mesh_group": 0
+    },
+    {
+        "name": "gravel",
+        "smallname": "gv",
+        "visible": true,
+        "collidable": true,
+        "shape": "c",
+        "faces": [19, 19, 19, 19, 19, 19],
+        "mesh_group": 0
+    },
+    {
         "name": "bluesmallflower",
         "smallname": "bsf",
         "visible": true,
         "collidable": false,
         "shape": "x",
         "faces": [128, 128, 128, 128, 128, 128],
-        "mesh_group": 1
+        "mesh_group": 2
     },
     {
         "name": "blueflower",
@@ -204,6 +222,15 @@
         "collidable": false,
         "shape": "x",
         "faces": [132, 132, 132, 132, 132, 132],
+        "mesh_group": 2
+    },
+    {
+        "name": "treeseed",
+        "smallname": "ts",
+        "visible": true,
+        "collidable": false,
+        "shape": "x",
+        "faces": [133, 133, 133, 133, 133, 133],
         "mesh_group": 2
     }
 ]

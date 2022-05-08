@@ -99,7 +99,7 @@ void ChunkMesh::clear()
 	m_vertices.clear();
 }
 
-void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &block )
+void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockData &block )
 {	
 	++m_face_count;
 	int texture_x{ block.faces[static_cast<uint8_t>(dir)] % 16 };
@@ -112,7 +112,7 @@ void ChunkMesh::add_face( int x, int y, int z, Directions dir, const BlockType &
 	}
 }
 
-void ChunkMesh::add_x_shape( int x, int y, int z, const BlockType &block )
+void ChunkMesh::add_x_shape( int x, int y, int z, const BlockData &block )
 {
 	assert( block.shape == BlockShape::x );
 	m_face_count == 2;

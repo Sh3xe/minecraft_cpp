@@ -48,7 +48,7 @@ bool BlockDB::load_structures_from_file( const std::string &path )
 			auto block_array = struct_data["data"];
 
 			for( int i = 0; i < struct_volume; ++i )
-				structure.blocks.push_back( std::make_pair( (int)id_from_smallname( block_array[i][0] ), block_array[i][1] ) );
+				structure.blocks.push_back( std::make_pair( id_from_smallname( block_array[i][0] ), block_array[i][1] ) );
 			
 			m_structures[name] = structure;
 		}
@@ -80,9 +80,9 @@ bool BlockDB::load_blocks_from_file( const std::string &path )
 		int id = 0;
 		for( auto &block_data: data )
 		{
-			BlockType block;
+			BlockData block;
 
-			block.id = id++;
+			block.id = static_cast<BlockType>(id++);
 			block.name = block_data["name"];
 			block.smallname = block_data["smallname"];
 
@@ -118,18 +118,17 @@ const Structure &BlockDB::get_struct( const std::string &name )
 	return m_structures.at( name );
 }
 
-const BlockType &BlockDB::get_block( BlockID id ) const
+const BlockData &BlockDB::get_block( BlockType id ) const
 {
-	assert( id < m_blocks.size() );
-	return m_blocks[id];
+	return m_blocks[ static_cast<uint8_t>(id) ];
 }
 
-BlockID BlockDB::id_from_name( const std::string &name )
+BlockType BlockDB::id_from_name( const std::string &name )
 {
 	return m_names.at(name);
 }
 
-BlockID BlockDB::id_from_smallname( const std::string &smallname )
+BlockType BlockDB::id_from_smallname( const std::string &smallname )
 {
 	return m_smallnames.at(smallname);
 }

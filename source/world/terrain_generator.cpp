@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <random>
 
 static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
@@ -19,8 +18,8 @@ float get_caves_transitions( int y, float min, float max )
 	float Y = y - min;
 	float delta = max - min;
 
-	if( Y < 10.0f ) return Y / 10.0f;
-	if( Y > delta - 10.0f ) return (Y - delta) / (-10.0f);
+	if( Y < 5.0f ) return Y / 5.0f;
+	if( Y > delta - 5.0f ) return (Y - delta) / (-5.0f);
 	return 1.0f;
 
 }
@@ -53,6 +52,24 @@ float get_tree_density( int y, float min, float max )
 	return 1.0f - (y - min) / (max - min);
 }
 
+BlockType TerrainGenerator::get_ore_type( int y )
+{
+	static int ore_type = 0;
+	ore_type = ++ore_type % 10;
+
+	static BlockType ores[] = {
+		BlockType::coal_ore,
+		BlockType::iron_ore,
+		BlockType::gold_ore,
+		BlockType::diamond_ore
+	};
+
+	int max_ore = 4 - (y / 100) * 4;
+	
+	return ores[ ore_type % max_ore ];
+}
+
+
 /* constructeurs / méthodes */
 
 TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
@@ -61,9 +78,11 @@ TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
 {
 }
 
-Chunk &TerrainGenerator::generate( Chunk& chunk )
+Chunk &TerrainGenerator::generate( Chunk &chunk )
 {
-	//Timer timer;
+
+	for( int y = 0; y < CHUNK_HEIGHT; ++y )
+		chunk.m_layers[y] = false;
 
 	for( int x = 0; x < CHUNK_SIDE; ++x )
 	for( int z = 0; z < CHUNK_SIDE; ++z )
@@ -125,11 +144,27 @@ void TerrainGenerator::load_structs()
 	m_trees[7] = &m_db->get_struct("bigtree2");
 	m_trees[8] = &m_db->get_struct("bigtree3");
 
-	m_flowers[0] = m_db->id_from_smallname("bsf");
-	m_flowers[1] = m_db->id_from_smallname("bf");
-	m_flowers[2] = m_db->id_from_smallname("psf");
-	m_flowers[3] = m_db->id_from_smallname("pf");
-	m_flowers[4] = m_db->id_from_smallname("xg");
+	m_flowers[0] = BlockType::bluesmallflower;
+	m_flowers[1] = BlockType::blueflower;
+	m_flowers[2] = BlockType::purplesmallflower;
+	m_flowers[3] = BlockType::purpleflower;
+	m_flowers[4] = BlockType::xgrass;
+	m_flowers[5] = BlockType::smalltree;
+}
+
+void TerrainGenerator::add_ore( Chunk &chunk, int x, int y, int z, BlockType ore )
+{
+	for( int i = x - 1; i <= x + 1; ++i )
+	for( int j = y - 1; j <= y + 1; ++j )
+	for( int k = z - 1; k <= z + 1; ++k )
+	{
+		if( i >= 0 && j >= 0 && k >= 0
+			&& i < CHUNK_SIDE && j < CHUNK_HEIGHT && k < CHUNK_SIDE
+			&& chunk.fast_get(i, j, k) == BlockType::stone )
+		{
+			chunk.fast_set( i, j, k, ore );
+		}
+	}
 }
 
 /* création forme */
@@ -141,7 +176,6 @@ void TerrainGenerator::shape_underworld( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 {
-	auto stone_id = m_db->id_from_name("stone");
 	float X = x + chunk.m_position.x;
 	float Z = z + chunk.m_position.y;
 
@@ -150,15 +184,16 @@ void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 		float v = to_01(m_noise.noise( X * s2, y * s2 * 1.5f, Z * s2 ), 1, -1) * get_caves_transitions( y, m_caverns_min, m_caverns_max ) * 0.7f;
 		v -= 0.5f;
 		if( v < 0 )
-			chunk.fast_set(x, y, z, stone_id );
+		{
+			chunk.fast_set(x, y, z, BlockType::stone );
+			chunk.m_layers[y] = true;
+		}
 	}
 }
 
 void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 {
 	const float delta_h = m_surface_max - m_surface_min;
-
-	auto stone_id = m_db->id_from_name("stone");
 
 	float X = x + chunk.m_position.x;
 	float Z = z + chunk.m_position.y;
@@ -176,7 +211,7 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 		v += ocean_floor_add( y - m_ocean_bottom );
 
 		if( v > 0 )
-			chunk.fast_set(x, y, z, stone_id );
+			chunk.fast_set(x, y, z, BlockType::stone );
 	}
 }
 
@@ -194,24 +229,29 @@ void TerrainGenerator::paint_underworld( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::paint_caves( Chunk &chunk, int x, int z )
 {
+	if( x < 1 || x >= CHUNK_SIDE - 1 ||
+		z < 1 || z >= CHUNK_SIDE - 1 )
+		return;
 
+	// minerais
+
+	static std::bernoulli_distribution d { 0.002 };
+
+	for( int y = m_caverns_min; y < m_caverns_max; y++ )
+	{
+		if( d(m_rd) )
+			add_ore( chunk, x, y, z, get_ore_type(y) );
+	}
 }
 
 void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 {
 	// generateur aléatoire
-	static std::default_random_engine e;
-	std::bernoulli_distribution flower_gen { 0.1f };
+	static std::bernoulli_distribution flower_gen { 0.1f };
+	static std::bernoulli_distribution rd_50 { 0.5f };
+	static std::bernoulli_distribution ore_rd { 0.004f };
 	static int tree_type = 0;
 	static int flower_type = 0;
-
-	// on met en cache certains id pour ne pas les re-récuperer dans une map
-	BlockID air_id = m_db->id_from_name("air");
-	BlockID grass_id = m_db->id_from_name("grass");
-	BlockID dirt_id = m_db->id_from_name("dirt");
-	BlockID sand_id = m_db->id_from_name("sand");
-	BlockID water_id = m_db->id_from_name("water");
-	BlockID flower = m_db->id_from_name("purpleflower");
 	
 	// couche maximale non vide du tronçon
 	int layer_max = 0;
@@ -225,18 +265,31 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	{
 		auto block = chunk.fast_get(x, y, z);
 
-		if( block != air_id )
+		if( block != BlockType::air )
+		{
 			++depth;
+			chunk.m_layers[y] = true;
+		}
 		else
 			depth = 0;
 
 		if( y <= m_water_level )
 		{
-			if( block == air_id && y != m_water_level )
-				chunk.fast_set(x, y, z, water_id);
+			if( block == BlockType::air && y != m_water_level )
+			{
+				chunk.fast_set( x, y, z, BlockType::water );
+				chunk.m_layers[y] = true;
+			}
 
 			else if( depth >= 1 && depth < 4 )
-				chunk.fast_set(x, y, z, sand_id);
+			{
+				chunk.m_layers[y] = true;
+				std::bernoulli_distribution d { 1.0f - (m_water_level - y) / 10.0f };
+				if( d( m_rd ) )
+					chunk.fast_set( x, y, z, BlockType::sand );
+				else
+					chunk.fast_set( x, y, z, BlockType::gravel );
+			}
 				
 			continue;
 		}
@@ -247,9 +300,9 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			float tree_dens_value = get_tree_density(y, m_surface_min, m_surface_max);
 			std::bernoulli_distribution tree_dis { tree_dens_value * 0.05f };
 
-			chunk.fast_set( x, y, z, grass_id );
+			chunk.fast_set( x, y, z, BlockType::grass );
 
-			if( tree_dis(e) && y > m_water_level )
+			if( tree_dis(m_rd) && y > m_water_level )
 			{
 				auto &tree = *m_trees[ tree_type % static_cast<int>( ceil(9 * tree_dens_value)) ];
 				push_structure( tree,
@@ -259,24 +312,30 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 				tree_type = (++tree_type) % 9;
 			}
 
-			if( y < CHUNK_HEIGHT && chunk.fast_get(x, y+1, z) == air_id )
+			if( y < CHUNK_HEIGHT && chunk.fast_get(x, y+1, z) == BlockType::air )
 			{
-				if (flower_gen(e))
+				if (flower_gen(m_rd))
 				{
 					chunk.fast_set(x, y+1, z, m_flowers[flower_type]);
 				}
-				if (flower_gen(e))
+				if (flower_gen(m_rd))
 				{
-					chunk.fast_set(x, y+1, z, m_flowers[4]);
+					chunk.fast_set( x, y+1, z, BlockType::xgrass );
 				}
 
-				flower_type = (++flower_type) % 3;
+				flower_type = (++flower_type) % 4;
 			}
 		}
 
 		// puis de la terre sur 3 autres blocs
 		else if( depth > 1 && depth <= 4 )
-			chunk.fast_set( x, y, z, dirt_id );
+			chunk.fast_set( x, y, z, BlockType::dirt );
+		else if( depth >= 5 && depth <= 6 && rd_50( m_rd ) )
+			chunk.fast_set( x, y, z, BlockType::dirt );
+
+		if( ore_rd( m_rd ) )
+			add_ore( chunk, x, y, z, BlockType::coal_ore );
+
 	}
 
 }

@@ -97,7 +97,7 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	return hitboxes;
 }
 
-void World::set_block(int x, int y, int z, BlockID type)
+void World::set_block(int x, int y, int z, BlockType type)
 {
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
@@ -108,7 +108,7 @@ void World::set_block(int x, int y, int z, BlockID type)
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
-BlockID World::get_block(int x, int y, int z)
+BlockType World::get_block(int x, int y, int z)
 {
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
@@ -118,7 +118,7 @@ BlockID World::get_block(int x, int y, int z)
 	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
 	
-	return 0;
+	return BlockType::air;
 }
 
 void  World::prepare_chunks()
@@ -235,10 +235,10 @@ void World::add_blocks( Chunk &chunk )
 	{
 		auto block = blocks.back();
 		blocks.pop_back();
-		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == 0 )
+		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == BlockType::air )
 			chunk.fast_set( block.x, block.y, block.z, block.block.first );
-		//if( block.block.first != 0 && block.y > chunk.m_layer_max )
-		//	chunk.m_layer_max = block.y;
+		if( block.block.first != BlockType::air )
+			chunk.m_layers[block.y] = true;
 	}
 
 	m_chunk_blocks.erase( chunk_blocks );
