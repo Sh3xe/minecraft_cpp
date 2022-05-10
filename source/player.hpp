@@ -5,7 +5,6 @@
 #include "./core/camera.hpp"
 
 class World;
-class Input;
 
 class Player {
 public:
@@ -17,7 +16,7 @@ public:
 		m_on_ground(false) {
 	}
 
-	void update(Input &input, World& world, double delta_time);
+	void update(World& world, double delta_time);
 	inline Camera& get_camera() {return m_camera;}
 
 private:

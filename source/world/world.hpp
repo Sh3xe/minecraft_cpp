@@ -10,7 +10,7 @@
 #include "terrain_generator.hpp"
 #include "renderer/shader.hpp"
 #include "renderer/texture2d.hpp"
-#include "core/aabb.hpp"
+#include "math/aabb.hpp"
 #include "core/config.hpp"
 
 class Camera;

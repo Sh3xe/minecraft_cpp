@@ -7,33 +7,45 @@ PlayingState::PlayingState( Config &config ):
 	m_world( config ),
 	m_player(glm::vec3(0.0f, 200.0f, 0.0f))
 {
-	m_player.get_camera().set_sensitivity(config.sensitivity);
+	m_player.get_camera().sensitivity = config.sensitivity;
+	Input::get().add_click_callback(
+		[this]( MouseButton b ) -> void
+		{
+			this->on_click( b );
+		}, "breakblocks"
+	);
 }
 
-void PlayingState::update( Input &input, double delta_time )
+PlayingState::~PlayingState()
 {
-	static double block_lock = 0.0; // used to limit the block breaking frequency
+	Input::get().remove_click_callback("breakblocks");
+}
 
-
-	m_player.update(input, m_world, delta_time);
+void PlayingState::update( double delta_time )
+{
+	m_player.update(m_world, delta_time);
 	m_world.update(delta_time, m_player.get_camera());
 
-	if (input.get_key(SDL_SCANCODE_Q))
+	if (Input::get().get_key(SDL_SCANCODE_Q))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if (input.get_key(SDL_SCANCODE_E))
+	if (Input::get().get_key(SDL_SCANCODE_E))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+}
 
-	// update block_lock
-	block_lock -= delta_time;
-	if(block_lock < 0.0) block_lock = 0.0;
+void PlayingState::render()
+{
+	m_world.draw(m_player.get_camera());
+}
 
-	// BLOCK BREAKING
-	if(input.get_mouse_state().first && block_lock == 0.0)
+void PlayingState::on_click( MouseButton b )
+{
+	// Destruction de blocs
+	if( b == MouseButton::left )
 	{   // si le joueur clique 
-		glm::vec3 direction = m_player.get_camera().get_direction(),
-				  position = m_player.get_camera().get_position();
+		glm::vec3 direction = m_player.get_camera().direction,
+				  position = m_player.get_camera().position;
 
 		bool done = false;
 		for(int i = 0; i < 30 && !done; ++i)
@@ -49,17 +61,16 @@ void PlayingState::update( Input &input, double delta_time )
 				// on le supprimer et réinitialise le compteur
 				m_world.set_block(rx, ry, rz, BlockType::air );
 				done = true;
-				block_lock = 0.25;
 			}
 		}
 	}
 
-	// BLOCK PLACING
-	if(input.get_mouse_state().second && block_lock == 0.0) // if the player right-click and is not locked
+	// placement blocs
+	if( b == MouseButton::right ) // if the player right-click and is not locked
 	{
 		// cast a ray
-		glm::vec3 direction = m_player.get_camera().get_direction(),
-				  position = m_player.get_camera().get_position();
+		glm::vec3 direction = m_player.get_camera().direction,
+				  position = m_player.get_camera().position;
 
 		bool done = false;
 		for(int i = 0; i < 30 && !done; ++i)
@@ -80,13 +91,7 @@ void PlayingState::update( Input &input, double delta_time )
 				// on place un bloc
 				m_world.set_block(rx, ry, rz, BlockType::brick );
 				done = true;
-				block_lock = 0.25;
 			}
 		}
 	}
-}
-
-void PlayingState::render()
-{
-	m_world.draw(m_player.get_camera());
 }

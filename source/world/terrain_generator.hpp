@@ -10,7 +10,7 @@
 #include "blocks.hpp"
 #include "chunk.hpp"
 
-#include "core/simplex_noise.hpp"
+#include "math/simplex_noise.hpp"
 
 class World;
 

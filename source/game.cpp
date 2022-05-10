@@ -4,6 +4,7 @@
 #include <thread>
 #include <SDL_video.h>
 
+#include "core/input.hpp"
 #include "gl_functions.hpp"
 #include "states/playing_state.hpp"
 
@@ -30,11 +31,13 @@ void Game::handle_events()
 		if(event.type == SDL_QUIT)
 			m_should_close = true;
 		if(event.type == SDL_KEYDOWN)
-			m_input.handle_keydown(event.key.keysym.scancode);
+			Input::get().handle_keydown(event.key.keysym.scancode);
 		if(event.type == SDL_KEYUP)
-			m_input.handle_keyup(event.key.keysym.scancode);
+			Input::get().handle_keyup(event.key.keysym.scancode);
 		if(event.type == SDL_MOUSEMOTION)
-			m_input.add_mouse_pos( event.motion.xrel, event.motion.yrel );
+			Input::get().add_mouse_pos( event.motion.xrel, event.motion.yrel );
+		if(event.type == SDL_MOUSEBUTTONDOWN)
+			Input::get().on_click( button_from_sdl_enum(event.button.button) );
 	}
 
 	// MOUSE MOVEMENT CALCULATION
@@ -44,10 +47,10 @@ void Game::handle_events()
 	Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
 
 	// use SDL_BUTTON macro to get the mouse state (right and left click)
-	m_input.set_mouse_state( SDL_BUTTON(1) & mouse_state, SDL_BUTTON(3) & mouse_state);
+	Input::get().set_mouse_state( SDL_BUTTON(1) & mouse_state, SDL_BUTTON(3) & mouse_state);
 
 	// Quits when ESC is pressed
-	if(m_input.get_key(SDL_SCANCODE_ESCAPE))
+	if(Input::get().get_key(SDL_SCANCODE_ESCAPE))
 		m_should_close = true;
 
 }
@@ -55,6 +58,7 @@ void Game::handle_events()
 
 void Game::run()
 {
+
 	auto current_time = steady_clock::now();
 	auto previous_time = current_time;
 
@@ -81,7 +85,7 @@ void Game::run()
 
 		// game clock
 		handle_events();
-		state.update( m_input, delta_time);
+		state.update(delta_time);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_CULL_FACE);

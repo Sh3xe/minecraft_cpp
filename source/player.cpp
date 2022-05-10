@@ -2,53 +2,53 @@
 
 #include <vector>
 
-#include "./world/world.hpp"
+#include "world/world.hpp"
 #include "core/input.hpp"
-#include "./core/aabb.hpp"
+#include "math/aabb.hpp"
 #include <iostream>
 
-void Player::update(Input &input, World& world, double delta_time) {
+void Player::update(World& world, double delta_time) {
 
 	float speed = 5.0f;
 
-	m_camera.update_mouse(input);
+	m_camera.update_mouse();
 
-	glm::vec3 direction = m_camera.get_direction();
+	glm::vec3 direction = m_camera.direction;
 	direction.y = 0.0f;
 	direction = glm::normalize(direction);
 
 	m_vel = { 0.0f, 0.0f, 0.0f };
 
-	if (input.get_key(SDL_SCANCODE_LCTRL)) {
+	if (Input::get().get_key(SDL_SCANCODE_LCTRL)) {
 		speed = 30.0f;
 	}
 
 
-	if (input.get_key(SDL_SCANCODE_SPACE) /* && m_on_ground*/ ) {
+	if (Input::get().get_key(SDL_SCANCODE_SPACE) /* && m_on_ground*/ ) {
 		//m_on_ground = false;
 		//m_vel.y = 0.08f;
 		m_vel.y += speed;
 	}
 
-	if (input.get_key(SDL_SCANCODE_LSHIFT)) {
+	if (Input::get().get_key(SDL_SCANCODE_LSHIFT)) {
 		m_vel.y += -speed;
 	}
 
 
-	if (input.get_key(SDL_SCANCODE_W)) {
+	if (Input::get().get_key(SDL_SCANCODE_W)) {
 		m_vel += direction * speed;
 	}
 
-	if (input.get_key(SDL_SCANCODE_S)) {
+	if (Input::get().get_key(SDL_SCANCODE_S)) {
 		m_vel += -direction * speed;
 	}
 
 
-	if (input.get_key(SDL_SCANCODE_D)) {
+	if (Input::get().get_key(SDL_SCANCODE_D)) {
 		m_vel += glm::cross(direction, glm::vec3{ 0.0f, 1.0f, 0.0f }) *speed;
 	}
 
-	if (input.get_key(SDL_SCANCODE_A)) {
+	if (Input::get().get_key(SDL_SCANCODE_A)) {
 		m_vel += -glm::cross(direction, glm::vec3{ 0.0f, 1.0f, 0.0f }) * speed;
 	}
 
@@ -58,7 +58,7 @@ void Player::update(Input &input, World& world, double delta_time) {
 	//checkCollision({ 0.0, m_vel.y, 0.0 }, world);
 	//checkCollision({ 0.0, 0.0, m_vel.z }, world);
 
-	m_camera.set_position( m_pos + glm::vec3(0.0, 1.5, 0.0) );
+	m_camera.position =  m_pos + glm::vec3(0.0, 1.5, 0.0);
 
 	//m_vel.y -= 0.1f * delta_time;
 	//m_vel.x *= 0.97f;

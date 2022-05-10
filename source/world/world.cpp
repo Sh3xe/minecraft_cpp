@@ -10,6 +10,7 @@
 #include "core/logger.hpp"
 #include "core/camera.hpp"
 #include "blocks.hpp"
+//#include "math/frustum.hpp"
 
 World::World( Config &config ):
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
@@ -156,8 +157,7 @@ void  World::prepare_chunks()
 
 void World::update( double delta_time, Camera &camera ) 
 {
-	glm::ivec3 cam_pos = camera.get_position();
-	auto [chunk_x, chunk_z] = get_pos_of_chunk( cam_pos.x, cam_pos.z );
+	auto [chunk_x, chunk_z] = get_pos_of_chunk( camera.position.x, camera.position.z );
 
 	
 	// on supprime les tronçons trop éloigné
@@ -209,10 +209,10 @@ void World::update( double delta_time, Camera &camera )
 	if(new_chunks)
 	{
 		update_chunk_neighbours();
-		m_update_queue.sort( [cam_pos]( const std::pair<int, int> &c1, const std::pair<int, int> &c2 )
+		m_update_queue.sort( [camera]( const std::pair<int, int> &c1, const std::pair<int, int> &c2 )
 		{
-			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_SIDE / 2), c1.second + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
-			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_SIDE / 2), c2.second + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_SIDE / 2), c1.second + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
+			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_SIDE / 2), c2.second + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
 
 			return p1.x * p1.x + p1.y * p1.y < p2.x * p2.x + p2.y * p2.y ;
 		});
@@ -250,7 +250,6 @@ void World::draw( Camera &camera )
 
 	glm::mat4 view_matrix = camera.get_matrix();
 	m_shader.set_mat4("view", glm::value_ptr(view_matrix));
-	auto cam_pos = camera.get_position();
 
 	// on tri les tronçons du plus éloigné au plus proche
 	// par rapport à la camera et au centre des chunks
@@ -259,13 +258,15 @@ void World::draw( Camera &camera )
 	for(auto &c: m_chunks) sorted_chunks.push_back( c.second.get() );
 
 	m_map_mutex.lock();
-	std::sort( sorted_chunks.begin(), sorted_chunks.end(), [cam_pos]( Chunk *c1, Chunk *c2 )
+	std::sort( sorted_chunks.begin(), sorted_chunks.end(), [camera]( Chunk *c1, Chunk *c2 )
 	{
-		glm::vec2 p1 = glm::vec2{ c1->get_position().x + (CHUNK_SIDE / 2), c1->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
-		glm::vec2 p2 = glm::vec2{ c2->get_position().x + (CHUNK_SIDE / 2), c2->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{cam_pos.x, cam_pos.z};
+		glm::vec2 p1 = glm::vec2{ c1->get_position().x + (CHUNK_SIDE / 2), c1->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
+		glm::vec2 p2 = glm::vec2{ c2->get_position().x + (CHUNK_SIDE / 2), c2->get_position().y + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
 
 		return p1.x * p1.x + p1.y * p1.y > p2.x * p2.x + p2.y * p2.y ;
 	} );
+
+	//Frustum frustum( camera, 0.01f, 200.0f, 90.0f );
 
 	// puis on les affiches
 	for (auto &chunk: sorted_chunks)
@@ -277,6 +278,7 @@ void World::draw( Camera &camera )
 			chunk->state = ChunkState::ready;
 		}
 
+		//if( is_in_frustum(frustum, *chunk, camera) )
 		chunk->draw( camera, m_tileset, m_shader );
 
 	}

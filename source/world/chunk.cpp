@@ -174,12 +174,10 @@ void Chunk::generate_mesh()
 
 void Chunk::draw( Camera &camera, Texture &tileset, Shader &shader )
 {
-	auto cam_pos = camera.get_position();
-
 	for( int i = 0; i < 3; ++i )
 	{
 		if( m_meshes[i].transparency )
-			m_meshes[i].sort_faces_from_distance( cam_pos );
+			m_meshes[i].sort_faces_from_distance( camera.position );
 		m_meshes[i].render( tileset, shader );
 	}
 }

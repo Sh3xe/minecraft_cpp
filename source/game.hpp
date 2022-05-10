@@ -5,7 +5,6 @@
 #include <memory>
 
 #include "core/config.hpp"
-#include "core/input.hpp"
 #include "states/base_state.hpp"
 
 // forward defs
@@ -24,7 +23,6 @@ private:
 	void handle_events();
 
 	Config m_config;
-	Input m_input;
 	SDL_Window *m_window;
 	bool m_should_close = false;
 	std::vector< std::unique_ptr<State> > m_states;
