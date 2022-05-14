@@ -4,8 +4,9 @@
 #include <vector>
 #include <memory>
 
-#include "core/config.hpp"
-#include "states/base_state.hpp"
+#include "core/settings.hpp"
+#include "core/settings.hpp"
+#include "game/base_state.hpp"
 
 // forward defs
 struct SDL_Window;
@@ -14,7 +15,7 @@ typedef void *SDL_GLContext;
 class Game
 {
 public:
-	Game( const Config &config, SDL_Window *window );
+	Game( const Settings &settings, SDL_Window *window );
 	~Game();
 
 	void run();
@@ -22,7 +23,7 @@ public:
 private:
 	void handle_events();
 
-	Config m_config;
+	Settings m_settings;
 	SDL_Window *m_window;
 	bool m_should_close = false;
 	std::vector< std::unique_ptr<State> > m_states;

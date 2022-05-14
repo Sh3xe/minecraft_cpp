@@ -2,14 +2,14 @@
 
 #include "base_state.hpp"
 #include "world/world.hpp"
-#include "player.hpp"
+#include "game/player.hpp"
 #include "core/input.hpp"
 
-struct Config;
+struct Settings;
 
 class PlayingState: public State {
 public:
-	PlayingState( Config &config );
+	PlayingState( Settings &settings );
 	virtual ~PlayingState();
 
 	virtual void update( double delta_time ) override;

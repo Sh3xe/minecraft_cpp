@@ -55,30 +55,28 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz)
 
 void Chunk::set_block(int x, int y, int z, blk::BlockType type)
 {
-	m_layers[y] = true;
+	assert( x >= 0 && x < CHUNK_SIDE && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_SIDE );
 
-	if (x >= CHUNK_SIDE && m_neighbours[0] != nullptr)
-		m_neighbours[0]->set_block(0, y, z, type);
-	if (x < 0 && m_neighbours[1] != nullptr)
-		m_neighbours[1]->set_block(CHUNK_SIDE - 1, y, z, type);
-	if (z >= CHUNK_SIDE && m_neighbours[2] != nullptr)
-		m_neighbours[2]->set_block(x, y, 0, type);
-	if (z < 0 && m_neighbours[3] != nullptr)
-		m_neighbours[3]->set_block(x, y, CHUNK_SIDE - 1, type);
-	
-	if (x >= 0 && x < CHUNK_SIDE && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_SIDE) {
-		m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT] = type;
+	// if we set a block that's not air
+	// mark this layer as not empty
+	if( type != blk::BlockType::air )
+		m_layers[y] = true;
+
+	// set the block
+	m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT] = type;
+	if( state != ChunkState::need_generation )
 		state = ChunkState::need_mesh_update;
 
-		if (x == CHUNK_SIDE - 1 && m_neighbours[0] != nullptr && m_neighbours[0]->state != ChunkState::need_generation )
-			m_neighbours[0]->state = ChunkState::need_mesh_update;
-		if (x == 0 && m_neighbours[1] != nullptr && m_neighbours[1]->state != ChunkState::need_generation)
-			m_neighbours[1]->state = ChunkState::need_mesh_update;
-		if (z == CHUNK_SIDE - 1 && m_neighbours[2] != nullptr && m_neighbours[2]->state != ChunkState::need_generation)
-			m_neighbours[2]->state = ChunkState::need_mesh_update;
-		if (z == 0 && m_neighbours[3] != nullptr  && m_neighbours[3]->state != ChunkState::need_generation)
-			m_neighbours[3]->state = ChunkState::need_mesh_update;
-	}
+	// notify the neighbours
+	if (x == CHUNK_SIDE - 1 && m_neighbours[0] != nullptr && m_neighbours[0]->state != ChunkState::need_generation )
+		m_neighbours[0]->state = ChunkState::need_mesh_update;
+	if (x == 0 && m_neighbours[1] != nullptr && m_neighbours[1]->state != ChunkState::need_generation)
+		m_neighbours[1]->state = ChunkState::need_mesh_update;
+	if (z == CHUNK_SIDE - 1 && m_neighbours[2] != nullptr && m_neighbours[2]->state != ChunkState::need_generation)
+		m_neighbours[2]->state = ChunkState::need_mesh_update;
+	if (z == 0 && m_neighbours[3] != nullptr  && m_neighbours[3]->state != ChunkState::need_generation)
+		m_neighbours[3]->state = ChunkState::need_mesh_update;
+	
 }
 
 blk::BlockType Chunk::get_block(int x, int y, int z)

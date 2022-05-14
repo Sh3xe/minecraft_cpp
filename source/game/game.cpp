@@ -6,16 +6,16 @@
 
 #include "core/input.hpp"
 #include "gl_functions.hpp"
-#include "states/playing_state.hpp"
+#include "game/playing_state.hpp"
 
 using namespace std::chrono;
 using dseconds = duration<double>;
 
-Game::Game( const Config &config, SDL_Window *window ):
-	m_config(config),
+Game::Game( const Settings &settings, SDL_Window *window ):
+	m_settings(settings),
 	m_window( window )
 {
-	m_states.push_back( std::unique_ptr<PlayingState>( new PlayingState(m_config) ) );
+	m_states.push_back( std::unique_ptr<PlayingState>( new PlayingState(m_settings) ) );
 }
 
 Game::~Game()
@@ -58,13 +58,12 @@ void Game::handle_events()
 
 void Game::run()
 {
-
 	auto current_time = steady_clock::now();
 	auto previous_time = current_time;
 
 	double delta_time = 0.01;
-	double max_dt = 1 / static_cast<double>(m_config.fps);
-	int fps_cap = m_config.fps;
+	double max_dt = 1 / static_cast<double>(m_settings.fps);
+	int fps_cap = m_settings.fps;
 
 	while( !m_states.empty() && !m_should_close )
 	{

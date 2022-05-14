@@ -11,7 +11,7 @@
 #include "renderer/shader.hpp"
 #include "renderer/texture2d.hpp"
 #include "math/aabb.hpp"
-#include "core/config.hpp"
+#include "core/settings.hpp"
 
 class Camera;
 
@@ -20,7 +20,7 @@ class World
 public:
 	friend class TerrainGenerator;
 
-	World( Config &config );
+	World( const Settings &settings );
 	~World();
 
 	void set_block(int x, int y, int z, blk::BlockType type);
@@ -31,13 +31,13 @@ public:
 	std::vector<AABB> get_hit_boxes( AABB& box);
 
 private:
-	/* met à jour les relations de voisins entres tronçons */
+	/* update each chunk's neighbour pointers */
 	void update_chunk_neighbours();
 
-	/* Ajoute les blocks de structures à chunk */
+	/* add all structures blocks waiting to be placed in a chunk */
 	void add_blocks( Chunk &chunk );
 
-	/* fonction qui sera lancé par un thread */
+	/* to be run by another thread / generate the chunk terrain and mesh */
 	void prepare_chunks();
 
 	int m_render_distance { 3 };
@@ -45,7 +45,7 @@ private:
 	Texture2D m_tileset;
 	
 	TerrainGenerator m_generator;
-	ChunkToBePlace m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
+	ChunkToBePlace m_chunk_blocks; // list of blocks to be placed for a given chunk
 	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
 
 	std::mutex m_map_mutex;

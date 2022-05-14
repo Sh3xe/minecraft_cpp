@@ -4,7 +4,7 @@
 #include <filesystem>
 #include "cmake_defines.hpp"
 
-#include "game.hpp"
+#include "game/game.hpp"
 #include "core/logger.hpp"
 #include "core/config.hpp"
 #include "world/blocks.hpp"
@@ -12,7 +12,7 @@
 SDL_GLContext context;
 SDL_Window *window;
 
-bool init_sdl( const Config &config)
+bool init_sdl( const Settings &settings)
 {
 	// init sdl
 	SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS );
@@ -27,12 +27,12 @@ bool init_sdl( const Config &config)
 
 	// create window
 	window = SDL_CreateWindow(
-		config.title.c_str(),
+		settings.title.c_str(),
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		config.window_width,
-		config.window_height,
-		SDL_WINDOW_OPENGL | ( config.fullscreen ? SDL_WINDOW_FULLSCREEN: 0 )
+		settings.width,
+		settings.height,
+		SDL_WINDOW_OPENGL | ( settings.fullscreen ? SDL_WINDOW_FULLSCREEN: 0 )
 	);
 
 	// hide cursor
@@ -46,7 +46,7 @@ bool init_sdl( const Config &config)
 
 	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	glViewport(0, 0, config.window_width, config.window_height );
+	glViewport(0, 0, settings.width, settings.height );
 	return true;
 }
 
@@ -56,14 +56,19 @@ void destroy_sdl()
 	SDL_GL_DeleteContext(context);
 }
 
-int main(int argc, char* argv[]) {
-	
+int main(int argc, char* argv[])
+{
 	// make cmake's "ROOT_DIR" the current path for the project
 	std::filesystem::current_path( ROOT_DIR );
 
-	Config config = load_config_from_file("resources/config/config.json");
+	auto settings = load_settings_from_file( "settings.mcfg" );
+	if (!settings)
+	{
+		SD_WARN( "Impossible de récuperer les paramètres du jeu: chargement des paramètres par défaut");
+		settings.emplace( Settings() ); // default initialize a settings struct
+	}
 
-	if( !init_sdl(config) )
+	if( !init_sdl(settings.value()) )
 	{
 		SD_FATAL( "Impossible d'initialiser SDL2" );
 		return 0;
@@ -75,7 +80,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	Game game( config, window );
+	Game game( settings.value(), window );
 	game.run();
 
 	return 0;

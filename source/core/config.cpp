@@ -1,46 +1,87 @@
 #include "config.hpp"
 
+#include <iostream>
 #include <fstream>
-#include <json.hpp>
+#include <sstream>
 
-#include "cmake_defines.hpp"
-#include "core/logger.hpp"
 
-using namespace nlohmann;
-
-Config load_config_from_file( const std::string &path )
+Config::Config( const std::string &path )
 {
-	std::fstream file { std::string{ROOT_DIR} + "/" + path };
-	Config config
-	{
-		"Mincraft C++",
-		1280,
-		720,
-		true, 60,
-		0.05f,
-		false
-	};
+	parse(path);
+}
 
-	if( !file )
+void Config::parse( const std::string &path )
+{
+
+	std::ifstream file { path };
+
+	if(!file)
 	{
-		SD_WARN( "Impossible de charger: ", path );
-		return config;
+		m_is_valid = false;
+		return;
 	}
 
-	json data;
-	file >> data;
+	std::string line;
+	while( std::getline(file, line) )
+	{
 
-	config.title = data["title"];
-	config.window_width = data["window_width"];
-	config.window_height = data["window_height"];
-	config.fps_cap = data["fps_cap"];
-	config.fps = data["fps"];
-	config.sensitivity = data["sensitivity"];
-	config.fullscreen = data["fullscreen"];
-	config.render_distance = data["render_distance"];
-	config.texture_pack = data["texture_pack"];
+		if( line.size() < 3 ) continue;
 
-	file.close();
+		// getting the index of the equal symbol
+		size_t equ_index = line.find_first_of('=');
+		if( equ_index == std::string::npos ) continue;
 
-	return config;
+		std::string
+			name = line.substr(2, equ_index - 2),
+			value = line.substr(equ_index+1);
+
+		// conversion
+		char type = line[0];
+
+		std::stringstream ss(value);
+
+		switch( type )
+		{
+			case 'i':
+			{
+				int val = 0;
+				ss >> val;
+				m_int_data.emplace(name, val);
+				break;
+			}
+			case 'f':
+			{
+				float val = 0.0f;
+				ss >> val;
+				m_float_data.emplace(name, val);
+				break;
+			}
+			case 's':
+			{
+				m_str_data.emplace(name, value);
+				break;
+			}
+			default: break;
+		}
+	}
+}
+
+float Config::get_float( const std::string &name )
+{
+	return m_float_data.at(name);
+}
+
+bool Config::get_bool( const std::string &name )
+{
+	return m_int_data.at(name) >= 1;
+}
+
+int Config::get_int( const std::string &name )
+{
+	return m_int_data.at(name);
+}
+
+std::string Config::get_str( const std::string &name )
+{
+	return m_str_data.at(name);
 }

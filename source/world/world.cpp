@@ -12,20 +12,20 @@
 #include "blocks.hpp"
 //#include "math/frustum.hpp"
 
-World::World( Config &config ):
+World::World( const Settings &settings ):
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
-	m_tileset( "resources/images/" + config.texture_pack ),
+	m_tileset( "resources/images/" + settings.texture_pack ),
 	m_generator( this ),
 	m_worker( &World::prepare_chunks, this )
 {
-	m_render_distance = config.render_distance;
+	m_render_distance = settings.render_distance;
 
 	// initialize matrices
 	glm::mat4 model_matrix(1.0f);
 	glm::mat4 projection_matrix =
 	glm::perspective (
 		3.141592853f / 2.0f,
-		config.window_width / static_cast<float>(config.window_height),
+		settings.width / static_cast<float>(settings.height),
 		0.01f, 256.0f
 	);
 
@@ -116,7 +116,7 @@ blk::BlockType World::get_block(int x, int y, int z)
 	return blk::BlockType::air;
 }
 
-void  World::prepare_chunks()
+void World::prepare_chunks()
 {
 	using namespace std::chrono_literals;
 
@@ -135,7 +135,7 @@ void  World::prepare_chunks()
 				{
 					m_generator.generate( chunk );
 					add_blocks( chunk );
-					chunk.state == ChunkState::need_mesh_update;
+					chunk.state = ChunkState::need_mesh_update;
 				}
 				else if( chunk.state == ChunkState::need_mesh_update )
 				{
@@ -230,7 +230,9 @@ void World::add_blocks( Chunk &chunk )
 		auto block = blocks.back();
 		blocks.pop_back();
 		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == blk::BlockType::air )
-			chunk.fast_set( block.x, block.y, block.z, block.block.first );
+		{
+			chunk.set_block( block.x, block.y, block.z, block.block.first );
+		}
 		if( block.block.first != blk::BlockType::air )
 			chunk.m_layers[block.y] = true;
 	}

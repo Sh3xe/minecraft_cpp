@@ -1,13 +1,13 @@
 #include "playing_state.hpp"
-#include "../core/config.hpp"
+#include "core/settings.hpp"
 #include "gl_functions.hpp"
 #include "core/logger.hpp"
 
-PlayingState::PlayingState( Config &config ):
-	m_world( config ),
+PlayingState::PlayingState( Settings &settings ):
+	m_world( settings ),
 	m_player(glm::vec3(0.0f, 200.0f, 0.0f))
 {
-	m_player.get_camera().sensitivity = config.sensitivity;
+	m_player.get_camera().sensitivity = settings.sensitivity;
 	Input::get().add_click_callback(
 		[this]( MouseButton b ) -> void
 		{
