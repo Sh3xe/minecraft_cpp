@@ -1,9 +1,13 @@
 #include <SDL.h>
 #include "gl_functions.hpp"
 
-#include "core/config.hpp"
-#include "core/logger.hpp"
+#include <filesystem>
+#include "cmake_defines.hpp"
+
 #include "game.hpp"
+#include "core/logger.hpp"
+#include "core/config.hpp"
+#include "world/blocks.hpp"
 
 SDL_GLContext context;
 SDL_Window *window;
@@ -54,11 +58,20 @@ void destroy_sdl()
 
 int main(int argc, char* argv[]) {
 	
+	// make cmake's "ROOT_DIR" the current path for the project
+	std::filesystem::current_path( ROOT_DIR );
+
 	Config config = load_config_from_file("resources/config/config.json");
 
 	if( !init_sdl(config) )
 	{
 		SD_FATAL( "Impossible d'initialiser SDL2" );
+		return 0;
+	}
+
+	if( !blk::load_structures("resources/terrain/structs.txt") )
+	{
+		SD_FATAL( "Impossible de charger les structures du jeu" );
 		return 0;
 	}
 

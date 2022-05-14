@@ -23,8 +23,8 @@ public:
 	World( Config &config );
 	~World();
 
-	void set_block(int x, int y, int z, BlockType type);
-	BlockType get_block(int x, int y, int z);
+	void set_block(int x, int y, int z, blk::BlockType type);
+	blk::BlockType get_block(int x, int y, int z);
 
 	void draw( Camera &camera );
 	void update( double delta_time, Camera &camera );
@@ -44,7 +44,6 @@ private:
 	Shader m_shader;
 	Texture2D m_tileset;
 	
-	BlockDB m_db;
 	TerrainGenerator m_generator;
 	ChunkToBePlace m_chunk_blocks; // pour un tronçon donnée, la liste des blocks à placer
 	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;

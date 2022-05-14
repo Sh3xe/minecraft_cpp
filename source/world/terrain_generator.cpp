@@ -11,7 +11,7 @@ static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
 static constexpr float s3{ 0.005f };
 
-/* Fonctions mathématiques */
+/* math curves / functions */
 
 float get_caves_transitions( int y, float min, float max )
 {
@@ -52,16 +52,16 @@ float get_tree_density( int y, float min, float max )
 	return 1.0f - (y - min) / (max - min);
 }
 
-BlockType TerrainGenerator::get_ore_type( int y )
+blk::BlockType TerrainGenerator::get_ore_type( int y )
 {
 	static int ore_type = 0;
 	ore_type = ++ore_type % 10;
 
-	static BlockType ores[] = {
-		BlockType::coal_ore,
-		BlockType::iron_ore,
-		BlockType::gold_ore,
-		BlockType::diamond_ore
+	static blk::BlockType ores[] = {
+		blk::BlockType::coal_ore,
+		blk::BlockType::iron_ore,
+		blk::BlockType::gold_ore,
+		blk::BlockType::diamond_ore
 	};
 
 	int max_ore = 4 - (y / 100) * 4;
@@ -70,10 +70,9 @@ BlockType TerrainGenerator::get_ore_type( int y )
 }
 
 
-/* constructeurs / méthodes */
+/* constructors / methods */
 
-TerrainGenerator::TerrainGenerator( BlockDB &db, World *world ):
-	m_db( &db ),
+TerrainGenerator::TerrainGenerator( World *world ):
 	m_world( world )
 {
 }
@@ -114,8 +113,14 @@ Chunk &TerrainGenerator::generate( Chunk &chunk )
 	return chunk;
 }
 
-void TerrainGenerator::push_structure( const Structure &structure, int px, int py, int pz )
+void TerrainGenerator::push_structure( blk::StructType struct_id, int px, int py, int pz )
 {
+	const auto &structure = get_struct( struct_id );
+
+	px -= structure.center_x;
+	py -= structure.center_y;
+	pz -= structure.center_z;
+
 	for( int x = 0; x < structure.x_length; ++x )
 	for( int z = 0; z < structure.z_length; ++z )
 	{
@@ -126,7 +131,13 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 
 		for( int y = 0; y < structure.y_length && (py + y < CHUNK_HEIGHT); ++y )
 		{
-			ToBePlaced block_info (coord_x, py + y, coord_z, structure.get(x, y, z));
+			ToBePlaced block_info (
+				coord_x,
+				py + y,
+				coord_z,
+				structure.get(x, y, z)
+			);
+
 			block_vector.push_back( block_info );
 		}
 	}
@@ -134,25 +145,25 @@ void TerrainGenerator::push_structure( const Structure &structure, int px, int p
 
 void TerrainGenerator::load_structs()
 {
-	m_trees[0] = &m_db->get_struct("smalltree1");
-	m_trees[1] = &m_db->get_struct("smalltree2");
-	m_trees[2] = &m_db->get_struct("smalltree3");
-	m_trees[3] = &m_db->get_struct("mediumtree1");
-	m_trees[4] = &m_db->get_struct("mediumtree2");
-	m_trees[5] = &m_db->get_struct("mediumtree3");
-	m_trees[6] = &m_db->get_struct("bigtree1");
-	m_trees[7] = &m_db->get_struct("bigtree2");
-	m_trees[8] = &m_db->get_struct("bigtree3");
+	m_trees[0] = blk::StructType::smalltree1;
+	m_trees[1] = blk::StructType::smalltree2;
+	m_trees[2] = blk::StructType::smalltree3;
+	m_trees[3] = blk::StructType::mediumtree1;
+	m_trees[4] = blk::StructType::mediumtree2;
+	m_trees[5] = blk::StructType::mediumtree3;
+	m_trees[6] = blk::StructType::bigtree1;
+	m_trees[7] = blk::StructType::bigtree2;
+	m_trees[8] = blk::StructType::bigtree3;
 
-	m_flowers[0] = BlockType::bluesmallflower;
-	m_flowers[1] = BlockType::blueflower;
-	m_flowers[2] = BlockType::purplesmallflower;
-	m_flowers[3] = BlockType::purpleflower;
-	m_flowers[4] = BlockType::xgrass;
-	m_flowers[5] = BlockType::smalltree;
+	m_flowers[0] = blk::BlockType::bluesmallflower;
+	m_flowers[1] = blk::BlockType::blueflower;
+	m_flowers[2] = blk::BlockType::purplesmallflower;
+	m_flowers[3] = blk::BlockType::purpleflower;
+	m_flowers[4] = blk::BlockType::xgrass;
+	m_flowers[5] = blk::BlockType::smalltree;
 }
 
-void TerrainGenerator::add_ore( Chunk &chunk, int x, int y, int z, BlockType ore )
+void TerrainGenerator::add_ore( Chunk &chunk, int x, int y, int z, blk::BlockType ore )
 {
 	for( int i = x - 1; i <= x + 1; ++i )
 	for( int j = y - 1; j <= y + 1; ++j )
@@ -160,7 +171,7 @@ void TerrainGenerator::add_ore( Chunk &chunk, int x, int y, int z, BlockType ore
 	{
 		if( i >= 0 && j >= 0 && k >= 0
 			&& i < CHUNK_SIDE && j < CHUNK_HEIGHT && k < CHUNK_SIDE
-			&& chunk.fast_get(i, j, k) == BlockType::stone )
+			&& chunk.fast_get(i, j, k) == blk::BlockType::stone )
 		{
 			chunk.fast_set( i, j, k, ore );
 		}
@@ -185,7 +196,7 @@ void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 		v -= 0.5f;
 		if( v < 0 )
 		{
-			chunk.fast_set(x, y, z, BlockType::stone );
+			chunk.fast_set(x, y, z, blk::BlockType::stone );
 			chunk.m_layers[y] = true;
 		}
 	}
@@ -211,7 +222,7 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 		v += ocean_floor_add( y - m_ocean_bottom );
 
 		if( v > 0 )
-			chunk.fast_set(x, y, z, BlockType::stone );
+			chunk.fast_set(x, y, z, blk::BlockType::stone );
 	}
 }
 
@@ -253,7 +264,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	static int tree_type = 0;
 	static int flower_type = 0;
 	
-	// couche maximale non vide du tronçon
+	// max non-empty layer
 	int layer_max = 0;
 
 	// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
@@ -265,7 +276,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	{
 		auto block = chunk.fast_get(x, y, z);
 
-		if( block != BlockType::air )
+		if( block != blk::BlockType::air )
 		{
 			++depth;
 			chunk.m_layers[y] = true;
@@ -275,9 +286,9 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 
 		if( y <= m_water_level )
 		{
-			if( block == BlockType::air && y != m_water_level )
+			if( block == blk::BlockType::air && y != m_water_level )
 			{
-				chunk.fast_set( x, y, z, BlockType::water );
+				chunk.fast_set( x, y, z, blk::BlockType::water );
 				chunk.m_layers[y] = true;
 			}
 
@@ -286,9 +297,9 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 				chunk.m_layers[y] = true;
 				std::bernoulli_distribution d { 1.0f - (m_water_level - y) / 10.0f };
 				if( d( m_rd ) )
-					chunk.fast_set( x, y, z, BlockType::sand );
+					chunk.fast_set( x, y, z, blk::BlockType::sand );
 				else
-					chunk.fast_set( x, y, z, BlockType::gravel );
+					chunk.fast_set( x, y, z, blk::BlockType::gravel );
 			}
 				
 			continue;
@@ -300,19 +311,16 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			float tree_dens_value = get_tree_density(y, m_surface_min, m_surface_max);
 			std::bernoulli_distribution tree_dis { tree_dens_value * 0.05f };
 
-			chunk.fast_set( x, y, z, BlockType::grass );
+			chunk.fast_set( x, y, z, blk::BlockType::grass );
 
 			if( tree_dis(m_rd) && y > m_water_level )
 			{
-				auto &tree = *m_trees[ tree_type % static_cast<int>( ceil(9 * tree_dens_value)) ];
-				push_structure( tree,
-					x + chunk.m_position.x - tree.center_x,
-					y+1 - tree.center_y,
-					z + chunk.m_position.y - tree.center_z );
+				const auto &tree = m_trees[ tree_type % static_cast<int>( ceil(9 * tree_dens_value)) ];
+				push_structure( tree, x + chunk.m_position.x, y+1, z + chunk.m_position.y );
 				tree_type = (++tree_type) % 9;
 			}
 
-			if( y < CHUNK_HEIGHT && chunk.fast_get(x, y+1, z) == BlockType::air )
+			if( y < CHUNK_HEIGHT && chunk.fast_get(x, y+1, z) == blk::BlockType::air )
 			{
 				if (flower_gen(m_rd))
 				{
@@ -320,7 +328,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 				}
 				if (flower_gen(m_rd))
 				{
-					chunk.fast_set( x, y+1, z, BlockType::xgrass );
+					chunk.fast_set( x, y+1, z, blk::BlockType::xgrass );
 				}
 
 				flower_type = (++flower_type) % 4;
@@ -329,12 +337,12 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 
 		// puis de la terre sur 3 autres blocs
 		else if( depth > 1 && depth <= 4 )
-			chunk.fast_set( x, y, z, BlockType::dirt );
+			chunk.fast_set( x, y, z, blk::BlockType::dirt );
 		else if( depth >= 5 && depth <= 6 && rd_50( m_rd ) )
-			chunk.fast_set( x, y, z, BlockType::dirt );
+			chunk.fast_set( x, y, z, blk::BlockType::dirt );
 
 		if( ore_rd( m_rd ) )
-			add_ore( chunk, x, y, z, BlockType::coal_ore );
+			add_ore( chunk, x, y, z, blk::BlockType::coal_ore );
 
 	}
 

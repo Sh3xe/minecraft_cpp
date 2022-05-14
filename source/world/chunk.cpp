@@ -13,12 +13,11 @@
 #include "renderer/shader.hpp"
 #include "renderer/texture.hpp"
 
-Chunk::Chunk( BlockDB &db, int x, int z):
+Chunk::Chunk( int x, int z):
 	m_position(x, z),
-	m_db( &db ),
 	m_neighbours({nullptr, nullptr , nullptr , nullptr })
 {
-	// créer 3 maillages: un pour les blocs solides, un pour les blocs transparents, un pour la végétation
+	// creates 3 meshes: one solid for the blocks, one for water and one for foliages
 	for( int i = 0; i < 3; ++i )
 	{
 		m_meshes[i].x = x;
@@ -28,13 +27,11 @@ Chunk::Chunk( BlockDB &db, int x, int z):
 	m_meshes[1].transparency = true;
 	m_meshes[2].cull = false;
 
-	// remplit le tronçon par de l'air
-	BlockType air_block = m_db->id_from_name("air");
-
+	// fills the chunks with air blocks
 	for(int x = 0; x < CHUNK_SIDE; ++x)
 	for(int y = 0; y < CHUNK_HEIGHT; ++y)
 	for(int z = 0; z < CHUNK_SIDE; ++z)
-		m_block_data[ x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT ] = air_block;
+		m_block_data[ x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT ] = blk::BlockType::air;
 }
 
 Chunk::~Chunk()
@@ -56,7 +53,7 @@ void Chunk::set_neighbours(Chunk *px, Chunk *mx, Chunk *pz, Chunk *mz)
 	m_neighbours[3] = mz;
 }
 
-void Chunk::set_block(int x, int y, int z, BlockType type)
+void Chunk::set_block(int x, int y, int z, blk::BlockType type)
 {
 	m_layers[y] = true;
 
@@ -84,45 +81,42 @@ void Chunk::set_block(int x, int y, int z, BlockType type)
 	}
 }
 
-BlockType Chunk::get_block(int x, int y, int z)
+blk::BlockType Chunk::get_block(int x, int y, int z)
 {
 	// warning: only works for 1 block out-of-range.
 	// if x, y, z are out of range, we return the right block in the neighbour's chunk
 
 	if(y >= CHUNK_HEIGHT)
-		return m_db->id_from_name("air");
+		return blk::BlockType::air;
 	if(y < 0)
-		return m_db->id_from_name("stone");
+		return blk::BlockType::stone;
 	if(x >= CHUNK_SIDE)
-		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): m_db->id_from_name("stone");
+		return m_neighbours[0] != nullptr ? m_neighbours[0]->get_block(0, y, z): blk::BlockType::stone;
 	if(x < 0)
-		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_SIDE - 1, y, z): m_db->id_from_name("stone");
+		return m_neighbours[1] != nullptr ? m_neighbours[1]->get_block(CHUNK_SIDE - 1, y, z): blk::BlockType::stone;
 	if(z >= CHUNK_SIDE)
-		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): m_db->id_from_name("stone");
+		return m_neighbours[2] != nullptr ? m_neighbours[2]->get_block(x, y, 0): blk::BlockType::stone;
 	if(z < 0)
-		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_SIDE - 1): m_db->id_from_name("stone");
+		return m_neighbours[3] != nullptr ? m_neighbours[3]->get_block(x, y, CHUNK_SIDE - 1): blk::BlockType::stone;
 
 	// return the block in the current chunk
 	return m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT];
 }
 
-BlockType Chunk::fast_get(int x, int y, int z)
+blk::BlockType Chunk::fast_get(int x, int y, int z)
 {
 	return m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT];
 }
 
-void Chunk::fast_set(int x, int y, int z, BlockType block )
+void Chunk::fast_set(int x, int y, int z, blk::BlockType block )
 {
 	m_block_data[x + y * CHUNK_SIDE + z * CHUNK_SIDE * CHUNK_HEIGHT] = block;
 }
 
 void Chunk::generate_mesh()
 {
-
 	for( int i = 0; i < 3; ++i )
 		m_meshes[i].clear();
-
-	auto air_id = m_db->id_from_name("air");
 
 	for(int x = 0; x < CHUNK_SIDE; ++x)
 	for(int z = 0; z < CHUNK_SIDE; ++z)
@@ -131,41 +125,42 @@ void Chunk::generate_mesh()
 		if( !m_layers[y] ) continue;
 		
 		// ajoute une face si besoin
-		auto block = m_db->get_block( get_block(x, y, z) );
+		blk::BlockType block_type = get_block(x, y, z);
+		if( block_type == blk::BlockType::air ) continue;
 
-		if( block.id == air_id ) continue;
+		auto block = blk::get_block( block_type );
 
-		if( block.shape == BlockShape::x )
+		if( block.shape == blk::BlockShape::x )
 		{
 			m_meshes[block.mesh_group].add_x_shape(x, y, z, block);
 			continue;
 		}
 
-		BlockData blk;
+		blk::BlockData blk_data;
 
 		// +x
-		blk = m_db->get_block( get_block(x + 1, y, z) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x + 1, y, z) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::px, block);
 		// -x
-		blk = m_db->get_block( get_block(x - 1, y, z) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x - 1, y, z) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mx, block);
 		// +y
-		blk = m_db->get_block( get_block(x, y + 1, z) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x, y + 1, z) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::py, block);
 		// -y
-		blk = m_db->get_block( get_block(x, y - 1, z) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x, y - 1, z) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::my, block);
 		// +z
-		blk = m_db->get_block( get_block(x, y, z + 1) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x, y, z + 1) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::pz, block);
 		// -z
-		blk = m_db->get_block( get_block(x, y, z - 1) );
-		if ( !blk.visible || blk.mesh_group != block.mesh_group || blk.shape != block.shape )
+		blk_data = blk::get_block( get_block(x, y, z - 1) );
+		if ( !blk_data.visible || blk_data.mesh_group != block.mesh_group || blk_data.shape != block.shape )
 			m_meshes[block.mesh_group].add_face(x, y, z, Directions::mz, block);
 	}
 	

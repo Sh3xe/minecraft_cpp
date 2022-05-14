@@ -1,0 +1,38 @@
+bigtree1
+2 0 2
+5 6 5
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 l 1 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 l 1 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 a 0 a 0 a 0
+
+a 0 a 0 a 0 le 0 a 0
+a 0 le 0 le 0 le 0 a 0
+le 0 le 0 l 1 le 0 a 0
+le 0 le 0 le 0 le 0 le 0
+le 0 le 0 a 0 a 0 le 0
+
+a 0 le 0 le 0 le 0 a 0
+le 0 le 0 le 0 le 0 a 0
+le 0 le 0 l 1 le 0 le 0
+le 0 le 0 le 0 le 0 le 0
+le 0 le 0 le 0 le 0 le 0
+
+a 0 a 0 a 0 a 0 a 0
+a 0 le 0 le 0 le 0 a 0
+a 0 le 0 le 0 le 0 a 0
+a 0 le 0 le 0 le 0 a 0
+a 0 a 0 a 0 a 0 a 0
+
+a 0 a 0 a 0 a 0 a 0
+a 0 a 0 le 0 a 0 a 0
+a 0 le 0 le 0 le 0 a 0
+a 0 a 0 le 0 a 0 a 0
+a 0 a 0 a 0 a 0 a 0]

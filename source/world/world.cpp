@@ -15,12 +15,12 @@
 World::World( Config &config ):
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
 	m_tileset( "resources/images/" + config.texture_pack ),
-	m_generator( m_db, this ),
+	m_generator( this ),
 	m_worker( &World::prepare_chunks, this )
-{	
+{
 	m_render_distance = config.render_distance;
 
-	// initialise les matrices
+	// initialize matrices
 	glm::mat4 model_matrix(1.0f);
 	glm::mat4 projection_matrix =
 	glm::perspective (
@@ -31,12 +31,6 @@ World::World( Config &config ):
 
 	m_shader.bind();
 	m_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
-
-	if( !m_db.load_blocks_from_file("resources/blocks/blocks.json"))
-		SD_ERROR("Impossible de récuperer les infos sur les blocs");
-
-	if( !m_db.load_structures_from_file("resources/blocks/structures.json"))
-		SD_ERROR("Impossible de récuperer les infos sur les structures");
 
 	// met en "cache" les structures
 	m_generator.load_structs();
@@ -91,14 +85,14 @@ std::vector<AABB> World::get_hit_boxes( AABB& box)
 	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
 	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
 	{
-		if( m_db.get_block( get_block(i, j, k) ).collidable )
+		if( blk::get_block( get_block(i, j, k) ).collidable )
 			hitboxes.emplace_back(i, j, k, 1, 1, 1);
 	}
 
 	return hitboxes;
 }
 
-void World::set_block(int x, int y, int z, BlockType type)
+void World::set_block(int x, int y, int z, blk::BlockType type)
 {
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
@@ -109,7 +103,7 @@ void World::set_block(int x, int y, int z, BlockType type)
 		chunk->second->set_block(coord_x, y, coord_z, type);
 }
 
-BlockType World::get_block(int x, int y, int z)
+blk::BlockType World::get_block(int x, int y, int z)
 {
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
@@ -119,7 +113,7 @@ BlockType World::get_block(int x, int y, int z)
 	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
 	
-	return BlockType::air;
+	return blk::BlockType::air;
 }
 
 void  World::prepare_chunks()
@@ -197,7 +191,7 @@ void World::update( double delta_time, Camera &camera )
 		if (it == m_chunks.end()) 
 		{
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-				std::pair<int, int>(i * 16, j * 16), std::make_unique<Chunk>(m_db, i * 16, j * 16)
+				std::pair<int, int>(i * 16, j * 16), std::make_unique<Chunk>(i * 16, j * 16)
 			)).first;
 
 			new_chunks = true;
@@ -235,9 +229,9 @@ void World::add_blocks( Chunk &chunk )
 	{
 		auto block = blocks.back();
 		blocks.pop_back();
-		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == BlockType::air )
+		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == blk::BlockType::air )
 			chunk.fast_set( block.x, block.y, block.z, block.block.first );
-		if( block.block.first != BlockType::air )
+		if( block.block.first != blk::BlockType::air )
 			chunk.m_layers[block.y] = true;
 	}
 

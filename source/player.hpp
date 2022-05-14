@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "./core/camera.hpp"
+#include "core/camera.hpp"
 
 class World;
 

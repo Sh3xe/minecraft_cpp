@@ -16,7 +16,7 @@ class World;
 
 struct ToBePlaced
 {
-	ToBePlaced(int x, int y, int z, std::pair< BlockType, bool > block ):
+	ToBePlaced(int x, int y, int z, std::pair< blk::BlockType, bool > block ):
 		x( static_cast<uint8_t>(x) ),
 		y( static_cast<uint8_t>(y) ),
 		z( static_cast<uint8_t>(z) ),
@@ -25,7 +25,7 @@ struct ToBePlaced
 	}
 		
 	uint8_t x, y, z;
-	std::pair< BlockType, bool > block;
+	std::pair< blk::BlockType, bool > block;
 };
 
 using ChunkToBePlace = std::map< std::pair<int, int>, std::vector<ToBePlaced>>;
@@ -34,7 +34,7 @@ using NoiseMap = std::array< std::array< float , CHUNK_SIDE>, CHUNK_SIDE >;
 class TerrainGenerator
 {
 public:
-	TerrainGenerator( BlockDB &db, World *world );
+	TerrainGenerator( World *world );
 	Chunk &generate( Chunk& chunk );
 
 	void load_structs();
@@ -50,10 +50,10 @@ private:
 	void paint_surface( Chunk& chunk, int x, int z );
 	void paint_sky( Chunk& chunk, int x, int z );
 
-	void push_structure( const Structure &structure, int px, int py, int cz );
-	void add_ore( Chunk &chunk, int x, int y, int z, BlockType ore );
+	void push_structure( blk::StructType structure, int px, int py, int cz );
+	void add_ore( Chunk &chunk, int x, int y, int z, blk::BlockType ore );
 
-	BlockType get_ore_type( int y );
+	blk::BlockType get_ore_type( int y );
 
 private:
 	const float m_caverns_min { 25 };
@@ -72,9 +72,8 @@ private:
 	SimplexNoise m_noise;
 	std::default_random_engine m_rd;
 
-	std::array<const Structure*, 9> m_trees;
-	std::array<BlockType, 6> m_flowers;
-	
-	BlockDB *m_db;
-	World *m_world; // pour un tronçon donnée, la liste des blocks à placer
+	std::array<blk::StructType, 9> m_trees;
+	std::array<blk::BlockType, 6> m_flowers;
+
+	World *m_world;
 };

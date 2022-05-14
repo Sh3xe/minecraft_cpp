@@ -31,8 +31,8 @@ public:
 	void clear();
 	void send_to_gpu();
 
-	void add_face( int x, int y, int z, Directions dir, const BlockData &block );
-	void add_x_shape( int x, int y, int z, const BlockData &block );
+	void add_face( int x, int y, int z, Directions dir, const blk::BlockData &block );
+	void add_x_shape( int x, int y, int z, const blk::BlockData &block );
 	
 	inline uint32_t get_face_count() const { return m_face_count; }
 	void render( Texture& tileset, Shader& shader );

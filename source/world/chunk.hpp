@@ -30,13 +30,13 @@ public:
 	friend class TerrainGenerator;
 	friend class World;
 
-	Chunk( BlockDB &db, int x, int z);
+	Chunk( int x, int z );
 	~Chunk();
 
 	void set_position(int x, int z);
 	void set_neighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
-	void set_block(int x, int y, int z, BlockType type);
-	BlockType get_block(int x, int y, int z);
+	void set_block(int x, int y, int z, blk::BlockType type);
+	blk::BlockType get_block(int x, int y, int z);
 	inline glm::ivec2 get_position() const { return m_position; }
 	void generate_mesh();
 	void draw( Camera &camera, Texture& tileset, Shader& shader );
@@ -45,14 +45,13 @@ public:
 	std::atomic< ChunkState > state { ChunkState::need_generation };
 
 private:
-	BlockType fast_get(int x, int y, int z);
-	void fast_set(int x, int y, int z, BlockType block);
+	blk::BlockType fast_get(int x, int y, int z);
+	void fast_set(int x, int y, int z, blk::BlockType block);
 
 	glm::ivec2 m_position;
 	std::array< ChunkMesh, 3 > m_meshes;
-	BlockDB *m_db;
 
-	std::array< BlockType, CHUNK_SIDE * CHUNK_HEIGHT * CHUNK_SIDE > m_block_data;
+	std::array< blk::BlockType, CHUNK_SIDE * CHUNK_HEIGHT * CHUNK_SIDE > m_block_data;
 	std::array< Chunk*, 4> m_neighbours;
 	std::array< bool, CHUNK_HEIGHT> m_layers;
 };

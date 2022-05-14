@@ -1,0 +1,11 @@
+smalltree1
+1 0 1
+3 2 3
+
+a 0 le 0 a 0
+le 0 l 1 le 0
+le 0 le 0 le 0
+
+a 0 a 0 a 0
+a 0 le 0 le 0
+a 0 a 0 a 0

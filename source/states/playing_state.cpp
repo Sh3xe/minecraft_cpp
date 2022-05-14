@@ -56,10 +56,10 @@ void PlayingState::on_click( MouseButton b )
 			int rz = floor( ray_pos.z );
 
 			// on trouve le block sur lequel il click
-			if( m_world.get_block(rx, ry, rz) != BlockType::air )
+			if( m_world.get_block(rx, ry, rz) != blk::BlockType::air )
 			{
 				// on le supprimer et réinitialise le compteur
-				m_world.set_block(rx, ry, rz, BlockType::air );
+				m_world.set_block(rx, ry, rz, blk::BlockType::air );
 				done = true;
 			}
 		}
@@ -80,7 +80,7 @@ void PlayingState::on_click( MouseButton b )
 			int ry = floor( ray_pos.y );
 			int rz = floor( ray_pos.z );
 			// si on trouve un block
-			if( m_world.get_block(rx, ry, rz) != BlockType::air )
+			if( m_world.get_block(rx, ry, rz) != blk::BlockType::air )
 			{
 				// on récupère la dernière position
 				ray_pos -= direction * 0.2f;
@@ -89,7 +89,7 @@ void PlayingState::on_click( MouseButton b )
 				rz = floor( ray_pos.z );
 
 				// on place un bloc
-				m_world.set_block(rx, ry, rz, BlockType::brick );
+				m_world.set_block(rx, ry, rz, blk::BlockType::brick );
 				done = true;
 			}
 		}
