@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 	// make cmake's "ROOT_DIR" the current path for the project
 	std::filesystem::current_path( ROOT_DIR );
 
-	auto settings = load_settings_from_file( "settings.mcfg" );
+	auto settings = load_settings_from_file( "resources/settings.mcfg" );
 	if (!settings)
 	{
 		SD_WARN( "Impossible de récuperer les paramètres du jeu: chargement des paramètres par défaut");

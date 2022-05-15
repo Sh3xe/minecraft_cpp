@@ -1,4 +1,5 @@
 #include "config.hpp"
+#include "utils.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -34,6 +35,9 @@ void Config::parse( const std::string &path )
 		std::string
 			name = line.substr(2, equ_index - 2),
 			value = line.substr(equ_index+1);
+
+		value = trim(value);
+		name = trim(name);
 
 		// conversion
 		char type = line[0];

@@ -115,7 +115,7 @@ void ChunkMesh::add_face( int x, int y, int z, Directions dir, const blk::BlockD
 void ChunkMesh::add_x_shape( int x, int y, int z, const blk::BlockData &block )
 {
 	assert( block.shape == blk::BlockShape::x );
-	m_face_count == 2;
+	m_face_count += 2;
 
 	int texture_x{ block.faces[0] % 16 };
 	int texture_y{ block.faces[0] / 16 };

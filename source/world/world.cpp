@@ -53,22 +53,22 @@ void World::update_chunk_neighbours()
 		Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
 
 		// try to find the -x neighbour, if found, set "mx" to it
-		auto neighbour = m_chunks.find( std::pair<int, int>(it->first.first - 16, it->first.second) );
+		auto neighbour = m_chunks.find( std::pair<int, int>(it->first.first - CHUNK_SIDE, it->first.second) );
 		if (neighbour != m_chunks.end())
 			mx = neighbour->second.get();
 
 		// same for +x
-		neighbour = m_chunks.find( std::pair<int, int>(it->first.first + 16, it->first.second) );
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first + CHUNK_SIDE, it->first.second) );
 		if(neighbour != m_chunks.end())
 			px = neighbour->second.get();
 
 		// same for -z
-		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second - 16) );
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second - CHUNK_SIDE) );
 		if(neighbour != m_chunks.end())
 			mz = neighbour->second.get();
 
 		// same for +z
-		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + 16) );
+		neighbour = m_chunks.find( std::pair<int, int>(it->first.first, it->first.second + CHUNK_SIDE) );
 		if(neighbour != m_chunks.end())	
 			pz = neighbour->second.get();
 
@@ -97,7 +97,7 @@ void World::set_block(int x, int y, int z, blk::BlockType type)
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
 
-	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
+	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * CHUNK_SIDE, chunk_z * CHUNK_SIDE));
 
 	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		chunk->second->set_block(coord_x, y, coord_z, type);
@@ -108,7 +108,7 @@ blk::BlockType World::get_block(int x, int y, int z)
 	auto [chunk_x, chunk_z] = get_pos_of_chunk(x, z);
 	auto [coord_x, coord_z] = get_pos_inside_chunk(x, z);
 	
-	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * 16, chunk_z * 16));
+	auto chunk = m_chunks.find(std::pair<int, int>(chunk_x * CHUNK_SIDE, chunk_z * CHUNK_SIDE));
 
 	if( chunk != m_chunks.end() && y < CHUNK_HEIGHT && y >= 0 )
 		return chunk->second->get_block(coord_x, y, coord_z);
@@ -160,10 +160,10 @@ void World::update( double delta_time, Camera &camera )
 		m_map_mutex.lock();
 		glm::ivec2 chunk_pos = chunk->second->get_position();
 		if( // si le tronçon est trop loin
-			chunk_pos.x > (chunk_x + m_render_distance) * 16 ||
-			chunk_pos.x < (chunk_x - m_render_distance) * 16 ||
-			chunk_pos.y > (chunk_z + m_render_distance) * 16 ||
-			chunk_pos.y < (chunk_z - m_render_distance) * 16
+			chunk_pos.x > (chunk_x + m_render_distance) * CHUNK_SIDE ||
+			chunk_pos.x < (chunk_x - m_render_distance) * CHUNK_SIDE ||
+			chunk_pos.y > (chunk_z + m_render_distance) * CHUNK_SIDE ||
+			chunk_pos.y < (chunk_z - m_render_distance) * CHUNK_SIDE
 			) 
 		{
 			chunk = m_chunks.erase(chunk);
@@ -187,11 +187,11 @@ void World::update( double delta_time, Camera &camera )
 	for (int i = chunk_x - m_render_distance; i <= chunk_x + m_render_distance; ++i)
 	for (int j = chunk_z - m_render_distance; j <= chunk_z + m_render_distance; ++j) 
 	{
-		auto it = m_chunks.find(std::pair<int, int>(i * 16, j * 16));
+		auto it = m_chunks.find(std::pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE));
 		if (it == m_chunks.end()) 
 		{
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
-				std::pair<int, int>(i * 16, j * 16), std::make_unique<Chunk>(i * 16, j * 16)
+				std::pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE), std::make_unique<Chunk>(i * CHUNK_SIDE, j * CHUNK_SIDE)
 			)).first;
 
 			new_chunks = true;
@@ -230,9 +230,7 @@ void World::add_blocks( Chunk &chunk )
 		auto block = blocks.back();
 		blocks.pop_back();
 		if( block.block.second || chunk.fast_get(block.x, block.y, block.z) == blk::BlockType::air )
-		{
 			chunk.set_block( block.x, block.y, block.z, block.block.first );
-		}
 		if( block.block.first != blk::BlockType::air )
 			chunk.m_layers[block.y] = true;
 	}
