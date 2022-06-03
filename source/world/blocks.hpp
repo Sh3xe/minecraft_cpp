@@ -60,7 +60,15 @@ enum class StructType: uint8_t
 enum class BlockShape: uint8_t
 {
 	cubic,
-	x
+	x,
+	hash
+};
+
+enum class MeshGroup: uint8_t
+{
+	block,
+	water,
+	foliage
 };
 
 // holds data of a minecraft texture (blocks, size, center)
@@ -87,9 +95,9 @@ struct BlockData
 	bool visible    {false};
 	bool collidable {false};
 
-	BlockShape shape             { BlockShape::cubic };
+	BlockShape shape { BlockShape::cubic };
 	std::array<uint8_t, 6> faces {};
-	uint8_t mesh_group           {0};
+	MeshGroup mesh_group { MeshGroup::block };
 };
 
 // loads structures data from disk

@@ -5,10 +5,9 @@ Un clone de minecraft écrit en c++ avec opengl
 # bibliothèques:
 - SDL2 
 - stb_image
-- nlohmann/json.hpp
 - opengl
 - glm
-
+- Sebastien Rombauts's SimplexNoise implementation
 ## images
 
 ![screenshot1](screenshots/1.jpg "screenshot1")

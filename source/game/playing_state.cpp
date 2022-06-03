@@ -2,6 +2,7 @@
 #include "core/settings.hpp"
 #include "gl_functions.hpp"
 #include "core/logger.hpp"
+#include "renderer/renderer.hpp"
 
 PlayingState::PlayingState( Settings &settings ):
 	m_world( settings ),
@@ -36,7 +37,9 @@ void PlayingState::update( double delta_time )
 
 void PlayingState::render()
 {
-	m_world.draw(m_player.get_camera());
+	renderer::begin(m_player.get_camera());
+	m_world.render();
+	renderer::end();
 }
 
 void PlayingState::on_click( MouseButton b )

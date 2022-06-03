@@ -99,7 +99,7 @@ void ChunkMesh::clear()
 	m_vertices.clear();
 }
 
-void ChunkMesh::add_face( int x, int y, int z, Directions dir, const blk::BlockData &block )
+void ChunkMesh::add_face( int x, int y, int z, Direction dir, const blk::BlockData &block )
 {	
 	++m_face_count;
 	int texture_x{ block.faces[static_cast<uint8_t>(dir)] % 16 };
@@ -134,7 +134,7 @@ void ChunkMesh::send_to_gpu()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(BlockVertex), m_vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex4Byte), m_vertices.data(), GL_STATIC_DRAW);
 
 	glVertexAttribIPointer(0, 1, GL_INT, GL_FALSE, nullptr);
 	glEnableVertexAttribArray(0);

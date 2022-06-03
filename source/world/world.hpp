@@ -26,7 +26,7 @@ public:
 	void set_block(int x, int y, int z, blk::BlockType type);
 	blk::BlockType get_block(int x, int y, int z);
 
-	void draw( Camera &camera );
+	void render();
 	void update( double delta_time, Camera &camera );
 	std::vector<AABB> get_hit_boxes( AABB& box);
 
@@ -35,18 +35,16 @@ private:
 	void update_chunk_neighbours();
 
 	/* add all structures blocks waiting to be placed in a chunk */
-	void add_blocks( Chunk &chunk );
+	void add_blocks(ChunkData&chunk );
 
 	/* to be run by another thread / generate the chunk terrain and mesh */
 	void prepare_chunks();
 
-	int m_render_distance { 3 };
-	Shader m_shader;
-	Texture2D m_tileset;
+	int m_render_distance { 4 };
 	
 	TerrainGenerator m_generator;
 	ChunkToBePlace m_chunk_blocks; // list of blocks to be placed for a given chunk
-	std::map< std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
+	std::map< std::pair<int, int>, std::shared_ptr<ChunkData>> m_chunks;
 
 	std::mutex m_map_mutex;
 	std::thread m_worker;

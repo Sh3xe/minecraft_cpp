@@ -67,6 +67,12 @@ void Camera::update_mouse() {
 }
 
 
-glm::mat4 Camera::get_matrix() const {
+glm::mat4 Camera::get_view() const
+{
 	return glm::lookAt(position, position + direction, { 0.0f, 1.0f, 0.0f });
+}
+
+glm::mat4 Camera::get_projection() const
+{
+	return glm::perspective ( fov, aspect_ratio, near, far );
 }

@@ -10,10 +10,21 @@
 static constexpr float s1{ 0.01f };
 static constexpr float s2{ 0.05f };
 static constexpr float s3{ 0.005f };
+static constexpr float s4{ 0.02f };
 
 /* math curves / functions */
 
-float get_caves_transitions( int y, float min, float max )
+static float get_sky_transitions( int y, float min, float max )
+{
+	float Y = y - min;
+	float delta = max - min;
+
+	if( Y < 5.0f ) return 1.0f - (Y / 5.0f);
+	if( Y > delta - 5.0f ) return 1.0f - (Y - delta) / (-5.0f);
+	return 0.0f;
+}
+
+static float get_caves_transitions( int y, float min, float max )
 {
 	float Y = y - min;
 	float delta = max - min;
@@ -24,14 +35,14 @@ float get_caves_transitions( int y, float min, float max )
 
 }
 
-float get_3d_multiplier( int y )
+static float get_3d_multiplier( int y )
 {
 	constexpr float ed = 8.0f;
 	if (y > ed ) return 0.25f;
 	return 0.25f + (y / (ed) * 0.2f);
 }
 
-float map_ocean_value( float val_01 )
+static float map_ocean_value( float val_01 )
 {
 	constexpr float st = 0.05f;
 	constexpr float ed = 0.4f;
@@ -40,14 +51,14 @@ float map_ocean_value( float val_01 )
 	return (val_01 - st) / (ed - st);
 }
 
-float ocean_floor_add( int y )
+static float ocean_floor_add( int y )
 {
 	if( y > 7 ) return 0.0f;
 	float val = 1.0f - (y / 7.0f);
 	return val * val;
 }
 
-float get_tree_density( int y, float min, float max )
+static float get_tree_density( int y, float min, float max )
 {
 	return 1.0f - (y - min) / (max - min);
 }
@@ -222,13 +233,37 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 		v += ocean_floor_add( y - m_ocean_bottom );
 
 		if( v > 0 )
+		{
 			chunk.fast_set(x, y, z, blk::BlockType::stone );
+			chunk.m_layers[y] = true;
+		}
 	}
 }
 
 void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 {
+	const float delta_h = m_sky_max - m_sky_min;
 
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
+
+	for( int y = m_sky_min; y < m_sky_max; y++ )
+	{
+		float Y = 0;
+
+		if( y >= m_sky_min )
+			Y = (y - m_sky_min);
+
+		float v = m_height[x][z] - (Y / delta_h);
+		v += m_noise.noise( X * s2, y * s2, Z * s2 ) * 0.2f;
+		v -= 1.0f - m_ocean[x][z];
+
+		if( v>0 )
+		{
+			chunk.fast_set(x, y, z, blk::BlockType::stone );
+			chunk.m_layers[y] = true;
+		}
+	}
 }
 
 /* remplissage blocs */
