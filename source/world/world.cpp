@@ -4,14 +4,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 #include <algorithm>
-#include <renderer/renderer.hpp>
 
 #include "core/timer.hpp"
 #include "utils.hpp"
 #include "core/logger.hpp"
 #include "core/camera.hpp"
 #include "blocks.hpp"
-//#include "math/frustum.hpp"
 
 using namespace std;
 
@@ -36,7 +34,7 @@ void World::update_chunk_neighbours()
 	for(auto it = m_chunks.begin(); it != m_chunks.end(); ++it)
 	{
 		// set all pointers to nullptr
-		ChunkData* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
+		Chunk* px = nullptr, * mx = nullptr, * pz = nullptr, * mz = nullptr;
 
 		// try to find the -x neighbour, if found, set "mx" to it
 		auto neighbour = m_chunks.find( pair<int, int>(it->first.first - CHUNK_SIDE, it->first.second) );
@@ -58,21 +56,6 @@ void World::update_chunk_neighbours()
 		if(neighbour != m_chunks.end())	
 			it->second->neighbours[3] = neighbour->second.get();
 	}
-}
-
-vector<AABB> World::get_hit_boxes( AABB& box)
-{
-	vector<AABB> hitboxes;
-
-	for(int i = floor(box.xmin); i < floor(box.xmax) + 1; i += 1.0)
-	for(int j = floor(box.ymin); j < floor(box.ymax) + 1; j += 1.0)
-	for(int k = floor(box.zmin); k < floor(box.zmax) + 1; k += 1.0)
-	{
-		if( blk::get_block( get_block(i, j, k) ).collidable )
-			hitboxes.emplace_back(i, j, k, 1, 1, 1);
-	}
-
-	return hitboxes;
 }
 
 void World::set_block(int x, int y, int z, blk::BlockType type)
@@ -122,13 +105,15 @@ void World::prepare_chunks()
 				}
 				else if( chunk.state == ChunkState::need_mesh_update )
 				{
-					fill_chunk_mesh( chunk );
+					chunk.construct_mesh();
+					chunk.mesh.deb();
+					chunk.state == ChunkState::need_upload;
 				}
 			}
 			m_map_mutex.unlock();
 		}
 		
-		this_thread::sleep_for( 0.5ms );
+		this_thread::sleep_for( 1ms );
 	}
 }
 
@@ -139,6 +124,7 @@ void World::update( double delta_time, Camera &camera )
 	// delete far away chunks
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
+		//chunk->second->mesh.deb();
 		m_map_mutex.lock();
 		glm::ivec2 chunk_pos = chunk->second->position;
 		if(
@@ -172,8 +158,8 @@ void World::update( double delta_time, Camera &camera )
 		auto it = m_chunks.find(pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE));
 		if (it == m_chunks.end()) 
 		{
-			auto new_chunk = m_chunks.insert( pair< pair<int, int>, shared_ptr<ChunkData>>(
-				pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE), make_shared<ChunkData>(i * CHUNK_SIDE, j * CHUNK_SIDE)
+			auto new_chunk = m_chunks.insert( pair< pair<int, int>, shared_ptr<Chunk>>(
+				pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE), make_shared<Chunk>(i * CHUNK_SIDE, j * CHUNK_SIDE)
 			)).first;
 
 			new_chunks = true;
@@ -185,19 +171,20 @@ void World::update( double delta_time, Camera &camera )
 	if(new_chunks)
 	{
 		update_chunk_neighbours();
+		/*
 		m_update_queue.sort( [camera]( const pair<int, int> &c1, const pair<int, int> &c2 )
 		{
 			glm::vec2 p1 = glm::vec2{ c1.first + (CHUNK_SIDE / 2), c1.second + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
 			glm::vec2 p2 = glm::vec2{ c2.first + (CHUNK_SIDE / 2), c2.second + (CHUNK_SIDE / 2)} - glm::vec2{camera.position.x, camera.position.z};
 
 			return p1.x * p1.x + p1.y * p1.y < p2.x * p2.x + p2.y * p2.y ;
-		});
+		});*/
 	}
 
 	m_map_mutex.unlock();
 }
 
-void World::add_blocks( ChunkData &chunk )
+void World::add_blocks( Chunk &chunk )
 {
 	auto chunk_blocks = m_chunk_blocks.find( { chunk.position.x , chunk.position.y } );
 	if( chunk_blocks == m_chunk_blocks.end() ) return;
@@ -220,6 +207,7 @@ void World::add_blocks( ChunkData &chunk )
 	m_chunk_blocks.erase( chunk_blocks );
 }
 
+/*
 void World::render()
 {
 	m_map_mutex.lock();
@@ -241,4 +229,4 @@ void World::render()
 
 	}
 	m_map_mutex.unlock();
-}
+}*/

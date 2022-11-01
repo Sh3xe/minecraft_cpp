@@ -20,7 +20,7 @@ public:
 	inline Camera& get_camera() {return m_camera;}
 
 private:
-	void check_collision( const glm::vec3& vel, World& world );
+	//void check_collision( const glm::vec3& vel, World& world );
 
 	Camera m_camera;
 

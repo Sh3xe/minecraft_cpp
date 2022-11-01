@@ -9,7 +9,6 @@
 namespace blk
 {
 
-// enums for block types and structure types
 enum class BlockType: uint8_t
 {
 	air = 0,
@@ -56,7 +55,7 @@ enum class StructType: uint8_t
 	rock2
 };
 
-// shape of the mesh of the block
+// la forme du bloc (pour l'affichage)
 enum class BlockShape: uint8_t
 {
 	cubic,
@@ -71,7 +70,7 @@ enum class MeshGroup: uint8_t
 	foliage
 };
 
-// holds data of a minecraft texture (blocks, size, center)
+// contient les information des structures dans le jeu (taille, nom, blocs...)
 struct StructData
 {
 	std::string name;
@@ -86,7 +85,7 @@ struct StructData
     inline const std::pair<BlockType, bool> &get( int x, int y, int z ) const { return blocks[y*x_length*z_length+z*x_length+x]; }
 };
 
-// same for blocks
+// de même pour un bloc (nom, visible, collision, forme, textures, ...)
 struct BlockData
 {
 	std::string name      {};
@@ -100,11 +99,12 @@ struct BlockData
 	MeshGroup mesh_group { MeshGroup::block };
 };
 
-// loads structures data from disk
+// récupère les structures depuis le disque
 bool load_structures( const std::string &path );
 
-// get the data from a block type
+// récupère les information d'un bloc
 BlockData get_block( BlockType id );
+// récupère les information d'une structure
 const StructData &get_struct( StructType id );
 
 } // namespace blk

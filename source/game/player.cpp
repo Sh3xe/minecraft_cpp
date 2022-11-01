@@ -65,6 +65,7 @@ void Player::update(World& world, double delta_time) {
 	//m_vel.z *= 0.97f;
 }
 
+/*
 void Player::check_collision( const glm::vec3& vel, World& world ) {
 
 	m_pos += vel;
@@ -86,7 +87,6 @@ void Player::check_collision( const glm::vec3& vel, World& world ) {
 
 	m_pos -= vel;
 
-	/*
 	for (auto& hitbox : hitboxes) {
 
 		if (vel.x > 0.0f) {
@@ -117,5 +117,6 @@ void Player::check_collision( const glm::vec3& vel, World& world ) {
 			m_vel.y = 0.0f;
 			m_on_ground = true;
 		}
-	}*/
+	}
 }
+*/

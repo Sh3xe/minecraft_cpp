@@ -1,0 +1,92 @@
+#include <iostream>
+#include <cstdint>
+#include <cassert>
+
+struct Vertex8Byte
+{
+    Vertex8Byte() = default;
+
+    Vertex8Byte(int x, int y, int z, int tx, int ty, int normal)
+    {
+        set_pos( static_cast<uint8_t>(x), static_cast<uint16_t>(y), static_cast<uint8_t>(z));
+        set_text_coords(static_cast<uint16_t>(tx), static_cast<uint16_t>(ty));
+        set_normal(static_cast<uint8_t>(normal));
+    }
+
+    Vertex8Byte(uint8_t x, uint16_t y, uint8_t z, uint16_t tx, uint16_t ty, uint8_t normal )
+    {
+        set_pos(x, y, z);
+        set_text_coords(tx, ty);
+        set_normal(normal);
+    }
+
+    void set_pos(uint8_t x, uint16_t y, uint8_t z)
+    {
+        assert( x <= 128 && z <= 128 && y <= 2048);
+        data &= 0xfffffffff0000000;
+        data |= (static_cast<uint64_t>(x) & 0x00ff) << 0;
+        data |= (static_cast<uint64_t>(z) & 0x00ff) << 8;
+        data |= (static_cast<uint64_t>(y) & 0x0fff) << 16;
+    }
+
+    void set_text_coords(uint16_t tx, uint16_t ty)
+    {
+        assert(tx <= 256 && ty <= 256);
+        data &= 0b1111111111111111110000000000000000001111111111111111111111111111;
+
+        data |= (static_cast<uint64_t>(tx) & 0b111111111) << 28;
+        data |= (static_cast<uint64_t>(ty) & 0b111111111) << 37;
+    }
+
+    void set_normal(uint8_t normal)
+    {
+        data &= 0b1111111111000000001111111111111111111111111111111111111111111111;
+        data |= (static_cast<uint64_t>(normal) & 0xff) << 46;
+    }
+
+    uint64_t data;
+};
+
+uint32_t get_x(uint64_t data)
+{
+    return (data >> 0) & 0xff;
+}
+
+uint32_t get_z(uint64_t data)
+{
+    return (data >> 8) & 0xff;
+}
+
+uint32_t get_y(uint64_t data)
+{
+    return (data >> 16) & 0xfff;
+}
+
+uint32_t get_tx(uint64_t data)
+{
+    return (data >> 28) & 0b111111111;
+}
+
+uint32_t get_ty(uint64_t data)
+{
+    return (data >> 37 ) & 0b111111111;
+}
+
+uint32_t get_n(uint64_t data)
+{
+    return (data >> 46) & 0xff;
+}
+
+int main()
+{
+    Vertex8Byte v(120, 2040, 49, 13, 88, 20);
+    
+    std::cout << get_x(v.data) << "\n";
+    std::cout << get_y(v.data) << "\n";
+    std::cout << get_z(v.data) << "\n";
+    std::cout << get_tx(v.data) << "\n";
+    std::cout << get_ty(v.data) << "\n";
+    std::cout << get_n(v.data) << "\n";
+    
+    return 0;
+}
