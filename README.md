@@ -1,6 +1,6 @@
 # Minecraft C++
 
-Un clone de minecraft écrit en c++ avec opengl
+A minecraft clone created using C++ and OpenGL
 
 # bibliothèques:
 - SDL2 
@@ -8,15 +8,15 @@ Un clone de minecraft écrit en c++ avec opengl
 - opengl
 - glm
 - Sebastien Rombauts's SimplexNoise implementation
-## images
+  
+## Screenshoots
 
 ![screenshot1](screenshots/1.jpg "screenshot1")
 ![screenshot2](screenshots/2.jpg "screenshot1")
 ![screenshot3](screenshots/3.jpg "screenshot1")
 ![screenshot3](screenshots/4.jpg "screenshot1")
 
-## à faire
+## Todo
 
-- ajouter du multithreading
-- refaire toute la physique
-- refaire le placement des blocs
+- add physics
+- rework the multithreading system
