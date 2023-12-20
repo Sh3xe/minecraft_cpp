@@ -56,14 +56,14 @@ private:
 	blk::BlockType get_ore_type( int y );
 
 private:
-	const float m_caverns_min  = 25.0f;
-	const float m_caverns_max  = 70.0f;
-	const float m_ocean_bottom = 70.0f;
-	const float m_water_level  = 80.0f;
-	const float m_surface_min  = 85.0f;
-	const float m_surface_max  = 150.0f;
-	const float m_sky_min      = 160.0f;
-	const float m_sky_max      = 175.0f;
+	const float m_caverns_min { 25 };
+	const float m_caverns_max { 70 };
+	const float m_ocean_bottom { 70 };
+	const float m_water_level { 80 };
+	const float m_surface_min { 85 };
+	const float m_surface_max { 150 };
+	const float m_sky_min { 160 };
+	const float m_sky_max { 175 };
 
 	NoiseMap m_height;
 	NoiseMap m_mask;

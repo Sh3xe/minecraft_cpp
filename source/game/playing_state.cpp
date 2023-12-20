@@ -1,8 +1,8 @@
 #include "playing_state.hpp"
 #include "core/settings.hpp"
-#include <glad/glad.h>
+#include "gl_functions.hpp"
 #include "core/logger.hpp"
-#include "graphics/renderer.hpp"
+#include "renderer/renderer.hpp"
 
 PlayingState::PlayingState( Settings &settings ):
 	m_world( settings ),
@@ -27,7 +27,6 @@ void PlayingState::update( double delta_time )
 	m_player.update(m_world, delta_time);
 	m_world.update(delta_time, m_player.get_camera());
 
-	// TODO: ajouter un mode de rendu DEBUG ou un layer debug ou foutre ça dans le Renderer...
 	if (Input::get().get_key(SDL_SCANCODE_Q))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -38,7 +37,9 @@ void PlayingState::update( double delta_time )
 
 void PlayingState::render()
 {
-
+	renderer::begin(m_player.get_camera());
+	m_world.render();
+	renderer::end();
 }
 
 void PlayingState::on_click( MouseButton b )

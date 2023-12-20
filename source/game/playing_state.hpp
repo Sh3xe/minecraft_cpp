@@ -20,4 +20,5 @@ private:
 
 	World m_world;
 	Player m_player;
+
 };

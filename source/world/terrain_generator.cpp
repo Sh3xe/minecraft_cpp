@@ -92,13 +92,13 @@ Chunk &TerrainGenerator::generate( Chunk &chunk )
 {
 
 	for( int y = 0; y < CHUNK_HEIGHT; ++y )
-		chunk.layers[y] = false;
+		chunk.m_layers[y] = false;
 
 	for( int x = 0; x < CHUNK_SIDE; ++x )
 	for( int z = 0; z < CHUNK_SIDE; ++z )
 	{
-		int X = chunk.position.x + x;
-		int Z = chunk.position.y + z;
+		int X = chunk.m_position.x + x;
+		int Z = chunk.m_position.y + z;
 
 		m_mask[x][z] = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
 		m_height[x][z] = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
@@ -117,8 +117,8 @@ Chunk &TerrainGenerator::generate( Chunk &chunk )
 	}
 
 	for( int i = 0; i < 4; ++i )
-		if( chunk.neighbours[i] != nullptr && chunk.neighbours[i]->state != ChunkState::need_generation )
-			chunk.neighbours[i]->state = ChunkState::need_mesh_update;
+		if( chunk.m_neighbours[i] != nullptr && chunk.m_neighbours[i]->state != ChunkState::need_generation )
+			chunk.m_neighbours[i]->state = ChunkState::need_mesh_update;
 
 	chunk.state = ChunkState::need_mesh_update;
 	return chunk;
@@ -198,8 +198,8 @@ void TerrainGenerator::shape_underworld( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 {
-	float X = x + chunk.position.x;
-	float Z = z + chunk.position.y;
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
 
 	for( int y = m_caverns_min; y < m_caverns_max; y++ )
 	{
@@ -208,7 +208,7 @@ void TerrainGenerator::shape_caves( Chunk &chunk, int x, int z )
 		if( v < 0 )
 		{
 			chunk.fast_set(x, y, z, blk::BlockType::stone );
-			chunk.layers[y] = true;
+			chunk.m_layers[y] = true;
 		}
 	}
 }
@@ -217,8 +217,8 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 {
 	const float delta_h = m_surface_max - m_surface_min;
 
-	float X = x + chunk.position.x;
-	float Z = z + chunk.position.y;
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
 
 	for( int y = m_ocean_bottom; y < m_surface_max; y++ )
 	{
@@ -235,7 +235,7 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 		if( v > 0 )
 		{
 			chunk.fast_set(x, y, z, blk::BlockType::stone );
-			chunk.layers[y] = true;
+			chunk.m_layers[y] = true;
 		}
 	}
 }
@@ -244,8 +244,8 @@ void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 {
 	const float delta_h = m_sky_max - m_sky_min;
 
-	float X = x + chunk.position.x;
-	float Z = z + chunk.position.y;
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
 
 	for( int y = m_sky_min; y < m_sky_max; y++ )
 	{
@@ -261,7 +261,7 @@ void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 		if( v>0 )
 		{
 			chunk.fast_set(x, y, z, blk::BlockType::stone );
-			chunk.layers[y] = true;
+			chunk.m_layers[y] = true;
 		}
 	}
 }
@@ -303,8 +303,8 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	int layer_max = 0;
 
 	// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
-	float X = x + chunk.position.x;
-	float Z = z + chunk.position.y;
+	float X = x + chunk.m_position.x;
+	float Z = z + chunk.m_position.y;
 
 	int depth = 0;
 	for( int y = m_surface_max; y >= m_ocean_bottom; --y )
@@ -314,7 +314,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 		if( block != blk::BlockType::air )
 		{
 			++depth;
-			chunk.layers[y] = true;
+			chunk.m_layers[y] = true;
 		}
 		else
 			depth = 0;
@@ -324,12 +324,12 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			if( block == blk::BlockType::air && y != m_water_level )
 			{
 				chunk.fast_set( x, y, z, blk::BlockType::water );
-				chunk.layers[y] = true;
+				chunk.m_layers[y] = true;
 			}
 
 			else if( depth >= 1 && depth < 4 )
 			{
-				chunk.layers[y] = true;
+				chunk.m_layers[y] = true;
 				std::bernoulli_distribution d { 1.0f - (m_water_level - y) / 10.0f };
 				if( d( m_rd ) )
 					chunk.fast_set( x, y, z, blk::BlockType::sand );
@@ -351,7 +351,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			if( tree_dis(m_rd) && y > m_water_level )
 			{
 				const auto &tree = m_trees[ tree_type % static_cast<int>( ceil(9 * tree_dens_value)) ];
-				push_structure( tree, x + chunk.position.x, y+1, z + chunk.position.y );
+				push_structure( tree, x + chunk.m_position.x, y+1, z + chunk.m_position.y );
 				tree_type = (++tree_type) % 9;
 			}
 

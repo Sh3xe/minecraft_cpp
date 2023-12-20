@@ -5,8 +5,8 @@
 #include <SDL_video.h>
 
 #include "core/input.hpp"
-#include "graphics/renderer.hpp"
-#include <glad/glad.h>
+#include "renderer/renderer.hpp"
+#include "gl_functions.hpp"
 #include "game/playing_state.hpp"
 
 using namespace std::chrono;
@@ -63,7 +63,7 @@ void Game::run()
 	auto previous_time = current_time;
 
 	double delta_time = 0.01;
-	double max_dt = 1.0 / static_cast<double>(m_settings.fps);
+	double max_dt = 1 / static_cast<double>(m_settings.fps);
 	int fps_cap = m_settings.fps;
 
 	while( !m_states.empty() && !m_should_close )
@@ -86,7 +86,7 @@ void Game::run()
 		// game clock
 		handle_events();
 		state.update(delta_time);
-		//TODO: clear
+		renderer::clear();
 		state.render();
 		SDL_GL_SwapWindow(m_window);
 
