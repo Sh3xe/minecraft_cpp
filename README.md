@@ -5,6 +5,7 @@ A minecraft clone created using C++ and OpenGL
 # bibliothèques:
 - SDL2 
 - stb_image
+- nlohmann/json.hpp
 - opengl
 - glm
 - Sebastien Rombauts's SimplexNoise implementation

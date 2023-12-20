@@ -8,7 +8,6 @@
 #include <GL/glew.h>
 #include <fstream>
 #include <iterator>
-#include <cassert>
 
 Shader::Shader(const std::string& vs_path, const std::string &gs_path, const std::string &fs_path)
 {
@@ -67,8 +66,10 @@ Shader::~Shader()
 
 void Shader::bind()
 {
-	assert(m_is_valid);
-	glUseProgram(m_id);
+	if (!m_is_valid)
+		throw std::runtime_error("Impossible d'utiliser un shader non valide");
+	else
+		glUseProgram(m_id);
 }
 
 void Shader::unbind()

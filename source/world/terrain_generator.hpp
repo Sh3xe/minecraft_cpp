@@ -62,8 +62,8 @@ private:
 	const float m_water_level { 80 };
 	const float m_surface_min { 85 };
 	const float m_surface_max { 150 };
-	const float m_sky_min { 160 };
-	const float m_sky_max { 175 };
+	const float m_sky_min { 150 };
+	const float m_sky_max { 185 };
 
 	NoiseMap m_height;
 	NoiseMap m_mask;

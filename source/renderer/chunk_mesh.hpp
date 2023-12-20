@@ -11,7 +11,7 @@ class Camera;
 class Texture;
 class Shader;
 
-enum class Direction: uint8_t
+enum class Directions: uint8_t
 {
 	px = 0,
 	mx = 1,
@@ -31,7 +31,7 @@ public:
 	void clear();
 	void send_to_gpu();
 
-	void add_face( int x, int y, int z, Direction dir, const blk::BlockData &block );
+	void add_face( int x, int y, int z, Directions dir, const blk::BlockData &block );
 	void add_x_shape( int x, int y, int z, const blk::BlockData &block );
 	
 	inline uint32_t get_face_count() const { return m_face_count; }
@@ -46,7 +46,7 @@ public:
 	bool cull {true};
 
 private:
-	std::vector<Vertex4Byte> m_vertices;
+	std::vector<BlockVertex> m_vertices;
 	uint32_t m_face_count {0};
 	uint32_t m_vao, m_vbo;
 };

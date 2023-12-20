@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if( !blk::load_structures("resources/terrain/structs") )
+	if( !blk::load_structures("resources/terrain/structs.txt") )
 	{
 		SD_FATAL( "Impossible de charger les structures du jeu" );
 		return 0;

@@ -5,7 +5,6 @@
 #include <SDL_video.h>
 
 #include "core/input.hpp"
-#include "renderer/renderer.hpp"
 #include "gl_functions.hpp"
 #include "game/playing_state.hpp"
 
@@ -86,7 +85,10 @@ void Game::run()
 		// game clock
 		handle_events();
 		state.update(delta_time);
-		renderer::clear();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_CULL_FACE);
+
 		state.render();
 		SDL_GL_SwapWindow(m_window);
 

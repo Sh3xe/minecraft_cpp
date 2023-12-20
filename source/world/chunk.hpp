@@ -7,8 +7,6 @@
 
 #include "blocks.hpp"
 #include "renderer/chunk_mesh.hpp"
-#include "renderer/mesh.hpp"
-#include "chunk.hpp"
 
 constexpr int CHUNK_SIDE{ 16 };
 constexpr int CHUNK_HEIGHT{ 185 };
@@ -27,27 +25,37 @@ class Shader;
 class SimplexNoise;
 class World;
 
-struct ChunkData
-{
+class Chunk {
+public:
+	friend class TerrainGenerator;
+	friend class World;
+
+	Chunk( int x, int z );
+	~Chunk();
+
+	void set_position(int x, int z);
+	void set_neighbours(Chunk *px, Chunk *mx, Chunk *py, Chunk *my);
 	void set_block(int x, int y, int z, blk::BlockType type);
 	blk::BlockType get_block(int x, int y, int z);
-	
+	inline glm::ivec2 get_position() const { return m_position; }
+	void generate_mesh();
+	void draw( Camera &camera, Texture& tileset, Shader& shader );
+
+public:
+	std::atomic< ChunkState > state { ChunkState::need_generation };
+
+private:
 	blk::BlockType fast_get(int x, int y, int z);
 	void fast_set(int x, int y, int z, blk::BlockType block);
 
+	glm::ivec2 m_position;
+	std::array< ChunkMesh, 3 > m_meshes;
 
-	std::atomic< ChunkState > state { ChunkState::need_generation };
-	glm::ivec2 position;
-	std::array< blk::BlockType, CHUNK_SIDE * CHUNK_HEIGHT * CHUNK_SIDE > blocks;
-	std::array< ChunkData*, 4> neighbours;
-	std::array< bool, CHUNK_HEIGHT> layers;
-
-	Mesh<Vertex4Byte> block_mesh;
-	Mesh<Vertex8Byte> water_mesh;
-	Mesh<Vertex8Byte> foliage_mesh;
+	std::array< blk::BlockType, CHUNK_SIDE * CHUNK_HEIGHT * CHUNK_SIDE > m_block_data;
+	std::array< Chunk*, 4> m_neighbours;
+	std::array< bool, CHUNK_HEIGHT> m_layers;
 };
 
-void fill_chunk_mesh( ChunkData &data );
 
 std::pair<int, int> get_pos_inside_chunk( int x, int z );
 std::pair<int, int> get_pos_of_chunk( int x, int z );
