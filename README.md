@@ -2,7 +2,7 @@
 
 A minecraft clone created using C++ and OpenGL
 
-# bibliothèques:
+# Libraries:
 - SDL2 
 - stb_image
 - nlohmann/json.hpp
