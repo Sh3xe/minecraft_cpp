@@ -12,10 +12,10 @@ A minecraft clone created using C++ and OpenGL
   
 ## Screenshoots
 
-![screenshot1](screenshots/1.jpg "screenshot1")
-![screenshot2](screenshots/2.jpg "screenshot1")
-![screenshot3](screenshots/3.jpg "screenshot1")
-![screenshot3](screenshots/4.jpg "screenshot1")
+![screenshot1](screenshots/1.png "screenshot1")
+![screenshot2](screenshots/2.png "screenshot1")
+![screenshot3](screenshots/3.png "screenshot1")
+![screenshot3](screenshots/4.png "screenshot1")
 
 ## Todo
 
