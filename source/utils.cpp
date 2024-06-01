@@ -28,12 +28,18 @@ std::string get_file_content( const std::string &path )
     return source;
 }
 
+/**
+ * @brief map the value v from the range [vmin1, vmax1] to [vmin2, vmax2]
+ */
 float map( float v, float min1, float max1, float min2, float max2)
 {
 	return min2 + ((v - min1) / (max1 - min1)) * (max2-min2);
 }
 
-float to_01( float v, float m, float M )
+/**
+ * @brief map the value v from the range [m, M] to [0,1]
+ */
+float to_01( float v, float vmin, float vmax )
 {
-	return (v - m) / (M - m);
+	return (v - vmin) / (vmax - vmin);
 }

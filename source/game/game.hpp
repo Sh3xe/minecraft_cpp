@@ -8,7 +8,6 @@
 #include "core/settings.hpp"
 #include "game/base_state.hpp"
 
-// forward defs
 struct SDL_Window;
 typedef void *SDL_GLContext;
 

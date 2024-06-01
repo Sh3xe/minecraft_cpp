@@ -1,6 +1,6 @@
 #include "playing_state.hpp"
 #include "core/settings.hpp"
-#include "gl_functions.hpp"
+#include <glad/glad.h>
 #include "core/logger.hpp"
 
 PlayingState::PlayingState( Settings &settings ):

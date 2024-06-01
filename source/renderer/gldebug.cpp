@@ -1,6 +1,6 @@
 #include "gldebug.hpp"
 #include "../core/logger.hpp"
-#include "gl_functions.hpp"
+#include <glad/glad.h>
 
 void _log_gl_errors(int line, const char* file)
 {

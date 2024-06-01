@@ -1,12 +1,12 @@
 #include <SDL.h>
-#include "gl_functions.hpp"
+#include "SDL_video.h"
+#include <glad/glad.h>
 
 #include <filesystem>
 #include "cmake_defines.hpp"
 
 #include "game/game.hpp"
 #include "core/logger.hpp"
-#include "core/config.hpp"
 #include "world/blocks.hpp"
 
 SDL_GLContext context;
@@ -35,6 +35,11 @@ bool init_sdl( const Settings &settings)
 		SDL_WINDOW_OPENGL | ( settings.fullscreen ? SDL_WINDOW_FULLSCREEN: 0 )
 	);
 
+	if(window == NULL) {
+		SD_ERROR("Cannot create sdl window");
+		return false;
+	}
+
 	// hide cursor
 	SDL_ShowCursor(0);
 	SDL_SetRelativeMouseMode( SDL_TRUE );
@@ -42,7 +47,11 @@ bool init_sdl( const Settings &settings)
 	// create opengl context
 	context = SDL_GL_CreateContext(window);
 
-	glewInit();
+	int res = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+	if(res == 0) {
+		SD_ERROR("Cannot initialize GLAD");
+		return false;
+	}
 
 	glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);

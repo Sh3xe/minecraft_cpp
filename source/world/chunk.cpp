@@ -3,7 +3,7 @@
 #include <cassert>
 #include <random>
 #include <cmath>
-#include "gl_functions.hpp"
+#include <glad/glad.h>
 
 #include "world.hpp"
 #include "core/timer.hpp"

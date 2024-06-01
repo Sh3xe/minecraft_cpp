@@ -4,7 +4,6 @@
 #include <array>
 #include <map>
 #include <utility>
-#include <string>
 #include <random>
 
 #include "blocks.hpp"

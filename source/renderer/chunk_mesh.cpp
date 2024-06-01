@@ -6,7 +6,7 @@
 #include "core/logger.hpp"
 #include <cassert>
 
-#include "gl_functions.hpp"
+#include <glad/glad.h>
 
 static const int faces[6][6][6] =
 {

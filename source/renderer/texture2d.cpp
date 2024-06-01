@@ -1,6 +1,6 @@
 #include "texture2d.hpp"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <stdexcept>
 
 #include "cmake_defines.hpp"

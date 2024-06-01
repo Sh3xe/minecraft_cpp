@@ -5,12 +5,8 @@
 #include <glm/ext.hpp>
 #include <algorithm>
 
-#include "core/timer.hpp"
-#include "utils.hpp"
-#include "core/logger.hpp"
 #include "core/camera.hpp"
 #include "blocks.hpp"
-//#include "math/frustum.hpp"
 
 World::World( const Settings &settings ):
 	m_shader("resources/shaders/vertex.glsl", "", "resources/shaders/fragment.glsl"),
@@ -32,7 +28,7 @@ World::World( const Settings &settings ):
 	m_shader.bind();
 	m_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
 
-	// met en "cache" les structures
+	// pre-load the game's structures
 	m_generator.load_structs();
 }
 
@@ -154,12 +150,12 @@ void World::update( double delta_time, Camera &camera )
 	auto [chunk_x, chunk_z] = get_pos_of_chunk( camera.position.x, camera.position.z );
 
 	
-	// on supprime les tronçons trop éloigné
+	// removes far away chunks
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
 		m_map_mutex.lock();
 		glm::ivec2 chunk_pos = chunk->second->get_position();
-		if( // si le tronçon est trop loin
+		if( // if the chunk is too far away
 			chunk_pos.x > (chunk_x + m_render_distance) * CHUNK_SIDE ||
 			chunk_pos.x < (chunk_x - m_render_distance) * CHUNK_SIDE ||
 			chunk_pos.y > (chunk_z + m_render_distance) * CHUNK_SIDE ||
@@ -182,7 +178,7 @@ void World::update( double delta_time, Camera &camera )
 	}
 
 	bool new_chunks {false};
-	// on ajoute un tronçon si besoin
+	// add a chunk if needed
 	m_map_mutex.lock();
 	for (int i = chunk_x - m_render_distance; i <= chunk_x + m_render_distance; ++i)
 	for (int j = chunk_z - m_render_distance; j <= chunk_z + m_render_distance; ++j) 
@@ -245,8 +241,7 @@ void World::draw( Camera &camera )
 	glm::mat4 view_matrix = camera.get_matrix();
 	m_shader.set_mat4("view", glm::value_ptr(view_matrix));
 
-	// on tri les tronçons du plus éloigné au plus proche
-	// par rapport à la camera et au centre des chunks
+	// sorts chunks by distance to the camera
 	std::vector<Chunk*> sorted_chunks;
 	sorted_chunks.reserve( m_chunks.size() );
 	for(auto &c: m_chunks) sorted_chunks.push_back( c.second.get() );
@@ -260,9 +255,7 @@ void World::draw( Camera &camera )
 		return p1.x * p1.x + p1.y * p1.y > p2.x * p2.x + p2.y * p2.y ;
 	} );
 
-	//Frustum frustum( camera, 0.01f, 200.0f, 90.0f );
-
-	// puis on les affiches
+	// render the chunks
 	for (auto &chunk: sorted_chunks)
 	{
 		if( chunk->state == ChunkState::need_upload )
@@ -272,7 +265,6 @@ void World::draw( Camera &camera )
 			chunk->state = ChunkState::ready;
 		}
 
-		//if( is_in_frustum(frustum, *chunk, camera) )
 		chunk->draw( camera, m_tileset, m_shader );
 
 	}

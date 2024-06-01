@@ -5,7 +5,7 @@
 #include "core/logger.hpp"
 #include "utils.hpp"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <fstream>
 #include <iterator>
 

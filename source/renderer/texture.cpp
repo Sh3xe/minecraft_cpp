@@ -1,5 +1,5 @@
 #include "texture.hpp"
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 Texture::Texture() {
 	glGenTextures(1, &m_id);

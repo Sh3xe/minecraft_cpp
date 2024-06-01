@@ -4,7 +4,7 @@
 #include "stb_image.h"
 #include "core/logger.hpp"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include <cassert>
 #include <stdexcept>

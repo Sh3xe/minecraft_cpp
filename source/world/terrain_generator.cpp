@@ -231,7 +231,7 @@ void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 
 }
 
-/* remplissage blocs */
+/* filling blocks */
 
 void TerrainGenerator::paint_underworld( Chunk &chunk, int x, int z )
 {
@@ -257,7 +257,7 @@ void TerrainGenerator::paint_caves( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 {
-	// generateur aléatoire
+	// initialization of randow distributions
 	static std::bernoulli_distribution flower_gen { 0.1f };
 	static std::bernoulli_distribution rd_50 { 0.5f };
 	static std::bernoulli_distribution ore_rd { 0.004f };
@@ -267,7 +267,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 	// max non-empty layer
 	int layer_max = 0;
 
-	// on récupère les coordonnées relatif au monde (vs relatif au tronçon)
+	// calculates world cordinates
 	float X = x + chunk.m_position.x;
 	float Z = z + chunk.m_position.y;
 
@@ -305,7 +305,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			continue;
 		}
 
-		// si on est juste en dessous d'un bloc d'air: on place du gazon
+		// if this block is just under an air block: put a grass block
 		if( depth == 1 )
 		{
 			float tree_dens_value = get_tree_density(y, m_surface_min, m_surface_max);
@@ -335,7 +335,7 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 			}
 		}
 
-		// puis de la terre sur 3 autres blocs
+		// the dirt on the other 3
 		else if( depth > 1 && depth <= 4 )
 			chunk.fast_set( x, y, z, blk::BlockType::dirt );
 		else if( depth >= 5 && depth <= 6 && rd_50( m_rd ) )

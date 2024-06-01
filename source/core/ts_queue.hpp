@@ -6,6 +6,11 @@
 #include <algorithm>
 #include <deque>
 
+/**
+ * @brief Thread safe queue
+ * 
+ * @tparam T 
+ */
 template <typename T>
 class TSQueue
 {

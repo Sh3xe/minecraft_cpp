@@ -28,9 +28,9 @@ std::optional<Settings> load_settings_from_file( const std::string &path )
 	{
 		SD_DEBUG( e.what() );
 		SD_WARN(
-			"L'un des attributs suivants:\n"
+			"One of the following attributes:\n"
 			"fps; fps_cap; sensitivity; window_width; window_height; render_distance; title; texture_pack; fullscreen\n"
-			"n'est pas présent dans resources/settings.mcfg" );
+			"is missing from the config file resources/settings.mcfg" );
 		return {};
 	}
 

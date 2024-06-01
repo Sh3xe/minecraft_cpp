@@ -5,7 +5,7 @@
 #include <SDL_video.h>
 
 #include "core/input.hpp"
-#include "gl_functions.hpp"
+#include <glad/glad.h>
 #include "game/playing_state.hpp"
 
 using namespace std::chrono;

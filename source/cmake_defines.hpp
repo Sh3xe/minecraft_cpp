@@ -1,2 +1,2 @@
 #pragma once
-#define ROOT_DIR "/media/sh3xe/hdd_win/documents/dev/projets/minecraft_cpp"
+#define ROOT_DIR "/mnt/F25AD9E65AD9A79D/Dev/minecraft_cpp"
