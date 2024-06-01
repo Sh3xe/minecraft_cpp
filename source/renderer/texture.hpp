@@ -5,6 +5,10 @@
 class Texture {
 public:
 	Texture();
+	~Texture();
+
+	Texture(const Texture&) = delete;
+	Texture &operator=(const Texture&) = delete;
 
 	uint32_t get_id() const { return m_id; }
 

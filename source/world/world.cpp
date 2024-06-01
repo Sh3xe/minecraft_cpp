@@ -40,7 +40,6 @@ World::~World()
 	m_chunks.clear();
 }
 
-
 void World::update_chunk_neighbours()
 {
 	for(auto it = m_chunks.begin(); it != m_chunks.end(); ++it)
@@ -147,13 +146,13 @@ void World::prepare_chunks()
 
 void World::update( double delta_time, Camera &camera ) 
 {
+	m_map_mutex.lock();
 	auto [chunk_x, chunk_z] = get_pos_of_chunk( camera.position.x, camera.position.z );
 
 	
 	// removes far away chunks
 	for(auto chunk = m_chunks.begin(); chunk != m_chunks.end();) 
 	{
-		m_map_mutex.lock();
 		glm::ivec2 chunk_pos = chunk->second->get_position();
 		if( // if the chunk is too far away
 			chunk_pos.x > (chunk_x + m_render_distance) * CHUNK_SIDE ||
@@ -174,18 +173,17 @@ void World::update( double delta_time, Camera &camera )
 
 			++chunk;
 		}
-		m_map_mutex.unlock();
 	}
 
 	bool new_chunks {false};
 	// add a chunk if needed
-	m_map_mutex.lock();
 	for (int i = chunk_x - m_render_distance; i <= chunk_x + m_render_distance; ++i)
 	for (int j = chunk_z - m_render_distance; j <= chunk_z + m_render_distance; ++j) 
 	{
 		auto it = m_chunks.find(std::pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE));
 		if (it == m_chunks.end()) 
 		{
+			// TODO: causes "malloc(): unsorted double linked list corrupted"
 			auto new_chunk = m_chunks.insert( std::pair< std::pair<int, int>, std::unique_ptr<Chunk>>(
 				std::pair<int, int>(i * CHUNK_SIDE, j * CHUNK_SIDE), std::make_unique<Chunk>(i * CHUNK_SIDE, j * CHUNK_SIDE)
 			)).first;

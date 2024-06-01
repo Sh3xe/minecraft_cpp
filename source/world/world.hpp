@@ -37,7 +37,9 @@ private:
 	/* add all structures blocks waiting to be placed in a chunk */
 	void add_blocks( Chunk &chunk );
 
-	/* to be run by another thread / generate the chunk terrain and mesh */
+	/**
+	* @brief To be run by a worker thread. This functions continuously check if there are new chunks to be generated and generate their terrain and mesh
+	*/
 	void prepare_chunks();
 
 	int m_render_distance { 3 };

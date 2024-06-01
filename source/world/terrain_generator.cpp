@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "core/timer.hpp"
 #include "world.hpp"
+#include "world/blocks.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -13,6 +14,37 @@ static constexpr float s3{ 0.005f };
 
 /* math curves / functions */
 
+/**
+ * @brief Get the sky stencil value (0 = no sky island here, 1 = sky island can spawn here)
+ */
+float get_sky_stencil_multiply( float noise_value )
+{
+	constexpr float threshold = 0.5f; 
+	noise_value = (noise_value + 1.0f) / 2.0f;
+
+	if(noise_value < threshold)
+		return 0.0f;
+	return (noise_value - threshold) / (1.0f - threshold);
+}
+
+/**
+ * @brief get a stencil value that ranges between 0 and 1 for the sky islands
+ * 
+ * @param val_01 height of the block, normalized (0 = bottom of sky, 1 = top of sky, linear)
+ * @return float between 0 and 2 to be multiplied by the normalized noise value, then maped to [-1,+whatever positive value]
+ */
+float get_sky_stencil_y_multiply( float val_01 )
+{
+	constexpr float island_bottom = 0.7f;
+	constexpr float island_top = 0.9f;
+
+	if(val_01 < island_bottom)
+		return val_01 / island_bottom;
+	if(val_01 < island_top)
+		return 1.0;
+	return 1.0f - (val_01-island_top) / (1.0f-island_top);
+}
+
 float get_caves_transitions( int y, float min, float max )
 {
 	float Y = y - min;
@@ -21,7 +53,6 @@ float get_caves_transitions( int y, float min, float max )
 	if( Y < 5.0f ) return Y / 5.0f;
 	if( Y > delta - 5.0f ) return (Y - delta) / (-5.0f);
 	return 1.0f;
-
 }
 
 float get_3d_multiplier( int y )
@@ -79,35 +110,37 @@ TerrainGenerator::TerrainGenerator( World *world ):
 
 Chunk &TerrainGenerator::generate( Chunk &chunk )
 {
-
 	for( int y = 0; y < CHUNK_HEIGHT; ++y )
 		chunk.m_layers[y] = false;
 
 	for( int x = 0; x < CHUNK_SIDE; ++x )
-	for( int z = 0; z < CHUNK_SIDE; ++z )
-	{
-		int X = chunk.m_position.x + x;
-		int Z = chunk.m_position.y + z;
+	{	
+		for( int z = 0; z < CHUNK_SIDE; ++z )
+		{
+			int X = chunk.m_position.x + x;
+			int Z = chunk.m_position.y + z;
 
-		m_mask[x][z] = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
-		m_height[x][z] = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
-		m_ocean[x][z] = map_ocean_value( to_01(m_noise.noise((X + 2.2114f) * s3, (Z - 2.2114f)*s3*0.95f), -1, 1) );
-		
-		shape_underworld( chunk, x, z );
-		shape_caves( chunk, x, z );
-		shape_surface( chunk, x, z );
-		shape_sky( chunk, x, z );
+			m_mask[x][z] = to_01(m_noise.noise(X * s3, Z*s3), -1, 1);
+			m_height[x][z] = to_01(m_noise.noise(X * s1, 0, Z * s1), -1, 1);
+			m_ocean[x][z] = map_ocean_value( to_01(m_noise.noise((X + 2.2114f) * s3, (Z - 2.2114f)*s3*0.95f), -1, 1) );
+			
+			shape_underworld( chunk, x, z );
+			shape_caves( chunk, x, z );
+			shape_surface( chunk, x, z );
+			shape_sky( chunk, x, z );
 
-		paint_underworld( chunk, x, z );
-		paint_caves( chunk, x, z );
-		paint_surface( chunk, x, z );
-		paint_sky( chunk, x, z );
-		
+			paint_underworld( chunk, x, z );
+			paint_caves( chunk, x, z );
+			paint_surface( chunk, x, z );
+			paint_sky( chunk, x, z );
+		}
 	}
 
 	for( int i = 0; i < 4; ++i )
+	{
 		if( chunk.m_neighbours[i] != nullptr && chunk.m_neighbours[i]->state != ChunkState::need_generation )
 			chunk.m_neighbours[i]->state = ChunkState::need_mesh_update;
+	}
 
 	chunk.state = ChunkState::need_mesh_update;
 	return chunk;
@@ -228,7 +261,27 @@ void TerrainGenerator::shape_surface( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::shape_sky( Chunk &chunk, int x, int z )
 {
+	float X = (float)x + chunk.m_position.x;
+	float Z = (float)z + chunk.m_position.y;
 
+	// general shape of the islands in the sky
+	float stencil_noise = m_noise.noise(X * s1, 0.0f, Z * s1);
+	float stencil = get_sky_stencil_multiply(stencil_noise);
+
+	for(int y = m_sky_min; y < m_sky_max; ++y) 
+	{
+		// details of the terrain
+		float noise_value = m_noise.noise(X * s2, y * s2, Z * s2);
+		float y_stencil = get_sky_stencil_y_multiply((float)(y-m_sky_min)/(float)(m_sky_max-m_sky_min));
+		noise_value = to_01(noise_value, -1.0f, 1.0f);
+		noise_value = map(noise_value*noise_value*stencil*y_stencil*2.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+
+		if(noise_value > 0.0f)
+		{
+			chunk.m_layers[y] = true;
+			chunk.fast_set(x, y, z, blk::BlockType::stone);
+		}
+	}
 }
 
 /* filling blocks */
@@ -350,5 +403,21 @@ void TerrainGenerator::paint_surface( Chunk &chunk, int x, int z )
 
 void TerrainGenerator::paint_sky( Chunk &chunk, int x, int z )
 {
+	int dist_since_sky = 0;
+	for(int y = m_sky_max-1; y >= m_sky_min; --y)
+	{
+		// calculate the depth of the block relative to the nearest surface
+		if(chunk.fast_get(x, y, z) == blk::BlockType::air)
+		{
+			dist_since_sky = 0;
+			continue;
+		}
+		else
+		 	++dist_since_sky;
 
+		if(dist_since_sky == 1)
+			chunk.fast_set(x, y, z, blk::BlockType::grass);
+		else if (dist_since_sky <= 3)
+			chunk.fast_set(x, y, z, blk::BlockType::dirt);
+	}
 }
